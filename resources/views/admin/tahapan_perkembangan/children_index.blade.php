@@ -146,24 +146,26 @@
                 <thead>
                     <tr>
                         <th>#</th>
+                        <th>Nama Orang Tua</th>
                         <th>Nama Anak</th>
                         <th>NIK</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($users as $u)
+                    @forelse($children as $c)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
-                            <td>{{ $u->nama_anak }}</td>
-                            <td>{{ $u->nik_anak }}</td>
+                            <td>{{ $c->user->nama_lengkap ?? '-' }}</td>
+                            <td>{{ $c->nama_lengkap_anak }}</td>
+                            <td>{{ $c->nik_anak }}</td>
                             <td>
-                                <a href="{{ route('admin.perkembangan.children.show', $u->id) }}" class="btn-primary-custom">Lihat Perkembangan</a>
+                                <a href="{{ route('admin.perkembangan.children.show', $c->id) }}" class="btn-primary-custom">Lihat Perkembangan</a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center">Tidak ada data anak.</td>
+                            <td colspan="5" class="text-center">Tidak ada data anak.</td>
                         </tr>
                     @endforelse
                 </tbody>

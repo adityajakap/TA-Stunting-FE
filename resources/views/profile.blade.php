@@ -8,18 +8,18 @@
         <h3 class="mb-4" style="color: #005f77;">Profil Akun</h3>
 
         <div class="row mb-3">
-            <div class="col-md-4 fw-semibold text-secondary">Nama Anak</div>
-            <div class="col-md-8">{{ Auth::user()->nama_anak }}</div>
+            <div class="col-md-4 fw-semibold text-secondary">Nama Lengkap</div>
+            <div class="col-md-8">{{ Auth::user()->nama_lengkap }}</div>
         </div>
 
         <div class="row mb-3">
-            <div class="col-md-4 fw-semibold text-secondary">Tanggal Lahir</div>
-            <div class="col-md-8">{{ Auth::user()->tanggal_lahir ? Auth::user()->tanggal_lahir->format('d M Y') : '-' }}</div>
+            <div class="col-md-4 fw-semibold text-secondary">Username</div>
+            <div class="col-md-8">{{ Auth::user()->username }}</div>
         </div>
 
         <div class="row mb-3">
-            <div class="col-md-4 fw-semibold text-secondary">NIK Anak</div>
-            <div class="col-md-8">{{ Auth::user()->nik_anak }}</div>
+            <div class="col-md-4 fw-semibold text-secondary">NIK Ibu</div>
+            <div class="col-md-8">{{ Auth::user()->nik_ibu }}</div>
         </div>
 
         <div class="row mb-3">

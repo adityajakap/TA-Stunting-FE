@@ -104,15 +104,10 @@
 <div class="card-wrapper">
     <div class="card mb-4">
         <div class="card-body">
-            {{-- Notifikasi error --}}
-            @if(session('error'))
-                <div class="alert alert-danger">{{ session('error') }}</div>
-            @endif
-
             {{-- Form Deteksi --}}
             <form action="{{ route('orangtua.detections.store') }}" method="POST">
         @csrf
-        <input type="hidden" name="nama" value="{{ auth()->user()->nama_anak }}">
+
 
         <div class="mb-3">
             <label>Umur (bulan)</label>

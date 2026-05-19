@@ -162,6 +162,7 @@
             <thead>
                 <tr>
                     <th style="width: 5%;">No</th>
+                    <th style="width: 14%;">Nama Orang Tua</th>
                     <th style="width: 14%;">Nama Anak</th>
                     <th style="width: 8%;">Umur (bln)</th>
                     <th style="width: 6%;">JK</th>
@@ -176,7 +177,8 @@
                 @forelse ($semua as $index => $d)
                     <tr>
                         <td class="num-col">{{ $index + 1 }}</td>
-                        <td class="text-col">{{ $d->user->nama_anak ?? '-' }}</td>
+                        <td class="text-col">{{ $d->child->user->nama_lengkap ?? '-' }}</td>
+                        <td class="text-col">{{ $d->child->nama_lengkap_anak ?? '-' }}</td>
                         <td class="number-col">{{ $d->umur }}</td>
                         <td class="number-col">{{ $d->jenis_kelamin }}</td>
                         <td class="number-col">{{ $d->berat_badan }}</td>
@@ -193,7 +195,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="9" class="number-col" style="padding: 12px 0; text-align: center;">Belum ada data deteksi</td>
+                        <td colspan="10" class="number-col" style="padding: 12px 0; text-align: center;">Belum ada data deteksi</td>
                     </tr>
                 @endforelse
             </tbody>

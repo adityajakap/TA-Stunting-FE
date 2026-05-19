@@ -2,231 +2,115 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Web\AuthController;
+use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\DetectionController;
+use App\Http\Controllers\Web\TahapanPerkembanganController;
 use App\Http\Controllers\{
-    AuthController,
     ArtikelController,
     ArtikelKategoriController,
-    DetectionController,
-    // AdminDetectionController removed (admin handled by DetectionController)
-    AdminTahapanPerkembanganDataController,
-    TahapanPerkembanganController,
-    TahapanPerkembanganDataController,
     BMICalculatorController,
     NutritionController,
-    UserArtikelController
+    UserArtikelController,
+    AdminTahapanPerkembanganDataController,
+    TahapanPerkembanganController as TahapanMasterController,
 };
-use App\Models\NutritionRecommendation;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-Route::get('/', function () {
-    return redirect('/login');
-});
+Route::get('/', fn() => redirect('/login'));
 
-// Auth
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
+// ─── Auth ────────────────────────────────────────────────────────────────────
+Route::get('/login',    [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login',   [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/register',[AuthController::class, 'register']);
+Route::post('/logout',  [AuthController::class, 'logout'])->name('logout');
 
-Route::middleware(['auth'])->group(function () {
-
-    // Dashboard Admin
-    Route::get('/admin/dashboard', function () {
-        if (Auth::user()->role !== 'admin') {
-            abort(403);
-        }
-
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+// ─── Authenticated routes ─────────────────────────────────────────────────────
+Route::middleware('api.auth')->group(function () {
 
     // Dashboard Orangtua
-    Route::get('/orangtua/dashboard', function () {
-        if (Auth::user()->role !== 'orangtua') {
-            abort(403);
-        }
+    Route::get('/orangtua/dashboard', [DashboardController::class, 'orangtua'])->name('orangtua.dashboard');
+    Route::post('/orangtua/add-child',    [DashboardController::class, 'addChild'])->name('orangtua.children.store');
+    Route::post('/orangtua/select-child', [DashboardController::class, 'selectChild'])->name('orangtua.children.select');
 
-        $today = Carbon::now();
-        $hari = strtolower($today->isoFormat('dddd'));
-        $tanggal = $today->dayOfYear;
+    // Dashboard Admin
+    Route::get('/admin/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
 
-        $menuByCategory = [
-            'pagi' => DB::table('nutrition_recommendations')->where('category', 'pagi')->get(),
-            'siang' => DB::table('nutrition_recommendations')->where('category', 'siang')->get(),
-            'malam' => DB::table('nutrition_recommendations')->where('category', 'malam')->get(),
-            'snack' => DB::table('nutrition_recommendations')->where('category', 'snack')->get(),
-        ];
+    // Profile
+    Route::get('/profile', fn() => view('profile'))->name('profile');
 
-        $getMenuByDate = function ($menuList) use ($hari, $tanggal) {
-            if ($menuList->isEmpty()) return null;
-            $index = crc32($hari . $tanggal) % $menuList->count();
-            return $menuList[$index];
-        };
+    // ─── Deteksi Stunting (Orangtua) ──────────────────────────────────────────
+    Route::middleware('child.selected')->group(function () {
+        Route::get('/orangtua/deteksi-stunting',         [DetectionController::class, 'create'])->name('orangtua.detections.create');
+        Route::post('/orangtua/deteksi-stunting',        [DetectionController::class, 'store'])->name('orangtua.detections.store');
+        Route::delete('/orangtua/deteksi-stunting/{id}', [DetectionController::class, 'destroy'])->name('orangtua.detections.destroy');
 
-        $menus = collect();
-        foreach ($menuByCategory as $kategori => $list) {
-            $menus[$kategori] = $getMenuByDate($list);
-        }
-        
-        // Ensure we always have at least 3 menus by adding fallback if needed
-        $allMenus = DB::table('nutrition_recommendations')->get();
-        $availableMenus = $menus->filter()->values();
-        
-        // If we have less than 3 menus, add random ones from all menus
-        while ($availableMenus->count() < 3 && $availableMenus->count() < $allMenus->count()) {
-            $randomMenu = $allMenus->random();
-            if (!$availableMenus->contains('id', $randomMenu->id)) {
-                $availableMenus->push($randomMenu);
-            }
-        }
-        
-        // Replace the original menus with the guaranteed 3 menus
-        $categories = ['pagi', 'siang', 'malam'];
-        for ($i = 0; $i < min(3, $availableMenus->count()); $i++) {
-            if ($i < count($categories)) {
-                $menus[$categories[$i]] = $availableMenus[$i];
-            }
-        }
+        // Tahapan Perkembangan (Orangtua)
+        Route::prefix('orangtua')->name('orangtua.')->group(function () {
+            Route::get('tahapan_perkembangan',                 [TahapanPerkembanganController::class, 'index'])->name('tahapan_perkembangan.index');
+            Route::get('tahapan_perkembangan/create',          [TahapanPerkembanganController::class, 'create'])->name('tahapan_perkembangan.create');
+            Route::post('tahapan_perkembangan',                [TahapanPerkembanganController::class, 'store'])->name('tahapan_perkembangan.store');
+            Route::put('tahapan_perkembangan/{id}',            [TahapanPerkembanganController::class, 'update'])->name('tahapan_perkembangan.update');
+            Route::delete('tahapan_perkembangan/{id}',         [TahapanPerkembanganController::class, 'destroy'])->name('tahapan_perkembangan.destroy');
+        });
 
-        $artikels = DB::table('artikels')->latest()->get(); // Ambil semua artikel untuk carousel
+        // BMI
+        Route::get('/bmi',              [BMICalculatorController::class, 'showBmiData'])->name('bmi');
+        Route::post('/hitung-bmi',      [BMICalculatorController::class, 'calculate'])->name('hitung-bmi');
+        Route::post('/simpan-bmi',      [BMICalculatorController::class, 'save'])->name('simpan-bmi');
+        Route::post('/reset-bmi',       [BMICalculatorController::class, 'reset'])->name('reset-bmi');
+        Route::post('/hapus-bmi/{index}',[BMICalculatorController::class, 'deleteRow'])->name('hapus-bmi-row');
+        Route::post('/calculate-calories',[BMICalculatorController::class, 'hitungKalori'])->name('calculate.calories');
 
-        return view('orangtua.dashboard', compact('menus', 'artikels'));
-    })->name('orangtua.dashboard');
+        // Nutrition
+        Route::get('/orangtua/nutritionUs', [NutritionController::class, 'user'])->name('orangtua.nutritionUs.index');
+        Route::get('/orangtua/nutritionUs/{id}', [NutritionController::class, 'userShow'])->name('orangtua.nutritionUs.show');
+    });
 
-
-
-});
-
-// Deteksi Stunting (Orangtua)
-Route::middleware(['auth'])->group(function () {
-    Route::get('/orangtua/deteksi-stunting', [DetectionController::class, 'create'])->name('orangtua.detections.create');
-    Route::post('/orangtua/deteksi-stunting', [DetectionController::class, 'store'])->name('orangtua.detections.store');
-    Route::delete('/orangtua/deteksi-stunting/{id}', [DetectionController::class, 'destroy'])->name('orangtua.detections.destroy');
-});
-
-// Deteksi Stunting (Admin)
-Route::middleware(['auth'])->group(function () {
-    Route::get('/admin/deteksi-stunting', [DetectionController::class, 'index'])->name('admin.detections.index');
+    // ─── Deteksi Stunting (Admin) ─────────────────────────────────────────────
+    Route::get('/admin/deteksi-stunting',         [DetectionController::class, 'adminIndex'])->name('admin.detections.index');
     Route::get('/admin/deteksi-stunting/export-pdf', [DetectionController::class, 'exportPdf'])->name('admin.detections.export-pdf');
-    // Admin - tambah deteksi untuk anak lain
-    Route::get('/admin/deteksi-stunting/create', [DetectionController::class, 'adminCreate'])->name('admin.detections.create');
-    Route::post('/admin/deteksi-stunting', [DetectionController::class, 'adminStore'])->name('admin.detections.store');
-});
+    Route::get('/admin/deteksi-stunting/create',  [DetectionController::class, 'adminCreate'])->name('admin.detections.create');
+    Route::post('/admin/deteksi-stunting',        [DetectionController::class, 'adminStore'])->name('admin.detections.store');
 
-Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
-    // 🔹 Kategori Artikel
-    Route::prefix('artikel/kategori')->name('artikel.kategori.')->group(function () {
-        Route::get('/', [ArtikelKategoriController::class, 'index'])->name('index');
-        Route::get('/create', [ArtikelKategoriController::class, 'create'])->name('create');
-        Route::post('/', [ArtikelKategoriController::class, 'store'])->name('store');
-        Route::get('/{kategori}/edit', [ArtikelKategoriController::class, 'edit'])->name('edit');
-        Route::put('/{kategori}', [ArtikelKategoriController::class, 'update'])->name('update');
-        Route::delete('/{kategori}', [ArtikelKategoriController::class, 'destroy'])->name('destroy');
+    // ─── Admin (Artikel, Nutrisi, Perkembangan) ───────────────────────────────
+    Route::prefix('admin')->name('admin.')->group(function () {
+        // Artikel
+        Route::prefix('artikel/kategori')->name('artikel.kategori.')->group(function () {
+            Route::get('/',              [ArtikelKategoriController::class, 'index'])->name('index');
+            Route::get('/create',        [ArtikelKategoriController::class, 'create'])->name('create');
+            Route::post('/',             [ArtikelKategoriController::class, 'store'])->name('store');
+            Route::get('/{k}/edit',      [ArtikelKategoriController::class, 'edit'])->name('edit');
+            Route::put('/{k}',           [ArtikelKategoriController::class, 'update'])->name('update');
+            Route::delete('/{k}',        [ArtikelKategoriController::class, 'destroy'])->name('destroy');
+        });
+        Route::prefix('artikel')->name('artikel.')->group(function () {
+            Route::get('/',              [ArtikelController::class, 'index'])->name('index');
+            Route::get('/create',        [ArtikelController::class, 'create'])->name('create');
+            Route::post('/',             [ArtikelController::class, 'store'])->name('store');
+            Route::get('/{id}',          [ArtikelController::class, 'show'])->name('show');
+            Route::get('/{id}/edit',     [ArtikelController::class, 'edit'])->name('edit');
+            Route::put('/{id}',          [ArtikelController::class, 'update'])->name('update');
+            Route::delete('/{id}',       [ArtikelController::class, 'destroy'])->name('destroy');
+        });
+
+        // Tahapan Perkembangan (Admin)
+        Route::get('tahapan_perkembangan',             [TahapanMasterController::class, 'index'])->name('tahapan_perkembangan.index');
+        Route::get('perkembangan/children',             [AdminTahapanPerkembanganDataController::class, 'index'])->name('perkembangan.children.index');
+        Route::get('perkembangan/children/{user}',      [TahapanPerkembanganController::class, 'adminShow'])->name('perkembangan.children.show');
+        Route::get('perkembangan/children/{user}/pdf',  [AdminTahapanPerkembanganDataController::class, 'exportPdf'])->name('perkembangan.children.pdf');
+        Route::get('perkembangan/children/{user}/create',[AdminTahapanPerkembanganDataController::class, 'create'])->name('perkembangan.children.create');
+        Route::post('perkembangan/children/{user}',     [AdminTahapanPerkembanganDataController::class, 'store'])->name('perkembangan.children.store');
+
+        // Nutrition
+        Route::resource('nutrition', NutritionController::class)->except(['show']);
     });
 
-    // 🔹 Artikel CRUD lengkap
-    Route::prefix('artikel')->name('artikel.')->group(function () {
-        Route::get('/', [ArtikelController::class, 'index'])->name('index');
-        Route::get('/create', [ArtikelController::class, 'create'])->name('create');
-        Route::post('/', [ArtikelController::class, 'store'])->name('store');
-        Route::get('/{id}', [ArtikelController::class, 'show'])->name('show');
-        Route::get('/{id}/edit', [ArtikelController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [ArtikelController::class, 'update'])->name('update');
-        Route::delete('/{id}', [ArtikelController::class, 'destroy'])->name('destroy');
+    // ─── Artikel untuk Orangtua ───────────────────────────────────────────────
+    Route::prefix('orangtua/artikel')->name('orangtua.artikel.')->group(function () {
+        Route::get('/',    [UserArtikelController::class, 'index'])->name('index');
+        Route::get('/{id}',[UserArtikelController::class, 'show'])->name('show');
     });
-
-    // 🔹 Imunisasi (dihapus)
-    // fitur imunisasi telah dihapus — routes dan controller dihapus
-
-    // 🔹 Tahapan Perkembangan (Read-only - Data sudah di-seed dari database)
-    Route::get('tahapan_perkembangan', [TahapanPerkembanganController::class, 'index'])->name('tahapan_perkembangan.index');
-    Route::get('perkembangan/create', [TahapanPerkembanganController::class, 'create'])->name('perkembangan.create');
-
-    // 🔹 Admin: Daftar Anak & Tambah Pencapaian untuk masing-masing anak
-    Route::get('perkembangan/children', [AdminTahapanPerkembanganDataController::class, 'index'])->name('perkembangan.children.index');
-    Route::get('perkembangan/children/{user}', [AdminTahapanPerkembanganDataController::class, 'show'])->name('perkembangan.children.show');
-    Route::get('perkembangan/children/{user}/create', [AdminTahapanPerkembanganDataController::class, 'create'])->name('perkembangan.children.create');
-    Route::post('perkembangan/children/{user}', [AdminTahapanPerkembanganDataController::class, 'store'])->name('perkembangan.children.store');
-
-    // 🔹 Nutrition
-    Route::resource('nutrition', NutritionController::class)->except(['show']);
 });
-
-// Artikel untuk Orangtua
-Route::prefix('orangtua/artikel')->name('orangtua.artikel.')->middleware('auth')->group(function () {
-    Route::get('/', [UserArtikelController::class, 'index'])->name('index');
-    Route::get('/{id}', [UserArtikelController::class, 'show'])->name('show');
-});
-
-// Orangtua Tahapan Perkembangan (imunisasi dihapus)
-Route::prefix('orangtua')->name('orangtua.')->middleware('auth')->group(function () {
-    Route::resource('tahapan_perkembangan', TahapanPerkembanganDataController::class);
-});
-
-
-// Nutrition untuk Orangtua
-Route::middleware(['auth'])->group(function () {
-    Route::get('/orangtua/nutritionUs', [NutritionController::class, 'user'])
-        ->name('orangtua.nutritionUs.index');
-
-    Route::get('/orangtua/nutritionUs/{id}', function (string $id) {
-        if (auth()->user()->role !== 'orangtua') abort(403, 'Unauthorized');
-        $menu = NutritionRecommendation::findOrFail($id);
-        return view('orangtua.nutritionus.show', compact('menu'));
-    })->name('orangtua.nutritionUs.show');
-});
-
-//bmi
-Route::middleware(['auth'])->group(function () {
-    Route::get('/bmi', function() {
-        // Check if user has orangtua role
-        if (Auth::user()->role !== 'orangtua') {
-            abort(403, 'Unauthorized. Only orangtua can access this page.');
-        }
-        
-        // If role is correct, proceed to the controller
-        return app()->make(BMICalculatorController::class)->showBmiData();
-    })->name('bmi');
-        
-    // POST routes for BMI functionality
-    Route::post('/hitung-bmi', function(Request $request) {
-        if (Auth::user()->role !== 'orangtua') {
-            abort(403, 'Unauthorized. Only orangtua can access this feature.');
-        }
-        return app()->make(BMICalculatorController::class)->calculate($request);
-    })->name('hitung-bmi');
-        
-    Route::post('/simpan-bmi', function(Request $request) {
-        if (Auth::user()->role !== 'orangtua') {
-            abort(403, 'Unauthorized. Only orangtua can access this feature.');
-        }
-        return app()->make(BMICalculatorController::class)->save($request);
-    })->name('simpan-bmi');
-        
-    Route::post('/reset-bmi', function() {
-        if (Auth::user()->role !== 'orangtua') {
-            abort(403, 'Unauthorized. Only orangtua can access this feature.');
-        }
-        return app()->make(BMICalculatorController::class)->reset();
-    })->name('reset-bmi');
-        
-    Route::post('/hapus-bmi/{index}', function($index) {
-        if (Auth::user()->role !== 'orangtua') {
-            abort(403, 'Unauthorized. Only orangtua can access this feature.');
-        }
-        return app()->make(BMICalculatorController::class)->deleteRow($index);
-    })->name('hapus-bmi-row');
-        
-    Route::post('/calculate-calories', function(Request $request) {
-        if (Auth::user()->role !== 'orangtua') {
-            abort(403, 'Unauthorized. Only orangtua can access this feature.');
-        }
-        return app()->make(BMICalculatorController::class)->calculateCalories($request);
-    })->name('calculate.calories');
-});
-
-Route::get('/profile', function () {
-    return view('profile'); // universal view
-})->middleware('auth')->name('profile');

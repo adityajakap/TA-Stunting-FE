@@ -86,17 +86,17 @@
                     @csrf
 
                     <div class="mb-3">
-                        <label for="nama_anak" class="form-label">Nama Anak</label>
-                        <input type="text" name="nama_anak" id="nama_anak" class="form-control" value="{{ old('nama_anak') }}">
-                        @error('nama_anak')
+                        <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
+                        <input type="text" name="nama_lengkap" id="nama_lengkap" class="form-control" value="{{ old('nama_lengkap') }}" required>
+                        @error('nama_lengkap')
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
 
                     <div class="mb-3">
-                        <label for="tanggal_lahir" class="form-label">Tanggal Lahir Anak</label>
-                        <input type="date" name="tanggal_lahir" id="tanggal_lahir" class="form-control" value="{{ old('tanggal_lahir') }}" required>
-                        @error('tanggal_lahir')
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" name="username" id="username" class="form-control" value="{{ old('username') }}" required>
+                        @error('username')
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>

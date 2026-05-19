@@ -9,21 +9,38 @@ use Illuminate\Support\Facades\Storage;
 
 class ArtikelController extends Controller
 {
-    public function index(Request $request)
+    protected \App\Services\ApiClient $api;
+
+    public function __construct(\App\Services\ApiClient $api)
     {
-        $search = $request->input('search');
-
-        $artikels = Artikel::with('kategoris')
-            ->when($search, function ($query) use ($search) {
-                $query->where('title', 'like', "%{$search}%");
-            })
-            ->latest()
-            ->paginate(12)
-            ->withQueryString();
-
-        return view('admin.artikel.index', compact('artikels', 'search'));
+        $this->api = $api;
     }
 
+    public function index(Request $request)
+    {
+        $response = $this->api->get('/admin/artikel', [
+            'search' => $request->search,
+            'paginate' => 12,
+            'page' => $request->page ?? 1
+        ]);
+        
+        $data = $response->successful() ? $response->json() : ['data' => [], 'total' => 0, 'per_page' => 12, 'current_page' => 1];
+        
+        $items = collect($data['data'])->map(function ($item) {
+            return (new Artikel)->forceFill((array)$item);
+        });
+
+        $artikels = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $data['total'] ?? 0,
+            $data['per_page'] ?? 12,
+            $data['current_page'] ?? 1,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        $search = $request->input('search');
+        return view('admin.artikel.index', compact('artikels', 'search'));
+    }
 
     public function create()
     {
@@ -38,48 +55,33 @@ class ArtikelController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $slug = Str::slug($request->title);
-        $originalSlug = $slug;
-        $counter = 1;
-        while (Artikel::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $counter++;
+        $data = $request->except('image');
+        $file = $request->file('image');
+
+        $response = $this->api->postMultipart('/admin/artikel', $data, $file, 'image');
+
+        if ($response->successful()) {
+            return redirect()->route('admin.artikel.index')->with('success', 'Artikel berhasil ditambahkan!');
         }
 
-        $data = [
-            'title' => $request->title,
-            'content' => $request->content,
-            'slug' => $slug,
-        ];
-
-        // Publish handling
-        if ($request->has('publish') && $request->publish) {
-            $data['is_published'] = true;
-            $data['published_at'] = now();
-        } else {
-            $data['is_published'] = false;
-            $data['published_at'] = null;
-        }
-
-        if ($request->hasFile('image')) {
-            $path = $request->image->store('artikel-images', 'public');
-            $data['image'] = $path;
-        }
-
-    $artikel = Artikel::create($data);
-    // kategori feature removed: do not attach kategori
-
-        return redirect()->route('admin.artikel.index')->with('success', 'Artikel berhasil ditambahkan!');
+        return back()->with('error', 'Gagal menambahkan artikel')->withInput();
     }
 
     public function show($id)
     {
-        $artikel = Artikel::with('kategoris')->findOrFail($id);
+        $response = $this->api->get("/admin/artikel/{$id}");
+        if (!$response->successful()) abort(404);
+        
+        $artikel = (new Artikel)->forceFill($response->json());
         return view('admin.artikel.show', compact('artikel'));
     }
 
     public function edit($id)
     {
-        $artikel = Artikel::findOrFail($id);
+        $response = $this->api->get("/admin/artikel/{$id}");
+        if (!$response->successful()) abort(404);
+        
+        $artikel = (new Artikel)->forceFill($response->json());
         return view('admin.artikel.edit', compact('artikel'));
     }
 
@@ -91,45 +93,22 @@ class ArtikelController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $artikel = Artikel::findOrFail($id);
-        $data = $request->only(['title', 'content']);
+        $data = $request->except(['image', '_method']);
+        $data['_method'] = 'PUT'; // API client uses POST for multipart, so we spoof PUT
+        $file = $request->file('image');
 
-        if ($request->hasFile('image')) {
-            if ($artikel->image && Storage::exists('public/' . $artikel->image)) {
-                Storage::delete('public/' . $artikel->image);
-            }
-            $path = $request->image->store('artikel-images', 'public');
-            $data['image'] = $path;
-        } else {
-            $data['image'] = $artikel->image;
+        $response = $this->api->postMultipart("/admin/artikel/{$id}", $data, $file, 'image');
+
+        if ($response->successful()) {
+            return redirect()->route('admin.artikel.index')->with('success', 'Artikel berhasil diperbarui!');
         }
 
-        // Update publish fields if provided
-        if ($request->has('publish')) {
-            $data['is_published'] = $request->publish ? true : false;
-            $data['published_at'] = $request->publish ? now() : null;
-        } else {
-            $data['is_published'] = $artikel->is_published;
-            $data['published_at'] = $artikel->published_at;
-        }
-
-    $artikel->update($data);
-    // kategori feature removed: do not sync kategori
-
-        return redirect()->route('admin.artikel.index')->with('success', 'Artikel berhasil diperbarui!');
+        return back()->with('error', 'Gagal memperbarui artikel')->withInput();
     }
 
     public function destroy($id)
     {
-        $artikel = Artikel::findOrFail($id);
-
-        if ($artikel->image && Storage::exists('public/' . $artikel->image)) {
-            Storage::delete('public/' . $artikel->image);
-        }
-
-    // kategori feature removed: no relationship to detach
-        $artikel->delete();
-
+        $this->api->delete("/admin/artikel/{$id}");
         return redirect()->route('admin.artikel.index')->with('success', 'Artikel berhasil dihapus!');
     }
 }

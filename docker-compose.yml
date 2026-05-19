@@ -1,0 +1,36 @@
+version: '3'
+services:
+  app_fe:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ta-stunting-fe
+    container_name: ta_stunting_fe_app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app_fe
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    networks:
+      - stunting_net
+
+  web_fe:
+    image: nginx:alpine
+    container_name: ta_stunting_fe_web
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - stunting_net
+
+networks:
+  stunting_net:
+    external: true
+    name: stunting_network

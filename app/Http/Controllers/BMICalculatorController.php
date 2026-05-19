@@ -10,60 +10,43 @@ use Illuminate\Http\Request;
 
 class BMICalculatorController extends Controller
 {
-    public function showBmiData()
+    protected \App\Services\ApiClient $api;
+
+    public function __construct(\App\Services\ApiClient $api)
     {
-        // Get the authenticated user
-        $user = Auth::user();
-
-        // Fetch the BMI records associated with the authenticated user
-        $bmiRecords = Bmi::where('user_id', $user->id)->get();
-
-        // Ambil data terakhir
-    $lastBmi = Bmi::where('user_id', $user->id)->latest('created_at')->first();
-
-
-    $estimatedCalories = null;
-    $saranKalori = null;
-
-    if ($lastBmi && $lastBmi->usia && $lastBmi->activity_level) {
-        $weight = $lastBmi->berat;
-        $height = $lastBmi->tinggi;
-        $usia = $lastBmi->usia;
-        $activityLevel = $lastBmi->activity_level;
-        $gender = $lastBmi->gender ?? session('gender', 'pria');
-
-        $bmr = $gender === 'pria'
-            ? 10 * $weight + 6.25 * $height - 5 * $usia + 5
-            : 10 * $weight + 6.25 * $height - 5 * $usia - 161;
-
-        $activityFactors = [
-            'sedentary' => 1.2,
-            'lightly_active' => 1.375,
-            'moderately_active' => 1.55,
-            'very_active' => 1.725,
-            'extra_active' => 1.9,
-        ];
-
-        $factor = $activityFactors[$activityLevel] ?? 1.2;
-        $estimatedCalories = round($bmr * $factor);
-
-        // Sesuaikan saran kalori berdasarkan status BMI
-        $status = $lastBmi->status;
-        $saranKalori = match($status) {
-            'Underweight' => $estimatedCalories + 500,
-            'Overweight', 'Obese' => $estimatedCalories - 500,
-            default => $estimatedCalories
-        };
+        $this->api = $api;
     }
 
+    public function showBmiData()
+    {
+        $childId = session('selected_child_id');
+        if (!$childId) {
+            return redirect()->route('dashboard')->with('error', 'Pilih anak terlebih dahulu.');
+        }
 
-    return view('orangtua.bmi.bmi', [
-        'bmiRecords' => $bmiRecords,
-        'lastBmi' => $lastBmi,
-        'estimatedCalories' => $estimatedCalories,
-        'saranKalori' => $saranKalori
-    ]);
+        $response = $this->api->get("/children/{$childId}/bmi");
+        $data = $response->successful() ? $response->json() : [
+            'bmi_records' => [],
+            'last_bmi' => null,
+            'estimated_calories' => null,
+            'saran_kalori' => null,
+        ];
 
+        $bmiRecords = collect($data['bmi_records'] ?? [])->map(function ($item) {
+            return (new Bmi)->forceFill((array)$item);
+        });
+
+        $lastBmi = null;
+        if (!empty($data['last_bmi'])) {
+            $lastBmi = (new Bmi)->forceFill((array)$data['last_bmi']);
+        }
+
+        return view('orangtua.bmi.bmi', [
+            'bmiRecords' => $bmiRecords,
+            'lastBmi' => $lastBmi,
+            'estimatedCalories' => $data['estimated_calories'] ?? null,
+            'saranKalori' => $data['saran_kalori'] ?? null
+        ]);
     }
 
     public function calculate(Request $request)
@@ -73,11 +56,7 @@ class BMICalculatorController extends Controller
         $tinggi = $request->input('tinggi') / 100;
         $berat = $request->input('berat');
 
-         if ($tinggi > 0) {
-                $bmi = $berat / ($tinggi * $tinggi);
-            } else {
-                $bmi = 0;
-            }
+        $bmi = ($tinggi > 0) ? ($berat / ($tinggi * $tinggi)) : 0;
 
         if ($gender == 'pria' || $gender == 'laki-laki') {
             $status = $this->statusBmiPria($bmi);
@@ -87,60 +66,96 @@ class BMICalculatorController extends Controller
             $status = "Gender tidak valid";
         }
 
-        session(['bmi'=> number_format($bmi, 2)]);
-        session(['status'=> $status]);
-        session(['tinggi'=> $rawTinggi]);
-        session(['gender'=> $gender]);
-        session(['berat'=> $berat]);
-
+        session([
+            'bmi'=> number_format($bmi, 2),
+            'status'=> $status,
+            'tinggi'=> $rawTinggi,
+            'gender'=> $gender,
+            'berat'=> $berat
+        ]);
 
         return redirect()->route('bmi');
     }
     
     public function reset()
     {
-        session(['bmi'=> ""]);
-        session(['status'=> ""]);
-        session(['tinggi'=> ""]);
-        session(['gender'=> ""]);
-        session(['berat'=> ""]);
+        session()->forget(['bmi', 'status', 'tinggi', 'gender', 'berat', 'kalori', 'usia', 'activity_level', 'show_kalori_results']);
         return redirect()->route('bmi');
     }
 
     public function save(Request $request)
     {
-        $tinggiCm = $request->input('tinggi'); // ✅ untuk BMR
-        $tinggi = $tinggiCm / 100;             // ✅ untuk BMI
-        $user = Auth::user();  // Get the authenticated user
-        $gender = strtolower($request->input('gender'));
-        $tinggi = $request->input('tinggi') / 100;
-        $berat = $request->input('berat');
-        $usia = $request->input('usia');
-        $activity_level = $request->input('activity_level');
-        $tanggal = now()->format('Y-m-d H:i');
-
-        if ($tinggi <= 0 || $berat <= 0) {
-            return redirect()->back()->withErrors(['message' => 'Data tidak lengkap'])->withInput();
+        $childId = session('selected_child_id');
+        if (!$childId) {
+            return redirect()->route('dashboard')->with('error', 'Pilih anak terlebih dahulu.');
         }
 
-        if ($tinggi > 0) {
-            $bmi = $berat / ($tinggi * $tinggi);
+        $request->validate([
+            'berat' => 'required|numeric',
+            'tinggi' => 'required|numeric',
+            'usia' => 'required|numeric',
+            'gender' => 'required|in:pria,wanita',
+            'activity_level' => 'required|string',
+        ]);
+
+        $response = $this->api->post("/children/{$childId}/bmi", $request->only([
+            'berat', 'tinggi', 'usia', 'gender', 'activity_level'
+        ]));
+
+        if ($response->successful()) {
+            return redirect()->route('bmi')->with('success', 'Data berhasil disimpan!');
+        }
+
+        return redirect()->back()->withErrors(['message' => 'Gagal menyimpan data BMI'])->withInput();
+    }
+
+    private function statusBmiPria($bmi)
+    {
+        if ($bmi < 18.5) return "Underweight";
+        if ($bmi >= 18.5 && $bmi < 24.9) return "Normal";
+        if ($bmi >= 25 && $bmi < 29.9) return "Overweight";
+        return "Obese";
+    }
+
+    private function statusBmiWanita($bmi)
+    {
+        if ($bmi < 17.5) return "Underweight";
+        if ($bmi >= 17.5 && $bmi < 23.9) return "Normal";
+        if ($bmi >= 24 && $bmi < 28.9) return "Overweight";
+        return "Obese";
+    }
+
+    public function deleteRow($id)
+    {
+        $childId = session('selected_child_id');
+        if (!$childId) abort(403);
+
+        $this->api->delete("/children/{$childId}/bmi/{$id}");
+        return redirect()->route('bmi');
+    }
+
+    public function hitungKalori(Request $request)
+    {
+        $validated = $request->validate([
+            'gender' => 'required|in:pria,wanita',
+            'berat' => 'required|numeric|min:10',
+            'tinggi' => 'required|numeric|min:50',
+            'usia' => 'required|numeric|min:1',
+            'activity_level' => 'required|in:sedentary,lightly_active,moderately_active,very_active,extra_active',
+        ]);
+
+        $gender = $validated['gender'];
+        $berat = $validated['berat'];
+        $tinggi = $validated['tinggi'];
+        $usia = $validated['usia'];
+        $activity_level = $validated['activity_level'];
+
+        if ($gender == 'pria') {
+            $bmr = 66 + (13.7 * $berat) + (5 * $tinggi) - (6.8 * $usia);
         } else {
-            $bmi = 0;
+            $bmr = 655 + (9.6 * $berat) + (1.8 * $tinggi) - (4.7 * $usia);
         }
 
-        if ($gender == 'pria' || $gender == 'laki-laki') {
-            $status = $this->statusBmiPria($bmi);
-            $bmr = 66 + (13.7 * $berat) + (5 * $tinggiCm) - (6.8 * $usia); // ⬅️ definisikan $bmr
-        } elseif ($gender == 'wanita' || $gender == 'perempuan') {
-            $status = $this->statusBmiWanita($bmi);
-             $bmr = 655 + (9.6 * $berat) + (1.8 * $tinggiCm) - (4.7 * $usia); // ⬅️ definisikan $bmr
-        } else {
-            $status = "Gender tidak valid";
-            $bmr = 0;
-        }
-
-            // ✅ Tambahkan perhitungan kalori
         $activity_factors = [
             'sedentary' => 1.2,
             'lightly_active' => 1.375,
@@ -148,105 +163,20 @@ class BMICalculatorController extends Controller
             'very_active' => 1.725,
             'extra_active' => 1.9,
         ];
-        $factor = $activity_factors[$activity_level] ?? 1.2;
-        $kalori = round($bmr * $factor);
 
-        Bmi::create([
-            'user_id' => $user->id,  // Associate the BMI with the authenticated user
-            'tanggal' => $tanggal,
-            'tinggi' => $request->input('tinggi'),
+        $kalori = round($bmr * $activity_factors[$activity_level]);
+
+        session([
+            'kalori' => $kalori,
             'berat' => $berat,
-            'bmi' => number_format($bmi, 2),
-            'status' => $status,
+            'tinggi' => $tinggi,
+            'usia' => $usia,
             'gender' => $gender,
-            // Removed usia, activity_level, and kalori fields as they don't exist in the database
+            'activity_level' => $activity_level,
+            'show_kalori_results' => true,
         ]);
 
-        return redirect()->route('bmi')->with('success', 'Data berhasil disimpan!');
+        return redirect()->back()->withInput();
     }
-
-
-
-    private function statusBmiPria($bmi)
-    {
-        if ($bmi < 18.5) {
-            return "Underweight";
-        } elseif ($bmi >= 18.5 && $bmi < 24.9) {
-            return "Normal";
-        } elseif ($bmi >= 25 && $bmi < 29.9) {
-            return "Overweight";
-        } else {
-            return "Obese";
-        }
-    }
-
-    private function statusBmiWanita($bmi)
-    {
-        if ($bmi < 17.5) {
-            return "Underweight";
-        } elseif ($bmi >= 17.5 && $bmi < 23.9) {
-            return "Normal";
-        } elseif ($bmi >= 24 && $bmi < 28.9) {
-            return "Overweight";
-        } else {
-            return "Obese";
-        }
-    }
-
-    public function deleteRow($id)
-{
-   $bmiRecord = Bmi::findOrFail($id);
-    $bmiRecord->delete();
-
-    return redirect()->route('bmi');
-}
-
-    public function hitungKalori(Request $request)
-{
-    $validated = $request->validate([
-        'gender' => 'required|in:pria,wanita',
-        'berat' => 'required|numeric|min:10',
-        'tinggi' => 'required|numeric|min:50',
-        'usia' => 'required|numeric|min:1',
-        'activity_level' => 'required|in:sedentary,lightly_active,moderately_active,very_active,extra_active',
-    ]);
-
-    $gender = $validated['gender'];
-    $berat = $validated['berat'];
-    $tinggi = $validated['tinggi'];
-    $usia = $validated['usia'];
-    $activity_level = $validated['activity_level'];
-
-    // Hitung BMR
-    if ($gender == 'pria') {
-        $bmr = 66 + (13.7 * $berat) + (5 * $tinggi) - (6.8 * $usia);
-    } else {
-        $bmr = 655 + (9.6 * $berat) + (1.8 * $tinggi) - (4.7 * $usia);
-    }
-
-    $activity_factors = [
-        'sedentary' => 1.2,
-        'lightly_active' => 1.375,
-        'moderately_active' => 1.55,
-        'very_active' => 1.725,
-        'extra_active' => 1.9,
-    ];
-
-    $kalori = round($bmr * $activity_factors[$activity_level]);
-
-    // Simpan data ke session untuk ditampilkan di view
-    session([
-        'kalori' => $kalori,
-        'berat' => $berat,
-        'tinggi' => $tinggi,
-        'usia' => $usia,
-        'gender' => $gender,
-        'activity_level' => $activity_level,
-        'show_kalori_results' => true, // Flag to indicate results should be displayed
-    ]);
-
-    // Use withInput() to ensure all form values are retained after submission
-    return redirect()->back()->withInput();
-}
 
 }

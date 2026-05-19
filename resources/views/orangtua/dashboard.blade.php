@@ -420,6 +420,96 @@
 
 <div class="section-wrapper">
 
+    {{-- CHILD MANAGEMENT SECTION --}}
+
+    <div class="mb-4 mt-4">
+
+        @if($children->isEmpty())
+            <div class="alert alert-warning">
+                <strong>Perhatian!</strong> Anda belum memiliki data anak. Silakan tambah data anak terlebih dahulu untuk mengakses fitur-fitur aplikasi.
+            </div>
+            <div class="card shadow-sm border-0" style="border-radius: 12px; max-width: 600px; margin: 0 auto;">
+                <div class="card-body p-4">
+                    <h5 class="card-title text-center mb-4" style="color: #005f77; font-weight: 700;">Tambah Data Anak</h5>
+                    <form action="{{ route('orangtua.children.store') }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="nama_lengkap_anak" class="form-label" style="font-weight: 500;">Nama Lengkap Anak</label>
+                            <input type="text" class="form-control" id="nama_lengkap_anak" name="nama_lengkap_anak" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tanggal_lahir" class="form-label" style="font-weight: 500;">Tanggal Lahir</label>
+                            <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="nik_anak" class="form-label" style="font-weight: 500;">NIK Anak (Opsional)</label>
+                            <input type="text" class="form-control" id="nik_anak" name="nik_anak" maxlength="16">
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary" style="background-color: #00a896; border: none; border-radius: 8px;">Simpan Data Anak</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @else
+            <div class="d-flex justify-content-between align-items-center bg-white p-4 shadow-sm rounded-3 mb-4 border-start border-4" style="border-color: #00a896 !important;">
+                <div>
+                    <h5 class="mb-1" style="color: #005f77; font-weight: 600;">Anak Aktif: {{ $selectedChild ? $selectedChild->nama_lengkap_anak : 'Belum ada anak yang dipilih' }}</h5>
+                    <p class="mb-0 text-muted small">Pilih anak untuk memonitor tumbuh kembangnya.</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <form action="{{ route('orangtua.children.select') }}" method="POST" class="d-flex align-items-center m-0">
+                        @csrf
+                        <select name="child_id" class="form-select border-1" style="width: 250px; border-radius: 8px; border-color: #dee2e6;" onchange="this.form.submit()">
+                            <option value="" disabled {{ !$selectedChildId ? 'selected' : '' }}>-- Pilih Anak --</option>
+                            @foreach($children as $child)
+                                <option value="{{ $child->id }}" {{ $selectedChildId == $child->id ? 'selected' : '' }}>
+                                    {{ $child->nama_lengkap_anak }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </form>
+                    <!-- Button trigger modal for adding another child -->
+                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addChildModal" style="border-radius: 8px; border-color: #005f77; color: #005f77;">
+                        <i class="fas fa-plus"></i> Tambah Anak
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Add Child -->
+            <div class="modal fade" id="addChildModal" tabindex="-1" aria-labelledby="addChildModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content" style="border-radius: 12px; border: none;">
+                        <div class="modal-header" style="background-color: #005f77; color: white; border-top-left-radius: 12px; border-top-right-radius: 12px;">
+                            <h5 class="modal-title" id="addChildModalLabel">Tambah Data Anak</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            <form action="{{ route('orangtua.children.store') }}" method="POST">
+                                @csrf
+                                <div class="mb-3">
+                                    <label for="nama_lengkap_anak_modal" class="form-label" style="font-weight: 500;">Nama Lengkap Anak</label>
+                                    <input type="text" class="form-control" id="nama_lengkap_anak_modal" name="nama_lengkap_anak" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="tanggal_lahir_modal" class="form-label" style="font-weight: 500;">Tanggal Lahir</label>
+                                    <input type="date" class="form-control" id="tanggal_lahir_modal" name="tanggal_lahir" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="nik_anak_modal" class="form-label" style="font-weight: 500;">NIK Anak (Opsional)</label>
+                                    <input type="text" class="form-control" id="nik_anak_modal" name="nik_anak" maxlength="16">
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary" style="background-color: #00a896; border: none; border-radius: 8px;">Simpan Data Anak</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+    </div>
+
     {{-- HERO SECTION --}}
     <div class="hero-section">
         <div class="hero-text">

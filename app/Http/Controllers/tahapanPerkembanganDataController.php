@@ -9,119 +9,163 @@ use Illuminate\Support\Facades\Auth;
 
 class TahapanPerkembanganDataController extends Controller
 {
+    protected \App\Services\ApiClient $api;
+
+    public function __construct(\App\Services\ApiClient $api)
+    {
+        $this->api = $api;
+    }
+
     public function index(Request $request)
     {
-        if (auth()->user()->role !== 'orangtua') {
+        if ((session('user')['role'] ?? '') !== 'orangtua') {
             abort(403, 'Unauthorized');
         }
 
-        $statusOptions = collect([
-            (object)['id' => 'tercapai', 'name' => 'Tercapai'],
-            (object)['id' => 'belum_tercapai', 'name' => 'Belum Tercapai'],
+        $childId = session('selected_child_id');
+        
+        $kategoriOptions = collect([
+            (object)['id' => 'Motorik', 'name' => 'Motorik'],
+            (object)['id' => 'Bahasa', 'name' => 'Bahasa'],
+            (object)['id' => 'Gigi', 'name' => 'Gigi'],
         ]);
 
-        $selectedStatus = $request->input('kategori', []); // gunakan nama param yg sama
+        $selectedKategori = $request->input('kategori', []);
 
-        $query = TahapanPerkembanganData::query();
+        $response = $this->api->get("/children/{$childId}/perkembangan", [
+            'kategori' => $selectedKategori
+        ]);
+        
+        $json = $response->successful() ? $response->json() : ['child' => null, 'milestones' => []];
+        $childData = $json['child'] ?? [];
+        $milestonesGrouped = $json['milestones'] ?? [];
 
-        if (!empty($selectedStatus)) {
-            $query->whereIn('status', $selectedStatus);
-        }
+        $child = (new \App\Models\Child)->forceFill((array)$childData);
 
-        $data = $query->where('user_id', Auth::id())->orderBy('tanggal_pencapaian')->paginate(10);
+        // Map the nested arrays to objects
+        $groupedData = collect($milestonesGrouped)->map(function ($items) {
+            return collect($items)->map(function ($item) {
+                return (object)[
+                    'tahapan' => (new TahapanPerkembangan)->forceFill((array)$item['tahapan']),
+                    'achieved_data' => $item['pencapaian'] ? (new TahapanPerkembanganData)->forceFill((array)$item['pencapaian']) : null,
+                    'status_detail' => (object)$item['status_detail']
+                ];
+            });
+        });
 
         return view('orangtua.tahapan_perkembangan.index', [
-            'data' => $data,
-            'kategoris' => $statusOptions,
-            'kategoriIds' => $selectedStatus,
+            'groupedData' => $groupedData,
+            'kategoris' => $kategoriOptions,
+            'kategoriIds' => $selectedKategori,
             'action' => route('orangtua.tahapan_perkembangan.index'),
+            'child' => $child
         ]);
     }
 
     public function create()
     {
-        if (auth()->user()->role !== 'orangtua') {
+        if ((session('user')['role'] ?? '') !== 'orangtua') {
             abort(403, 'Unauthorized');
         }
 
-        // Menampilkan daftar tahapan perkembangan untuk dipilih oleh orang tua
-        $tahapanPerkembangan = TahapanPerkembangan::all();
+        $response = $this->api->get('/tahapan-master');
+        $tahapanPerkembangan = collect($response->successful() ? $response->json() : [])->map(function ($item) {
+            return (new TahapanPerkembangan)->forceFill((array)$item);
+        });
+        
         return view('orangtua.tahapan_perkembangan.create', compact('tahapanPerkembangan'));
     }
 
     public function edit($id)
     {
-        if (auth()->user()->role !== 'orangtua') {
+        if ((session('user')['role'] ?? '') !== 'orangtua') {
             abort(403, 'Unauthorized');
         }
 
-        // Mengambil data tahapan perkembangan berdasarkan ID
-        $tahapanPerkembanganData = TahapanPerkembanganData::findOrFail($id);
-        $tahapanPerkembangan = TahapanPerkembangan::all();
+        // To edit, we need the specific achievement data.
+        // It's not straightforward without a specific GET /children/{child}/perkembangan/{id} endpoint.
+        // As a workaround, we can fetch all and filter, or just rely on the API to update it.
+        $childId = session('selected_child_id');
+        $response = $this->api->get("/children/{$childId}/perkembangan");
+        
+        $tahapanPerkembanganData = null;
+        if ($response->successful()) {
+            $milestonesGrouped = $response->json()['milestones'] ?? [];
+            foreach ($milestonesGrouped as $category => $items) {
+                foreach ($items as $item) {
+                    if ($item['pencapaian'] && $item['pencapaian']['id'] == $id) {
+                        $tahapanPerkembanganData = (new TahapanPerkembanganData)->forceFill((array)$item['pencapaian']);
+                        break 2;
+                    }
+                }
+            }
+        }
 
-        // Mengirim data ke view edit
+        if (!$tahapanPerkembanganData) abort(404);
+
+        $responseMaster = $this->api->get('/tahapan-master');
+        $tahapanPerkembangan = collect($responseMaster->successful() ? $responseMaster->json() : [])->map(function ($item) {
+            return (new TahapanPerkembangan)->forceFill((array)$item);
+        });
+
         return view('orangtua.tahapan_perkembangan.edit', compact('tahapanPerkembanganData', 'tahapanPerkembangan'));
     }
 
     public function store(Request $request)
     {
-        if (auth()->user()->role !== 'orangtua') {
+        if ((session('user')['role'] ?? '') !== 'orangtua') {
             abort(403, 'Unauthorized');
         }
 
-        // Validasi data yang diterima
         $request->validate([
-            'tahapan_perkembangan_id' => 'required|exists:tahapan_perkembangan,id',
+            'tahapan_perkembangan_id' => 'required|numeric',
             'tanggal_pencapaian' => 'required|date|before_or_equal:today',
             'catatan' => 'nullable|string',
         ]);
 
-        // Menyimpan pencapaian tahapan perkembangan untuk user
-        TahapanPerkembanganData::create([
-            'user_id' => Auth::id(),
-            'tahapan_perkembangan_id' => $request->tahapan_perkembangan_id,
-            'tanggal_pencapaian' => $request->tanggal_pencapaian,
-            // Status akan di-auto-calculate melalui model boot method
-            'catatan' => $request->catatan,
-        ]);
+        $childId = session('selected_child_id');
+        $response = $this->api->post("/children/{$childId}/perkembangan", $request->only([
+            'tahapan_perkembangan_id', 'tanggal_pencapaian', 'catatan'
+        ]));
 
-        return redirect()->route('orangtua.tahapan_perkembangan.index')->with('success', 'Pencapaian tahapan perkembangan berhasil ditambahkan.');
+        if ($response->successful()) {
+            return redirect()->route('orangtua.tahapan_perkembangan.index')->with('success', 'Pencapaian tahapan perkembangan berhasil ditambahkan.');
+        }
+
+        return redirect()->back()->withErrors(['message' => 'Gagal menyimpan data'])->withInput();
     }
 
     public function update(Request $request, $id)
     {
-        if (auth()->user()->role !== 'orangtua') {
+        if ((session('user')['role'] ?? '') !== 'orangtua') {
             abort(403, 'Unauthorized');
         }
 
-        // Validasi data yang diterima
         $request->validate([
-            'tahapan_perkembangan_id' => 'required|exists:tahapan_perkembangan,id',
             'tanggal_pencapaian' => 'required|date|before_or_equal:today',
             'catatan' => 'nullable|string',
         ]);
 
-        // Menemukan data yang akan diupdate berdasarkan ID
-        $tahapanPerkembanganData = TahapanPerkembanganData::findOrFail($id);
+        $childId = session('selected_child_id');
+        $response = $this->api->put("/children/{$childId}/perkembangan/{$id}", $request->only([
+            'tanggal_pencapaian', 'catatan'
+        ]));
 
-        // Update data pencapaian tahapan perkembangan
-        $tahapanPerkembanganData->update([
-            'tahapan_perkembangan_id' => $request->tahapan_perkembangan_id,
-            'tanggal_pencapaian' => $request->tanggal_pencapaian,
-            // Status akan di-auto-calculate melalui model boot method
-            'catatan' => $request->catatan,
-        ]);
+        if ($response->successful()) {
+            return redirect()->route('orangtua.tahapan_perkembangan.index')->with('success', 'Pencapaian tahapan perkembangan berhasil diupdate.');
+        }
 
-        return redirect()->route('orangtua.tahapan_perkembangan.index')->with('success', 'Pencapaian tahapan perkembangan berhasil diupdate.');
+        return redirect()->back()->withErrors(['message' => 'Gagal memperbarui data'])->withInput();
     }
+
     public function destroy($id)
     {
-        if (auth()->user()->role !== 'orangtua') {
+        if ((session('user')['role'] ?? '') !== 'orangtua') {
             abort(403, 'Unauthorized');
         }
         
-        $tahapanPerkembanganData = TahapanPerkembanganData::findOrFail($id);
-        $tahapanPerkembanganData->delete();
+        $childId = session('selected_child_id');
+        $this->api->delete("/children/{$childId}/perkembangan/{$id}");
 
         return redirect()->route('orangtua.tahapan_perkembangan.index')->with('success', 'Pencapaian tahapan perkembangan berhasil dihapus.');
     }

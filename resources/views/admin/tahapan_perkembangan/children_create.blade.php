@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tambah Pencapaian - ' . $user->nama_anak)
+@section('title', 'Tambah Pencapaian - ' . $child->nama_lengkap_anak)
 
 @section('content')
 <style>
@@ -115,8 +115,8 @@
     {{-- Header --}}
     <div class="main-header" style="margin-top: 0; margin-bottom: 1.5rem;">
         <div style="display:flex; align-items:center; gap:0.5rem;">
-            <x-back-button :url="route('admin.perkembangan.children.show', $user->id)" />
-            <h1 class="main-title">Tambah Pencapaian: {{ $user->nama_anak }}</h1>
+            <x-back-button :url="route('admin.perkembangan.children.show', $child->id)" />
+            <h1 class="main-title">Tambah Pencapaian: {{ $child->nama_lengkap_anak }}</h1>
         </div>
     </div>
 
@@ -133,7 +133,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.perkembangan.children.store', $user->id) }}" method="POST">
+            <form action="{{ route('admin.perkembangan.children.store', $child->id) }}" method="POST">
                 @csrf
 
                 <div class="mb-3">

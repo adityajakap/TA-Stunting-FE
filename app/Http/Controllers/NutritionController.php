@@ -2,39 +2,51 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ApiClient;
 use Illuminate\Http\Request;
 use App\Models\NutritionRecommendation;
 
 class NutritionController extends Controller
 {
-    public function index()
+    protected ApiClient $api;
+
+    public function __construct(ApiClient $api)
     {
-        if (auth()->user()->role !== 'admin') {
+        $this->api = $api;
+    }
+
+    public function index(Request $request)
+    {
+        if ((session('user')['role'] ?? '') !== 'admin') {
             abort(403, 'Unauthorized');
         }
 
-        // Allow simple search from the admin search modal
-        $search = request('search');
+        $response = $this->api->get('/admin/nutrition', [
+            'search' => $request->search,
+            'paginate' => 12,
+            'page' => $request->page ?? 1
+        ]);
+        
+        $data = $response->successful() ? $response->json() : ['data' => [], 'total' => 0, 'per_page' => 12, 'current_page' => 1];
+        
+        $items = collect($data['data'])->map(function ($item) {
+            return (new NutritionRecommendation)->forceFill((array)$item);
+        });
 
-        $query = NutritionRecommendation::query();
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('nutrition', 'like', "%{$search}%")
-                  ->orWhere('ingredients', 'like', "%{$search}%");
-            });
-        }
-
-        // Paginate so the view can call ->links()
-        $menus = $query->orderBy('created_at', 'desc')->paginate(12)->withQueryString();
+        $menus = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $data['total'] ?? 0,
+            $data['per_page'] ?? 12,
+            $data['current_page'] ?? 1,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
 
         return view('admin.nutrition.index', compact('menus'));
     }
 
     public function create()
     {
-        if (auth()->user()->role !== 'admin') {
+        if ((session('user')['role'] ?? '') !== 'admin') {
             abort(403, 'Unauthorized');
         }
 
@@ -43,7 +55,7 @@ class NutritionController extends Controller
 
     public function store(Request $request)
     {
-        if (auth()->user()->role !== 'admin') {
+        if ((session('user')['role'] ?? '') !== 'admin') {
             abort(403, 'Unauthorized');
         }
 
@@ -56,34 +68,36 @@ class NutritionController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
-        $data = $request->all();
+        $data = $request->except('image');
+        $file = $request->file('image');
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('uploads/nutrition', 'public');
+        $response = $this->api->postMultipart('/admin/nutrition', $data, $file, 'image');
+
+        if ($response->successful()) {
+            return redirect()->route('admin.nutrition.index')->with('success', 'Menu berhasil ditambahkan');
         }
 
-        NutritionRecommendation::create($data);
-
-        return redirect()->route('admin.nutrition.index')->with('success', 'Menu berhasil ditambahkan');
+        return back()->with('error', 'Gagal menambahkan menu')->withInput();
     }
 
     public function edit($id)
     {
-        if (auth()->user()->role !== 'admin') {
+        if ((session('user')['role'] ?? '') !== 'admin') {
             abort(403, 'Unauthorized');
         }
 
-        $menu = NutritionRecommendation::findOrFail($id);
+        $response = $this->api->get("/admin/nutrition/{$id}");
+        if (!$response->successful()) abort(404);
+        
+        $menu = (new NutritionRecommendation)->forceFill($response->json());
         return view('admin.nutrition.edit', compact('menu'));
     }
 
     public function update(Request $request, $id)
     {
-        if (auth()->user()->role !== 'admin') {
+        if ((session('user')['role'] ?? '') !== 'admin') {
             abort(403, 'Unauthorized');
         }
-
-        $menu = NutritionRecommendation::findOrFail($id);
 
         $request->validate([
             'name' => 'required',
@@ -94,32 +108,33 @@ class NutritionController extends Controller
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
-        $data = $request->all();
+        $data = $request->except(['image', '_method']);
+        $data['_method'] = 'PUT'; // API client uses POST for multipart, so we spoof PUT
+        $file = $request->file('image');
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('uploads/nutrition', 'public');
+        $response = $this->api->postMultipart("/admin/nutrition/{$id}", $data, $file, 'image');
+
+        if ($response->successful()) {
+            return redirect()->route('admin.nutrition.index')->with('success', 'Menu berhasil diperbarui');
         }
 
-        $menu->update($data);
-
-        return redirect()->route('admin.nutrition.index')->with('success', 'Menu berhasil diperbarui');
+        return back()->with('error', 'Gagal memperbarui menu')->withInput();
     }
 
     public function destroy($id)
     {
-        if (auth()->user()->role !== 'admin') {
+        if ((session('user')['role'] ?? '') !== 'admin') {
             abort(403, 'Unauthorized');
         }
 
-        $menu = NutritionRecommendation::findOrFail($id);
-        $menu->delete();
+        $this->api->delete("/admin/nutrition/{$id}");
 
         return redirect()->route('admin.nutrition.index')->with('success', 'Menu berhasil dihapus');
     }
 
     public function user(Request $request)
     {
-        if (auth()->user()->role !== 'orangtua') {
+        if ((session('user')['role'] ?? '') !== 'orangtua') {
             abort(403, 'Unauthorized');
         }
 
@@ -133,10 +148,28 @@ class NutritionController extends Controller
 
         $kategoriIds = $request->input('kategori', []);
 
-        $menus = NutritionRecommendation::when($kategoriIds, function ($query) use ($kategoriIds) {
-            return $query->whereIn('category', $kategoriIds);
-        })->get();
+        $response = $this->api->get('/nutrition', [
+            'kategori' => $kategoriIds
+        ]);
+        
+        $json = $response->successful() ? $response->json() : [];
+        $menus = collect($json)->map(function ($item) {
+            return (new NutritionRecommendation)->forceFill((array)$item);
+        });
 
         return view('orangtua.nutritionUs.index', compact('menus', 'kategoris', 'kategoriIds'));
+    }
+
+    public function userShow($id)
+    {
+        if ((session('user')['role'] ?? '') !== 'orangtua') {
+            abort(403, 'Unauthorized');
+        }
+
+        $response = $this->api->get("/nutrition/{$id}");
+        if (!$response->successful()) abort(404);
+
+        $menu = (new NutritionRecommendation)->forceFill((array)$response->json());
+        return view('orangtua.nutritionus.show', compact('menu'));
     }
 }

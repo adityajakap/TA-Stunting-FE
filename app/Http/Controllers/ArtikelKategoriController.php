@@ -7,10 +7,20 @@ use Illuminate\Http\Request;
 
 class ArtikelKategoriController extends Controller
 {
+    protected \App\Services\ApiClient $api;
+
+    public function __construct(\App\Services\ApiClient $api)
+    {
+        $this->api = $api;
+    }
+
     public function index()
     {
-        // Ini saja cukup, tanpa perlu whereNull('deleted_at')
-        $kategoris = ArtikelKategori::all();
+        $response = $this->api->get('/admin/kategori');
+        $kategoris = collect($response->successful() ? $response->json() : [])->map(function ($item) {
+            return (new ArtikelKategori)->forceFill((array)$item);
+        });
+        
         return view('admin.artikel.kategori.index', compact('kategoris'));
     }
 
@@ -25,37 +35,42 @@ class ArtikelKategoriController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        ArtikelKategori::create([
-            'name' => $request->name,
-        ]);
+        $response = $this->api->post('/admin/kategori', ['name' => $request->name]);
 
-        return redirect()->route('admin.artikel.kategori.index')->with('success', 'Kategori berhasil ditambahkan.');
+        if ($response->successful()) {
+            return redirect()->route('admin.artikel.kategori.index')->with('success', 'Kategori berhasil ditambahkan.');
+        }
+
+        return back()->with('error', 'Gagal menambahkan kategori')->withInput();
     }
 
-    public function edit(ArtikelKategori $kategori)
+    public function edit($id)
     {
+        $response = $this->api->get("/admin/kategori/{$id}");
+        if (!$response->successful()) abort(404);
+        
+        $kategori = (new ArtikelKategori)->forceFill($response->json());
         return view('admin.artikel.kategori.edit', compact('kategori'));
     }
 
-    public function update(Request $request, ArtikelKategori $kategori)
+    public function update(Request $request, $id)
     {
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
 
-        $kategori->update([
-            'name' => $request->name,
-        ]);
+        $response = $this->api->put("/admin/kategori/{$id}", ['name' => $request->name]);
 
-        return redirect()->route('admin.artikel.kategori.index')->with('success', 'Kategori berhasil diperbarui.');
+        if ($response->successful()) {
+            return redirect()->route('admin.artikel.kategori.index')->with('success', 'Kategori berhasil diperbarui.');
+        }
+
+        return back()->with('error', 'Gagal memperbarui kategori')->withInput();
     }
 
-    public function destroy(ArtikelKategori $kategori)
+    public function destroy($id)
     {
-        $kategori->delete(); // Soft delete
-    
+        $this->api->delete("/admin/kategori/{$id}");
         return redirect()->route('admin.artikel.kategori.index')->with('success', 'Kategori berhasil dihapus.');
-
-         
     }
 }

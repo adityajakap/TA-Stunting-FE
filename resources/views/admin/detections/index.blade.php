@@ -157,7 +157,8 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Nama</th>
+                        <th>Nama Orang Tua</th>
+                        <th>Nama Anak</th>
                         <th>Umur (bulan)</th>
                         <th>Jenis Kelamin</th>
                         <th>Berat Badan (kg)</th>
@@ -170,7 +171,8 @@
                 <tbody>
                     @forelse ($semua as $d)
                         <tr>
-                            <td>{{ $d->user->nama_anak ?? '-' }}</td>
+                            <td>{{ $d->child->user->nama_lengkap ?? '-' }}</td>
+                            <td>{{ $d->child->nama_lengkap_anak ?? '-' }}</td>
                             <td>{{ $d->umur }}</td>
                             <td>{{ $d->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
                             <td>{{ $d->berat_badan }}</td>
@@ -185,7 +187,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center">Belum ada data deteksi.</td>
+                            <td colspan="9" class="text-center">Belum ada data deteksi.</td>
                         </tr>
                     @endforelse
                 </tbody>

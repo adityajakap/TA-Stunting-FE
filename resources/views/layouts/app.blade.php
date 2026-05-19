@@ -149,14 +149,16 @@
         <div class="container-fluid">
 
             {{-- Brand --}}
-            <a class="navbar-brand" href="{{ Auth::check() && Auth::user()->role === 'admin' ? route('admin.dashboard') : route('orangtua.dashboard') }}">
+            <a class="navbar-brand" href="{{ session('user') && (session('user')['role'] ?? '') === 'admin' ? route('admin.dashboard') : route('orangtua.dashboard') }}">
                 <img src="{{ asset('images/logo2.png') }}" alt="Stunting Logo" style="height:55px;">
             </a>
 
             {{-- NAVBAR MENU --}}
-            @auth
+            @if(session('user'))
             @php
-                $role = Auth::user()->role;
+                $user = session('user');
+                $role = $user['role'] ?? 'orangtua';
+                $activeChildName = session('active_child_name');
             @endphp
 
             <div class="d-flex w-100 justify-content-between align-items-center">
@@ -189,7 +191,12 @@
                 <div class="dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                         data-bs-toggle="dropdown" aria-expanded="false">
-                        Hi, {{ Auth::user()->nama_anak ?? 'Pengguna' }}
+                        Hi, {{ $user['nama_lengkap'] ?? $user['username'] ?? 'Pengguna' }}
+                        @if($activeChildName)
+                            <span class="badge ms-2 text-white" style="background-color: #00a896; font-size: 0.75rem; vertical-align: middle;">
+                                Anak Aktif: {{ $activeChildName }}
+                            </span>
+                        @endif
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li><a class="dropdown-item" href="{{ route('profile') }}">Profil</a></li>
@@ -202,19 +209,29 @@
                     </ul>
                 </div>
             </div>
-            @endauth
+            @endif
         </div>
     </nav>
+
+    {{-- FLOATING ALERTS --}}
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999; margin-top: 70px;">
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show shadow-sm border-0" role="alert" style="background-color: #d1fae5; color: #065f46;">
+                <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0" role="alert" style="background-color: #fee2e2; color: #991b1b;">
+                <i class="fas fa-exclamation-circle me-2"></i> {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+    </div>
 
     {{-- MAIN CONTENT --}}
     <main class="container mt-4">
         <div class="content-card">
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
 
             @yield('content')
         </div>
