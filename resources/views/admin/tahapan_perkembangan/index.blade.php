@@ -115,6 +115,50 @@
         margin-bottom: 1.5rem;
         border-left: 4px solid #3b82f6;
     }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+        display: block;
+    }
+    
+    @media (max-width: 767.98px) {
+        .table thead th, .table tbody td {
+            font-size: 0.85rem !important;
+            padding: 0.6rem 0.8rem !important;
+        }
+        
+        .table thead th:nth-child(2), .table tbody td:nth-child(2) {
+            min-width: 150px !important;
+        }
+        .table thead th:nth-child(3), .table tbody td:nth-child(3) {
+            min-width: 250px !important;
+        }
+        .table thead th:nth-child(4), .table tbody td:nth-child(4),
+        .table thead th:nth-child(5), .table tbody td:nth-child(5) {
+            min-width: 130px !important;
+            white-space: nowrap !important;
+        }
+        
+        .main-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+            margin-top: 0.5rem !important;
+            margin-bottom: 1rem !important;
+        }
+        
+        .action-buttons {
+            width: 100% !important;
+        }
+        
+        .action-buttons a {
+            display: block !important;
+            text-align: center !important;
+            width: 100% !important;
+        }
+    }
 </style>
 
 <div class="card-wrapper">
@@ -138,28 +182,30 @@
     {{-- Tabel dalam Card --}}
     <div class="card">
         <div class="card-body">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nama Tahapan</th>
-                        <th>Deskripsi</th>
-                        <th>Umur Minimal (bulan)</th>
-                        <th>Umur Maksimal (bulan)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($tahapanPerkembangan as $item)
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
                         <tr>
-                            <td>{{ $item->id }}</td>
-                            <td>{{ $item->nama_tahapan }}</td>
-                            <td>{{ $item->deskripsi }}</td>
-                            <td>{{ $item->umur_minimal_bulan }}</td>
-                            <td>{{ $item->umur_maksimal_bulan }}</td>
+                            <th>ID</th>
+                            <th>Nama Tahapan</th>
+                            <th>Deskripsi</th>
+                            <th>Umur Minimal (bulan)</th>
+                            <th>Umur Maksimal (bulan)</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach($tahapanPerkembangan as $item)
+                            <tr>
+                                <td>{{ $item->id }}</td>
+                                <td>{{ $item->nama_tahapan }}</td>
+                                <td>{{ $item->deskripsi }}</td>
+                                <td>{{ $item->umur_minimal_bulan }}</td>
+                                <td>{{ $item->umur_maksimal_bulan }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

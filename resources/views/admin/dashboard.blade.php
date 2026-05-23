@@ -11,33 +11,45 @@
     }
 
     .section-wrapper {
-        padding-inline: 5%;
+        padding: 20px;
+        width: 100%;
     }
 
     .section-title {
         color: #005f77;
         font-weight: 700;
-        font-size: 3rem;
+        font-size: 2rem;
+        margin-bottom: 1rem;
     }
 
     .hero-section {
         display: flex;
+        flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        padding: 60px 0;
+        gap: 20px;
+        padding: 20px 0;
     }
 
     .hero-text {
-        max-width: 55%;
+        width: 100%;
+        order: 2;
+    }
+
+    .hero-text p {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #555;
     }
 
     .hero-image {
-        width: 45%;
-        height: 450px;
+        width: 100%;
+        height: 250px;
         border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
+        order: 1;
     }
 
     .hero-image img {
@@ -48,19 +60,19 @@
     }
 
     .feature-grid {
-        display: flex;
-        gap: 20px;
-        padding: 40px 0;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 20px 0;
     }
 
     .feature-box-link {
-        flex: 1;
         text-decoration: none;
         transition: transform 0.2s ease-in-out;
     }
 
     .feature-box-link:hover {
-        transform: translateY(-6px);
+        transform: translateY(-4px);
     }
 
     .feature-box {
@@ -79,15 +91,141 @@
     }
 
     .icon-feature {
-        font-size: 2rem;
+        font-size: 1.8rem;
         color: #ffffff;
         margin-bottom: 10px;
         display: block;
     }
 
-    .feature-box h3,
+    .feature-box h3 {
+        color: white;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
     .feature-box p {
         color: white;
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    /* ========== RESPONSIVE DESIGN ========== */
+    /* Tablet (sm) - 576px to 767px */
+    @media (min-width: 576px) {
+        .section-wrapper {
+            padding: 30px;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+        }
+
+        .hero-section {
+            gap: 30px;
+        }
+
+        .hero-image {
+            height: 300px;
+        }
+
+        .feature-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .icon-feature {
+            font-size: 2rem;
+        }
+
+        .feature-box h3 {
+            font-size: 1.3rem;
+        }
+    }
+
+    /* Medium screens (md) - 768px to 991px */
+    @media (min-width: 768px) {
+        .section-wrapper {
+            padding: 40px;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+        }
+
+        .hero-section {
+            flex-direction: row;
+            gap: 40px;
+            padding: 40px 0;
+        }
+
+        .hero-text {
+            max-width: 50%;
+            order: 1;
+        }
+
+        .hero-image {
+            width: 45%;
+            height: 350px;
+            order: 2;
+        }
+
+        .feature-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            padding: 30px 0;
+        }
+
+        .feature-box-link:hover {
+            transform: translateY(-6px);
+        }
+    }
+
+    /* Large screens (lg) and up - 992px+ */
+    @media (min-width: 992px) {
+        .section-wrapper {
+            padding-inline: 5%;
+        }
+
+        .section-title {
+            font-size: 3rem;
+        }
+
+        .hero-section {
+            justify-content: space-between;
+            align-items: center;
+            padding: 60px 0;
+        }
+
+        .hero-text {
+            max-width: 55%;
+        }
+
+        .hero-image {
+            width: 40%;
+            height: 400px;
+        }
+
+        .feature-grid {
+            display: flex;
+            gap: 20px;
+            padding: 40px 0;
+        }
+
+        .feature-box-link {
+            flex: 1;
+        }
+
+        .icon-feature {
+            font-size: 2rem;
+        }
+
+        .feature-box h3 {
+            font-size: 1.3rem;
+        }
+
+        .feature-box p {
+            font-size: 1rem;
+        }
     }
 </style>
 

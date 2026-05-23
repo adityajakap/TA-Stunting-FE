@@ -135,6 +135,58 @@
     .hidden {
         display: none;
     }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+        display: block;
+    }
+
+    @media (max-width: 991.98px) {
+        .main-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+            margin-top: 0.5rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .action-buttons {
+            width: 100% !important;
+            display: flex !important;
+            gap: 8px !important;
+            margin-left: 0 !important;
+        }
+
+        .action-buttons a {
+            flex: 1 !important;
+            text-align: center !important;
+            margin-left: 0 !important;
+            padding: 8px 12px !important;
+            font-size: 0.85rem !important;
+            white-space: nowrap !important;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        .table thead th, .table tbody td {
+            font-size: 0.8rem !important;
+            padding: 0.5rem 0.6rem !important;
+        }
+
+        .table thead th:nth-child(1), .table tbody td:nth-child(1) {
+            min-width: 150px !important;
+        }
+        .table thead th:nth-child(2), .table tbody td:nth-child(2) {
+            min-width: 150px !important;
+        }
+        .table thead th:nth-child(4), .table tbody td:nth-child(4),
+        .table thead th:nth-child(9), .table tbody td:nth-child(9) {
+            min-width: 120px !important;
+            white-space: nowrap !important;
+        }
+    }
 </style>
 
 <div class="card-wrapper">
@@ -154,44 +206,46 @@
     {{-- Tabel dalam Card --}}
     <div class="card">
         <div class="card-body">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Nama Orang Tua</th>
-                        <th>Nama Anak</th>
-                        <th>Umur (bulan)</th>
-                        <th>Jenis Kelamin</th>
-                        <th>Berat Badan (kg)</th>
-                        <th>Tinggi Badan (cm)</th>
-                        <th>Z-Score</th>
-                        <th>Status</th>
-                        <th>Waktu</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($semua as $d)
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
                         <tr>
-                            <td>{{ $d->child->user->nama_lengkap ?? '-' }}</td>
-                            <td>{{ $d->child->nama_lengkap_anak ?? '-' }}</td>
-                            <td>{{ $d->umur }}</td>
-                            <td>{{ $d->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
-                            <td>{{ $d->berat_badan }}</td>
-                            <td>{{ $d->tinggi_badan }}</td>
-                            <td>{{ $d->z_score }}</td>
-                            <td>
-                                <span class="badge {{ $d->status == 'Stunting' ? 'bg-danger' : 'bg-success' }}">
-                                    {{ $d->status == 'Tinggi' ? 'Normal' : $d->status }}
-                                </span>
-                            </td>
-                            <td>{{ $d->created_at->format('d M Y H:i') }}</td>
+                            <th>Nama Orang Tua</th>
+                            <th>Nama Anak</th>
+                            <th>Umur (bulan)</th>
+                            <th>Jenis Kelamin</th>
+                            <th>Berat Badan (kg)</th>
+                            <th>Tinggi Badan (cm)</th>
+                            <th>Z-Score</th>
+                            <th>Status</th>
+                            <th>Waktu</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="9" class="text-center">Belum ada data deteksi.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @forelse ($semua as $d)
+                            <tr>
+                                <td>{{ $d->child->user->nama_lengkap ?? '-' }}</td>
+                                <td>{{ $d->child->nama_lengkap_anak ?? '-' }}</td>
+                                <td>{{ $d->umur }}</td>
+                                <td>{{ $d->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                                <td>{{ $d->berat_badan }}</td>
+                                <td>{{ $d->tinggi_badan }}</td>
+                                <td>{{ $d->z_score }}</td>
+                                <td>
+                                    <span class="badge {{ $d->status == 'Stunting' ? 'bg-danger' : 'bg-success' }}">
+                                        {{ $d->status == 'Tinggi' ? 'Normal' : $d->status }}
+                                    </span>
+                                </td>
+                                <td>{{ $d->created_at->format('d M Y H:i') }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="text-center">Belum ada data deteksi.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

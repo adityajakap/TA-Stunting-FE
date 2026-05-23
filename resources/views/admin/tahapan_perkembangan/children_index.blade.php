@@ -122,6 +122,58 @@
         font-size: 0.95rem;
         min-width: 300px;
     }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+        display: block;
+    }
+
+    @media (max-width: 767.98px) {
+        .main-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+            margin-top: 0.5rem !important;
+            margin-bottom: 1rem !important;
+        }
+
+        .search-form {
+            width: 100% !important;
+            display: flex !important;
+            gap: 8px !important;
+        }
+
+        .form-control {
+            min-width: 0 !important;
+            flex-grow: 1 !important;
+        }
+
+        .action-buttons {
+            width: 100% !important;
+        }
+
+        .table thead th, .table tbody td {
+            font-size: 0.85rem !important;
+            padding: 0.6rem 0.8rem !important;
+        }
+
+        .table thead th:nth-child(2), .table tbody td:nth-child(2) {
+            min-width: 150px !important;
+        }
+        .table thead th:nth-child(3), .table tbody td:nth-child(3) {
+            min-width: 150px !important;
+        }
+        .table thead th:nth-child(4), .table tbody td:nth-child(4) {
+            min-width: 130px !important;
+            white-space: nowrap !important;
+        }
+        .table thead th:nth-child(5), .table tbody td:nth-child(5) {
+            min-width: 160px !important;
+            white-space: nowrap !important;
+        }
+    }
 </style>
 
 <div class="card-wrapper">
@@ -142,34 +194,36 @@
     {{-- Tabel dalam Card --}}
     <div class="card">
         <div class="card-body">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Nama Orang Tua</th>
-                        <th>Nama Anak</th>
-                        <th>NIK</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($children as $c)
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
                         <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            <td>{{ $c->user->nama_lengkap ?? '-' }}</td>
-                            <td>{{ $c->nama_lengkap_anak }}</td>
-                            <td>{{ $c->nik_anak }}</td>
-                            <td>
-                                <a href="{{ route('admin.perkembangan.children.show', $c->id) }}" class="btn-primary-custom">Lihat Perkembangan</a>
-                            </td>
+                            <th>#</th>
+                            <th>Nama Orang Tua</th>
+                            <th>Nama Anak</th>
+                            <th>NIK</th>
+                            <th>Aksi</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-center">Tidak ada data anak.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @forelse($children as $c)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>{{ $c->user->nama_lengkap ?? '-' }}</td>
+                                <td>{{ $c->nama_lengkap_anak }}</td>
+                                <td>{{ $c->nik_anak }}</td>
+                                <td>
+                                    <a href="{{ route('admin.perkembangan.children.show', $c->id) }}" class="btn-primary-custom">Lihat Perkembangan</a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="text-center">Tidak ada data anak.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

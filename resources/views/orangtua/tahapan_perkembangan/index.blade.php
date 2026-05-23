@@ -56,19 +56,120 @@
     .text-center { text-align: center; }
     .text-muted { color: #6b7280; }
     .table-responsive { overflow-x: auto; margin-bottom: 2rem; }
+
+    /* Wrapper container spacing to avoid fixed desktop navbar overlap */
+    .development-wrapper {
+        margin-top: 6rem !important;
+        margin-bottom: 2rem;
+    }
+
+    /* Header Styling inside card */
+    .development-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1280px;
+        margin: 0.5rem auto 1.5rem auto; /* Clean, tight margins inside the card */
+        gap: 16px;
+    }
+
+    .development-header-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 0;
+    }
+
+    .development-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    /* Mobile Responsive Overrides */
+    @media (max-width: 767.98px) {
+        .development-wrapper {
+            margin-top: 1rem !important;
+        }
+
+        .development-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+            margin-top: 0 !important;
+            margin-bottom: 1.25rem !important;
+        }
+
+        .development-header-title {
+            width: 100% !important;
+        }
+
+        .development-header-title h1 {
+            font-size: 1.4rem !important;
+            line-height: 1.4 !important;
+        }
+
+        .development-header-actions {
+            width: 100% !important;
+            justify-content: space-between !important;
+            gap: 8px !important;
+        }
+
+        .development-header-actions button,
+        .development-header-actions a {
+            flex: 1 !important;
+            text-align: center !important;
+            font-size: 0.85rem !important;
+            padding: 8px 12px !important;
+            white-space: nowrap !important;
+        }
+
+        /* Card body padding adjustment */
+        .card-body {
+            padding: 1rem !important;
+        }
+
+        /* Table Column Min-Widths on Mobile */
+        .table thead th:nth-child(1),
+        .table tbody td:nth-child(1) {
+            min-width: 180px !important;
+        }
+
+        .table thead th:nth-child(2),
+        .table tbody td:nth-child(2) {
+            min-width: 110px !important;
+            white-space: nowrap !important;
+        }
+
+        .table thead th:nth-child(3),
+        .table tbody td:nth-child(3) {
+            min-width: 130px !important;
+            white-space: nowrap !important;
+        }
+
+        .table thead th:nth-child(4),
+        .table tbody td:nth-child(4) {
+            min-width: 220px !important;
+        }
+
+        .table thead th, .table tbody td {
+            padding: 0.6rem 0.5rem !important;
+            font-size: 0.8rem !important;
+        }
+    }
 </style>
 
-<div class="container px-0">
+<div class="container px-0 development-wrapper">
     <div class="card shadow-sm">
         <div class="card-body">
 
             {{-- HEADER --}}
-            <div class="d-flex justify-content-between align-items-center mb-4" style="max-width: 1280px; margin: 0 auto; ">
-                <div style="display:flex; align-items:center; gap:0.5rem;">
+            <div class="development-header">
+                <div class="development-header-title">
                     <x-back-button />
                     <h1 class="main-title mb-0" style="color: #005f77; font-size: 1.75rem;">Tahapan Perkembangan</h1>
                 </div>
-                <div class="d-flex align-items-center gap-2">
+                <div class="development-header-actions">
                     <button type="button" onclick="document.getElementById('filterModal').classList.remove('hidden')" class="btn btn-outline-secondary" style="border-radius: 0.5rem;">
                         <i class="fas fa-filter"></i> Filter
                     </button>

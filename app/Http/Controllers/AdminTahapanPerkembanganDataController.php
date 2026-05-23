@@ -28,9 +28,11 @@ class AdminTahapanPerkembanganDataController extends Controller
         $childrenData = $response->successful() ? $response->json() : [];
 
         $children = collect($childrenData)->map(function ($childData) {
+            $userRelation = $childData['user'] ?? null;
+            unset($childData['user']);
             $child = (new Child)->forceFill((array)$childData);
-            if (isset($childData['user'])) {
-                $child->setRelation('user', (new User)->forceFill((array)$childData['user']));
+            if ($userRelation) {
+                $child->setRelation('user', (new User)->forceFill((array)$userRelation));
             }
             return $child;
         });
@@ -57,9 +59,11 @@ class AdminTahapanPerkembanganDataController extends Controller
         $childData = $json['child'] ?? [];
         $milestonesGrouped = $json['milestones'] ?? [];
 
+        $userRelation = $childData['user'] ?? null;
+        unset($childData['user']);
         $child = (new Child)->forceFill((array)$childData);
-        if (isset($childData['user'])) {
-            $child->setRelation('user', (new User)->forceFill((array)$childData['user']));
+        if ($userRelation) {
+            $child->setRelation('user', (new User)->forceFill((array)$userRelation));
         }
 
         $groupedData = collect($milestonesGrouped)->map(function ($items) {
@@ -67,7 +71,7 @@ class AdminTahapanPerkembanganDataController extends Controller
                 return (object)[
                     'tahapan' => (new TahapanPerkembangan)->forceFill((array)$item['tahapan']),
                     'achieved_data' => $item['pencapaian'] ? (new TahapanPerkembanganData)->forceFill((array)$item['pencapaian']) : null,
-                    'status_detail' => (object)$item['status_detail']
+                    'status_detail' => $item['status_detail']
                 ];
             });
         });
@@ -97,8 +101,12 @@ class AdminTahapanPerkembanganDataController extends Controller
         list($child, $groupedData) = $this->getChildMilestones($userId);
         if (!$child) abort(404);
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.tahapan_perkembangan.pdf', compact('child', 'groupedData'));
-        return $pdf->download('Laporan_Perkembangan_' . str_replace(' ', '_', $child->nama_lengkap_anak) . '.pdf');
+        $html = view('admin.tahapan_perkembangan.pdf', compact('child', 'groupedData'))->render();
+        
+        $pdf = \PDF::loadHTML($html);
+        $pdf->setPaper('A4', 'landscape');
+        
+        return $pdf->download('Laporan_Perkembangan_' . str_replace(' ', '_', $child->nama_lengkap_anak) . '_' . date('Y-m-d_H-i-s') . '.pdf');
     }
 
     // Tampilkan form tambah pencapaian untuk anak tertentu

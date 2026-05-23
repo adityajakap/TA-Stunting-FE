@@ -48,7 +48,7 @@ class TahapanPerkembanganDataController extends Controller
                 return (object)[
                     'tahapan' => (new TahapanPerkembangan)->forceFill((array)$item['tahapan']),
                     'achieved_data' => $item['pencapaian'] ? (new TahapanPerkembanganData)->forceFill((array)$item['pencapaian']) : null,
-                    'status_detail' => (object)$item['status_detail']
+                    'status_detail' => $item['status_detail']
                 ];
             });
         });

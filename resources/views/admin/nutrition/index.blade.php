@@ -24,6 +24,43 @@
     @media (max-width: 768px) { .card-container { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 480px) { .card-container { grid-template-columns: 1fr; } }
 
+    @media (max-width: 767.98px) {
+        .main-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+            margin-top: 0.5rem !important;
+            margin-bottom: 1.25rem !important;
+        }
+
+        .main-header > div:first-child {
+            width: 100% !important;
+        }
+
+        .main-title {
+            font-size: 1.5rem !important;
+        }
+
+        .action-buttons {
+            width: 100% !important;
+            display: flex !important;
+            gap: 8px !important;
+        }
+
+        .action-buttons a {
+            flex: 1 !important;
+            text-align: center !important;
+            font-size: 0.85rem !important;
+            padding: 8px 12px !important;
+            white-space: nowrap !important;
+        }
+
+        .card-container {
+            padding: 0 1rem !important;
+            gap: 1rem !important;
+        }
+    }
+
     .card { background-color: #ffffff; border-radius: 1rem; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
     .article-image { width: 100%; height: 180px; object-fit: cover; background-color: #f3f4f6; }
     .card-body { padding: 1rem; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; }
@@ -131,10 +168,10 @@
         <x-back-button />
         <h1 class="main-title">Daftar Menu</h1>
     </div>
+    <div class="action-buttons">
+        <a href="{{ route('admin.nutrition.create') }}" class="btn">+ Tambah Menu</a>
+    </div>
 </div>
-
-{{-- New Menu button --}}
-<a href="{{ route('admin.nutrition.create') }}" class="btn" style="display:block; width:100%; text-align:center; font-size:0.9rem; margin-bottom:1.5rem;">+ Menu</a>
 
 {{-- Search Modal --}}
 <div id="searchModal" class="modal-overlay" style="display:none; position: fixed; inset:0; background: rgba(0,0,0,0.4); z-index:999; justify-content:center; align-items:center;">

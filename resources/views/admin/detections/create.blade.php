@@ -8,19 +8,21 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        max-width: 1280px;
-        margin: 2rem auto 1rem;
+        width: 100%;
+        margin: 1rem auto;
         padding: 0 1rem;
+        gap: 1rem;
+        flex-wrap: wrap;
     }
 
     .main-title {
         color: #005f77;
-        font-size: 2rem;
+        font-size: 1.5rem;
         margin: 0;
     }
 
     .card-wrapper {
-        max-width: 1280px;
+        width: 100%;
         margin: 0 auto;
         padding: 0 1rem 2rem;
     }
@@ -34,7 +36,7 @@
     }
 
     .card-body {
-        padding: 2rem;
+        padding: 1.5rem;
     }
 
     .form-label {
@@ -42,13 +44,13 @@
         color: #374151;
         margin-bottom: 0.5rem;
         display: block;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
     }
 
     .form-control {
         border: 1px solid #d1d5db;
         border-radius: 0.5rem;
-        padding: 0.75rem 1rem;
+        padding: 0.6rem 0.8rem;
         font-size: 1rem;
         width: 100%;
         background-color: #fff;
@@ -69,6 +71,7 @@
         display: flex;
         gap: 0.75rem;
         margin-top: 2rem;
+        flex-wrap: wrap;
     }
 
     .btn {
@@ -77,9 +80,10 @@
         border-radius: 0.5rem;
         font-weight: 600;
         cursor: pointer;
-        font-size: 1rem;
+        font-size: 0.95rem;
         transition: all 0.3s ease;
-        text-decoration: none;
+        flex: 1;
+        min-width: 120px;
     }
 
     .btn-primary {
@@ -89,6 +93,7 @@
 
     .btn-primary:hover {
         background-color: #014f66;
+        transform: translateY(-2px);
     }
 
     .btn-secondary {
@@ -98,18 +103,180 @@
 
     .btn-secondary:hover {
         background-color: #4b5563;
+        transform: translateY(-2px);
     }
 
     .alert {
         padding: 1rem;
         border-radius: 0.5rem;
         margin-bottom: 1.5rem;
+        font-size: 0.95rem;
     }
 
     .alert-danger {
         background-color: #fee2e2;
         color: #991b1b;
         border: 1px solid #fecaca;
+    }
+
+    /* ========== RESPONSIVE DESIGN ========== */
+    /* Mobile (xs) - 320px to 575px */
+    @media (max-width: 575.98px) {
+        .main-header {
+            margin: 0.75rem auto;
+            padding: 0 0.75rem;
+        }
+
+        .main-title {
+            font-size: 1.3rem;
+        }
+
+        .card-wrapper {
+            padding: 0 0.75rem 1.5rem;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+        }
+
+        .form-control {
+            padding: 0.5rem 0.6rem;
+            font-size: 0.95rem;
+        }
+
+        .mb-3 {
+            margin-bottom: 1.2rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            min-width: 100px;
+            flex: 1 1 48%;
+        }
+
+        .button-group {
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .alert {
+            padding: 0.75rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    /* Tablet (sm) - 576px to 767px */
+    @media (min-width: 576px) and (max-width: 767.98px) {
+        .main-header {
+            margin: 1rem auto;
+            padding: 0 1rem;
+        }
+
+        .main-title {
+            font-size: 1.5rem;
+        }
+
+        .card-wrapper {
+            padding: 0 1rem 1.75rem;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+
+        .form-label {
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            padding: 0.6rem 0.8rem;
+        }
+
+        .btn {
+            min-width: 110px;
+            font-size: 0.9rem;
+        }
+    }
+
+    /* Medium screens (md) - 768px to 991px */
+    @media (min-width: 768px) {
+        .main-header {
+            max-width: 1280px;
+            margin: 1.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .main-title {
+            font-size: 1.75rem;
+        }
+
+        .card-wrapper {
+            max-width: 1280px;
+            padding: 0 1.5rem 2rem;
+        }
+
+        .card-body {
+            padding: 1.75rem;
+        }
+
+        .form-label {
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            padding: 0.7rem 1rem;
+        }
+
+        .btn {
+            flex: 0 1 auto;
+            min-width: auto;
+            font-size: 0.95rem;
+        }
+
+        .button-group {
+            flex-wrap: nowrap;
+        }
+    }
+
+    /* Large screens (lg) and up - 992px+ */
+    @media (min-width: 992px) {
+        .main-header {
+            max-width: 1280px;
+            margin: 2rem auto 1rem;
+            padding: 0 1rem;
+        }
+
+        .main-title {
+            font-size: 2rem;
+        }
+
+        .card-wrapper {
+            max-width: 1280px;
+            padding: 0 1rem 2rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .form-label {
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 0.6rem 1.5rem;
+            font-size: 1rem;
+        }
     }
 </style>
 
@@ -131,11 +298,11 @@
                 @csrf
 
                 <div class="mb-3">
-                    <label for="user_id" class="form-label">Pilih Anak (Orangtua)</label>
-                    <select name="user_id" id="user_id" class="form-control" required>
+                    <label for="child_id" class="form-label">Pilih Anak (Orangtua)</label>
+                    <select name="child_id" id="child_id" class="form-control" required>
                         <option value="">-- Pilih --</option>
                         @foreach($users as $u)
-                            <option value="{{ $u->id }}">{{ $u->nama_anak }} ({{ $u->nik_anak }})</option>
+                            <option value="{{ $u->id }}">{{ $u->nama_lengkap_anak }} ({{ $u->nik_anak }})</option>
                         @endforeach
                     </select>
                 </div>

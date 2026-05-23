@@ -12,41 +12,53 @@
     }
 
     .section-wrapper {
-        padding-inline: 5%;
+        padding: 30px 20px 20px 20px;
+        width: 100%;
     }
 
     .section-title {
         color: #005f77;
         font-weight: 700;
-        font-size: 3rem;
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
     }
 
     .section-title-feature {
         color: #005f77;
         font-weight: 700;
-        font-size: 2rem;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
     }
 
     .hero-section {
         display: flex;
+        flex-direction: column-reverse;
         justify-content: space-between;
         align-items: center;
-        padding: 60px 0;
-        /* background-color: #f8f9fa; */
+        padding: 20px 0;
+        gap: 20px;
     }
 
     .hero-text {
-        max-width: 55%;
+        width: 100%;
+        order: 2;
+    }
+
+    .hero-text p {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #555;
     }
 
     .hero-image {
-        width: 45%;
-        height: 450px; /* bisa ubah jadi 400px kalau masih kurang besar */
+        width: 100%;
+        height: 250px;
         border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 0;
+        order: 1;
     }
 
     .hero-image img {
@@ -56,24 +68,22 @@
         display: block;
     }
 
-
-
     .feature-grid {
-        display: flex;
-        gap: 20px;
-        padding: 40px 0;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 20px 0;
         justify-content: space-between;
     }
 
     .feature-box {
         background-color: #00a896;
         color: white;
-        flex: 1;
-        padding: 30px;
+        padding: 20px;
         border-radius: 16px;
         transition: all 0.3s ease-in-out;
         text-align: center;
-        min-height: 200px;
+        min-height: 150px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -82,114 +92,103 @@
 
     .feature-box:hover {
         background-color: #008f7f;
-        transform: translateY(-5px);
+        transform: translateY(-3px);
         box-shadow: 0 10px 25px rgba(0, 168, 150, 0.3);
     }
 
     .feature-box h3 {
         color: #ffffff;
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         font-weight: 600;
-        margin: 15px 0 10px 0;
+        margin: 10px 0 8px 0;
     }
 
     .feature-box p {
         color: #f1f1f1;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         line-height: 1.5;
         margin: 0;
     }
 
     .icon-feature {
-        font-size: 3rem;
+        font-size: 2.5rem;
         color: #ffffff;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
         display: block;
     }
 
-
     .menu-grid {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        padding-bottom: 40px;
-        padding-top: 20px;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        flex-wrap: nowrap;
-        white-space: nowrap;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 20px 0;
+        width: 100%;
     }
 
     .article-grid {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        padding-bottom: 40px;
-        padding-top: 20px;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 20px 0;
+        width: 100%;
     }
 
     .menu-block {
         background: #f8f9fa;
-        padding: 20px;
-        border-radius: 16px;
+        padding: 15px;
+        border-radius: 12px;
         text-align: center;
-        width: 280px;
-        flex: 0 0 auto;
-        scroll-snap-align: start;
+        width: 100%;
         transition: transform 0.3s ease;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
     .menu-block:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
     }
 
     .menu-block img {
         width: 100%;
-        height: 180px;
+        height: 150px;
         object-fit: cover;
-        border-radius: 12px;
-        margin-bottom: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
     }
     
     .article-card {
         background: #f8f9fa;
         border: 1px solid #e9ecef;
-        border-radius: 16px;
+        border-radius: 12px;
         overflow: hidden;
-        min-width: 300px;
-        flex: 0 0 auto;
-        scroll-snap-align: start;
+        width: 100%;
         transition: transform 0.3s ease;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
 
     .article-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
     }
 
     .article-card img {
         width: 100%;
-        height: 150px;
+        height: 120px;
         object-fit: cover;
-        border-radius: 12px;
-        margin-bottom: 10px;
+        border-radius: 8px;
+        margin-bottom: 8px;
     }
 
     .article-content {
-        padding: 20px;
+        padding: 15px;
         text-align: left;
     }
 
     .article-content h6 {
         font-weight: 600;
-        margin: 0 0 10px 0;
+        margin: 0 0 8px 0;
         color: #333;
-        font-size: 1.1rem;
+        font-size: 0.95rem;
         line-height: 1.4;
     }
 
@@ -197,15 +196,17 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0 20px 20px;
-        font-size: 0.9rem;
+        padding: 0 15px 15px;
+        font-size: 0.8rem;
         color: #6c757d;
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
     .article-actions .views {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 4px;
     }
 
     .article-actions .views i {
@@ -215,10 +216,10 @@
     .article-actions a {
         background: #005f77;
         color: white;
-        border-radius: 8px;
-        padding: 8px 15px;
+        border-radius: 6px;
+        padding: 6px 12px;
         text-decoration: none;
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         display: inline-block;
         font-weight: 500;
     }
@@ -229,17 +230,18 @@
     }
 
     .section-header {
-        padding: 20px 0;
+        padding: 15px 0;
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
+        flex-wrap: wrap;
     }
 
     .section-header h4 {
         margin: 0;
         font-weight: 700;
-        font-size: 1.8rem;
+        font-size: 1.3rem;
         color: #005f77;
     }
 
@@ -247,264 +249,412 @@
         background: white;
         border: 2px solid #00a896;
         color: #00a896;
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
+        font-size: 1rem;
+        cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        text-decoration: none;
         transition: all 0.3s ease;
     }
 
     .section-header .btn-arrow:hover {
         background: #00a896;
         color: white;
-        transform: scale(1.1);
-    }
-    
-    .btn btn-primary {
-        background-color: #005f77;
-        color: white;
-        border-radius: 8px;
-        padding: 10px 20px;
-        text-decoration: none;
     }
 
-    .feature-box-link {
-    flex: 1;
-    text-decoration: none;
-    transition: transform 0.2s ease-in-out;
-}
+    /* ========== RESPONSIVE DESIGN ========== */
+    /* Tablet (sm) - 576px to 767px */
+    @media (min-width: 576px) {
+        .section-wrapper {
+            padding: 35px 30px 30px 30px;
+        }
 
-    .feature-box-link:hover {
-        transform: translateY(-6px);
+        .section-title {
+            font-size: 2rem;
+        }
+
+        .section-title-feature {
+            font-size: 1.6rem;
+        }
+
+        .hero-section {
+            gap: 30px;
+            padding: 30px 0;
+        }
+
+        .hero-image {
+            height: 280px;
+        }
+
+        .feature-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            padding: 30px 0;
+        }
+
+        .feature-box {
+            min-height: 160px;
+            padding: 25px;
+        }
+
+        .feature-box h3 {
+            font-size: 1.3rem;
+        }
+
+        .icon-feature {
+            font-size: 2.8rem;
+        }
+
+        .menu-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .article-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .menu-block img {
+            height: 160px;
+        }
+
+        .article-card img {
+            height: 130px;
+        }
+
+        .section-header h4 {
+            font-size: 1.5rem;
+        }
     }
 
-    .carousel-control-prev,
-    .carousel-control-next {
-        width: 5%;
-        top: 40%;
-        bottom: auto;
-        opacity: 1;
-        transition: 0.3s;
+    /* Medium screens (md) - 768px to 991px */
+    @media (min-width: 768px) {
+        .section-wrapper {
+            padding: 40px 40px 40px 40px;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+        }
+
+        .section-title-feature {
+            font-size: 1.8rem;
+        }
+
+        .hero-section {
+            flex-direction: row;
+            gap: 40px;
+            padding: 40px 0;
+        }
+
+        .hero-text {
+            max-width: 50%;
+            order: 1;
+        }
+
+        .hero-image {
+            width: 45%;
+            height: 320px;
+            order: 2;
+        }
+
+        .feature-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            padding: 40px 0;
+        }
+
+        .feature-box {
+            min-height: 180px;
+        }
+
+        .menu-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 30px 0;
+        }
+
+        .article-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .menu-block img {
+            height: 170px;
+        }
+
+        .section-header h4 {
+            font-size: 1.8rem;
+        }
     }
 
-    .carousel-control-prev-icon,
-    .carousel-control-next-icon {
-        background-color: rgba(0, 0, 0, 0.7);
-        background-size: 60% 60%;
-        border-radius: 50%;
-        padding: 10px;
+    /* Large screens (lg) and up - 992px+ */
+    @media (min-width: 992px) {
+        .section-wrapper {
+            padding: 50px 5% 5% 5%;
+        }
+
+        .section-title {
+            font-size: 3rem;
+        }
+
+        .section-title-feature {
+            font-size: 2rem;
+        }
+
+        .hero-section {
+            justify-content: space-between;
+            align-items: center;
+            padding: 60px 0;
+        }
+
+        .hero-text {
+            max-width: 55%;
+        }
+
+        .hero-image {
+            width: 40%;
+            height: 400px;
+        }
+
+        .feature-grid {
+            display: flex;
+            gap: 20px;
+            padding: 40px 0;
+            justify-content: space-between;
+        }
+
+        .feature-box {
+            flex: 1;
+            padding: 30px;
+            min-height: 200px;
+        }
+
+        .feature-box h3 {
+            font-size: 1.5rem;
+        }
+
+        .icon-feature {
+            font-size: 3rem;
+        }
+
+        .menu-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 40px 0;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+        }
+
+        .menu-block {
+            width: 280px;
+            flex: 0 0 auto;
+        }
+
+        .menu-block img {
+            height: 180px;
+        }
+
+        .article-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 40px 0;
+            overflow-x: auto;
+        }
+
+        .article-card {
+            min-width: 300px;
+            flex: 0 0 auto;
+        }
+
+        .article-card img {
+            height: 150px;
+        }
+
+        .section-header h4 {
+            font-size: 1.8rem;
+        }
+
+        .section-header .btn-arrow {
+            width: 40px;
+            height: 40px;
+        }
     }
 
-    .carousel-control-prev:hover,
-    .carousel-control-next:hover {
-        background-color: transparent;
-        opacity: 0.8;
-        transform: scale(1.1);
+    /* Child selection spacing: small on mobile, larger on tablet/desktop */
+    .child-card-wrapper { margin-top: 20px; }
+    @media (min-width: 576px) {
+        .child-card-wrapper { margin-top: 28px; }
+    }
+    @media (min-width: 768px) {
+        .child-card-wrapper { margin-top: 48px; }
+    }
+    @media (min-width: 992px) {
+        .child-card-wrapper { margin-top: 64px; }
+    }
+    @media (min-width: 1200px) {
+        .child-card-wrapper { margin-top: 80px; }
     }
 
-    #articleCarousel .carousel-control-prev,
-    #articleCarousel .carousel-control-next {
-        width: 5%;
-        top: 40%;
-        bottom: auto;
-        opacity: 1;
-        transition: 0.3s;
+    /* Child Selector Bar styling */
+    .child-bar {
+        background: #fff;
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid #c8d1d1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     }
 
-    #articleCarousel .carousel-control-prev-icon,
-    #articleCarousel .carousel-control-next-icon {
-        background-color: rgba(0, 0, 0, 0.7);
-        background-size: 60% 60%;
-        border-radius: 50%;
-        padding: 10px;
+    .child-bar-info {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        min-width: 0;
+        flex: 1;
     }
 
-    #articleCarousel .carousel-control-prev:hover,
-    #articleCarousel .carousel-control-next:hover {
-        background-color: transparent;
-        opacity: 0.8;
-        transform: scale(1.1);
+    .child-bar-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
     }
 
-    .carousel-control-prev,
-    .carousel-control-next {
-        z-index: 10;
-    }
-
-    .carousel {
+    .child-select-wrapper {
         position: relative;
     }
 
-    .feature-box {
-        background-color: #005f77;
-        color: white;
-        padding: 20px;
-        border-radius: 12px;
-        height: 100%;
-        transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        display: block;
+    .child-select {
+        width: 320px;
+        padding: 10px 36px 10px 14px;
+        border-radius: 20px;
+        border: 1px solid #cfd8dc;
+        background: #fff;
+        color: #333;
     }
 
-    .feature-box:hover {
-        background-color: #00485e;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    /* Mobile Responsive Styles for Child Selector */
+    @media (max-width: 767.98px) {
+        .child-bar {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+            padding: 14px !important;
+        }
+
+        .child-bar-info {
+            width: 100% !important;
+            text-align: left !important;
+        }
+
+        .child-bar-info h5 {
+            white-space: normal !important; /* Allow long name wrapping on mobile */
+            font-size: 1.1rem !important;
+            line-height: 1.4 !important;
+        }
+
+        .child-bar-actions {
+            width: 100% !important;
+            justify-content: space-between !important;
+            gap: 8px !important;
+        }
+
+        .child-bar-actions form {
+            flex: 1 !important;
+            min-width: 0 !important;
+        }
+
+        .child-select-wrapper {
+            width: 100% !important;
+        }
+
+        .child-select {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            font-size: 0.9rem !important;
+            padding: 8px 30px 8px 12px !important;
+        }
+
+        .child-bar-actions .btn {
+            font-size: 0.9rem !important;
+            padding: 8px 14px !important;
+        }
     }
-
-    .feature-box h3,
-    .feature-box p {
-        color: white;
-    }
-
-    .carousel-control-prev,
-    .carousel-control-next {
-        width: 5%;
-        top: 40%;
-        bottom: auto;
-        opacity: 1;
-        transition: 0.3s;
-    }
-
-    .carousel-control-prev-icon,
-    .carousel-control-next-icon {
-        background-color: rgba(0, 0, 0, 0.7);
-        background-size: 60% 60%;
-        border-radius: 50%;
-        padding: 10px;
-    }
-
-    .carousel-control-prev:hover,
-    .carousel-control-next:hover {
-        background-color: transparent;
-        opacity: 0.8;
-        transform: scale(1.1);
-    }
-
-    #articleCarousel .carousel-control-prev,
-    #articleCarousel .carousel-control-next {
-        width: 5%;
-        top: 40%;
-        bottom: auto;
-        opacity: 1;
-        transition: 0.3s;
-    }
-
-    #articleCarousel .carousel-control-prev-icon,
-    #articleCarousel .carousel-control-next-icon {
-        background-color: rgba(0, 0, 0, 0.7);
-        background-size: 60% 60%;
-        border-radius: 50%;
-        padding: 10px;
-    }
-
-    #articleCarousel .carousel-control-prev:hover,
-    #articleCarousel .carousel-control-next:hover {
-        background-color: transparent;
-        opacity: 0.8;
-        transform: scale(1.1);
-    }
-
-    .carousel-control-prev,
-    .carousel-control-next {
-        z-index: 10;
-    }
-
-    .carousel {
-    position: relative;
-}
-
-
 </style>
 
 <div class="section-wrapper">
 
     {{-- CHILD MANAGEMENT SECTION --}}
 
-    <div class="mb-4 mt-4">
+    <div class="mb-4 child-card-wrapper">
 
         @if($children->isEmpty())
             <div class="alert alert-warning">
                 <strong>Perhatian!</strong> Anda belum memiliki data anak. Silakan tambah data anak terlebih dahulu untuk mengakses fitur-fitur aplikasi.
             </div>
-            <div class="card shadow-sm border-0" style="border-radius: 12px; max-width: 600px; margin: 0 auto;">
+            <div class="card" style="border-radius: 12px; border: 1px solid #c8d1d1; max-width: 600px; margin: 0 auto; background: #fff; box-shadow: none;">
                 <div class="card-body p-4">
-                    <h5 class="card-title text-center mb-4" style="color: #005f77; font-weight: 700;">Tambah Data Anak</h5>
+                    <h5 class="text-center mb-4" style="color: #005f77; font-weight: 700; font-size: 1.35rem;">Tambah Data Anak</h5>
                     <form action="{{ route('orangtua.children.store') }}" method="POST">
                         @csrf
                         <div class="mb-3">
-                            <label for="nama_lengkap_anak" class="form-label" style="font-weight: 500;">Nama Lengkap Anak</label>
-                            <input type="text" class="form-control" id="nama_lengkap_anak" name="nama_lengkap_anak" required>
+                            <label for="nama_lengkap_anak" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 6px;">Nama Lengkap Anak</label>
+                            <input type="text" class="form-control" id="nama_lengkap_anak" name="nama_lengkap_anak" required style="border-radius: 10px; border: 1px solid #c8d1d1; padding: 10px 14px; background: #fff; color: #333;">
                         </div>
                         <div class="mb-3">
-                            <label for="tanggal_lahir" class="form-label" style="font-weight: 500;">Tanggal Lahir</label>
-                            <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" required>
+                            <label for="tanggal_lahir" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 6px;">Tanggal Lahir</label>
+                            <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" required style="border-radius: 10px; border: 1px solid #c8d1d1; padding: 10px 14px; background: #fff; color: #333;">
                         </div>
                         <div class="mb-4">
-                            <label for="nik_anak" class="form-label" style="font-weight: 500;">NIK Anak (Opsional)</label>
-                            <input type="text" class="form-control" id="nik_anak" name="nik_anak" maxlength="16">
+                            <label for="nik_anak" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 6px;">NIK Anak</label>
+                            <input type="text" class="form-control" id="nik_anak" name="nik_anak" maxlength="16" style="border-radius: 10px; border: 1px solid #c8d1d1; padding: 10px 14px; background: #fff; color: #333;">
                         </div>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary" style="background-color: #00a896; border: none; border-radius: 8px;">Simpan Data Anak</button>
+                        <div style="text-align: left;">
+                            <button type="submit" class="btn" style="background-color: #005f77; color: white; border: none; border-radius: 10px; padding: 10px 24px; font-weight: 600; width: auto;">Simpan Data</button>
                         </div>
                     </form>
                 </div>
             </div>
         @else
-            <div class="d-flex justify-content-between align-items-center bg-white p-4 shadow-sm rounded-3 mb-4 border-start border-4" style="border-color: #00a896 !important;">
-                <div>
-                    <h5 class="mb-1" style="color: #005f77; font-weight: 600;">Anak Aktif: {{ $selectedChild ? $selectedChild->nama_lengkap_anak : 'Belum ada anak yang dipilih' }}</h5>
-                    <p class="mb-0 text-muted small">Pilih anak untuk memonitor tumbuh kembangnya.</p>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <form action="{{ route('orangtua.children.select') }}" method="POST" class="d-flex align-items-center m-0">
-                        @csrf
-                        <select name="child_id" class="form-select border-1" style="width: 250px; border-radius: 8px; border-color: #dee2e6;" onchange="this.form.submit()">
-                            <option value="" disabled {{ !$selectedChildId ? 'selected' : '' }}>-- Pilih Anak --</option>
-                            @foreach($children as $child)
-                                <option value="{{ $child->id }}" {{ $selectedChildId == $child->id ? 'selected' : '' }}>
-                                    {{ $child->nama_lengkap_anak }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </form>
-                    <!-- Button trigger modal for adding another child -->
-                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addChildModal" style="border-radius: 8px; border-color: #005f77; color: #005f77;">
-                        <i class="fas fa-plus"></i> Tambah Anak
-                    </button>
-                </div>
-            </div>
-
-            <!-- Modal Add Child -->
-            <div class="modal fade" id="addChildModal" tabindex="-1" aria-labelledby="addChildModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content" style="border-radius: 12px; border: none;">
-                        <div class="modal-header" style="background-color: #005f77; color: white; border-top-left-radius: 12px; border-top-right-radius: 12px;">
-                            <h5 class="modal-title" id="addChildModalLabel">Tambah Data Anak</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body p-4">
-                            <form action="{{ route('orangtua.children.store') }}" method="POST">
-                                @csrf
-                                <div class="mb-3">
-                                    <label for="nama_lengkap_anak_modal" class="form-label" style="font-weight: 500;">Nama Lengkap Anak</label>
-                                    <input type="text" class="form-control" id="nama_lengkap_anak_modal" name="nama_lengkap_anak" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="tanggal_lahir_modal" class="form-label" style="font-weight: 500;">Tanggal Lahir</label>
-                                    <input type="date" class="form-control" id="tanggal_lahir_modal" name="tanggal_lahir" required>
-                                </div>
-                                <div class="mb-4">
-                                    <label for="nik_anak_modal" class="form-label" style="font-weight: 500;">NIK Anak (Opsional)</label>
-                                    <input type="text" class="form-control" id="nik_anak_modal" name="nik_anak" maxlength="16">
-                                </div>
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-primary" style="background-color: #00a896; border: none; border-radius: 8px;">Simpan Data Anak</button>
-                                </div>
-                            </form>
-                        </div>
+            <div class="child-bar">
+                <div class="child-bar-info">
+                    <div>
+                        <h5 style="margin:0;color:#005f77;font-weight:700;">Anak aktif: <span style="font-weight:600;">{{ $selectedChild ? $selectedChild->nama_lengkap_anak : 'Belum ada anak yang dipilih' }}</span></h5>
+                        <p style="margin:0;color:#6c757d;font-size:0.9rem;">Pilih anak untuk memonitor tumbuh kembangnya.</p>
                     </div>
+                </div>
+                <div class="child-bar-actions">
+                    <form action="{{ route('orangtua.children.select') }}" method="POST" class="m-0">
+                        @csrf
+                        <div class="child-select-wrapper">
+                            <select name="child_id" class="form-select child-select" onchange="this.form.submit()">
+                                <option value="" disabled {{ !$selectedChildId ? 'selected' : '' }}>-- Pilih Anak --</option>
+                                @foreach($children as $child)
+                                    <option value="{{ $child->id }}" {{ $selectedChildId == $child->id ? 'selected' : '' }}>
+                                        {{ $child->nama_lengkap_anak }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <i class="fas fa-chevron-down" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#6c757d;pointer-events:none;font-size:0.9rem;"></i>
+                        </div>
+                    </form>
+                    <button type="button" class="btn" data-bs-toggle="modal" data-bs-target="#addChildModal" style="background:#005f77;color:white;border-radius:8px;padding:10px 14px;border:none;white-space:nowrap;">
+                        + Anak
+                    </button>
                 </div>
             </div>
         @endif
@@ -602,4 +752,37 @@
         @endforeach
     </div>
 </div>
+
+<!-- Modal Add Child -->
+<div class="modal fade" id="addChildModal" tabindex="-1" aria-labelledby="addChildModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 12px; border: 1px solid #c8d1d1; background: #fff; box-shadow: none;">
+            <div class="modal-header border-0" style="background-color: #fff; border-top-left-radius: 12px; border-top-right-radius: 12px; justify-content: center; position: relative; padding-top: 24px; padding-bottom: 0;">
+                <h5 class="modal-title" id="addChildModalLabel" style="color: #005f77; font-weight: 700; font-size: 1.35rem; width: 100%; text-align: center;">Tambah Data Anak</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="position: absolute; right: 20px; top: 24px;"></button>
+            </div>
+            <div class="modal-body p-4" style="padding-top: 15px !important;">
+                <form action="{{ route('orangtua.children.store') }}" method="POST">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="nama_lengkap_anak_modal" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 6px;">Nama Lengkap Anak</label>
+                        <input type="text" class="form-control" id="nama_lengkap_anak_modal" name="nama_lengkap_anak" required style="border-radius: 10px; border: 1px solid #c8d1d1; padding: 10px 14px; background: #fff; color: #333;">
+                    </div>
+                    <div class="mb-3">
+                        <label for="tanggal_lahir_modal" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 6px;">Tanggal Lahir</label>
+                        <input type="date" class="form-control" id="tanggal_lahir_modal" name="tanggal_lahir" required style="border-radius: 10px; border: 1px solid #c8d1d1; padding: 10px 14px; background: #fff; color: #333;">
+                    </div>
+                    <div class="mb-4">
+                        <label for="nik_anak_modal" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 6px;">NIK Anak</label>
+                        <input type="text" class="form-control" id="nik_anak_modal" name="nik_anak" maxlength="16" style="border-radius: 10px; border: 1px solid #c8d1d1; padding: 10px 14px; background: #fff; color: #333;">
+                    </div>
+                    <div style="text-align: left;">
+                        <button type="submit" class="btn" style="background-color: #005f77; color: white; border: none; border-radius: 10px; padding: 10px 24px; font-weight: 600; width: auto;">Simpan Data</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection

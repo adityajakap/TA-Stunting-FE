@@ -70,9 +70,73 @@
     .btn-primary-custom:hover {
         background-color: #014f66;
     }
+
+    @media (max-width: 767.98px) {
+        .card-body {
+            padding: 1rem !important;
+        }
+
+        .d-flex.justify-content-between.align-items-center.mb-4 {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+            margin-bottom: 1.25rem !important;
+        }
+
+        .d-flex.justify-content-between.align-items-center.mb-4 > div:first-child {
+            width: 100% !important;
+        }
+
+        .d-flex.justify-content-between.align-items-center.mb-4 h1 {
+            font-size: 1.4rem !important;
+            line-height: 1.4 !important;
+        }
+
+        .action-buttons {
+            width: 100% !important;
+            display: flex !important;
+            gap: 8px !important;
+        }
+
+        .action-buttons a {
+            flex: 1 !important;
+            text-align: center !important;
+            font-size: 0.85rem !important;
+            padding: 8px 12px !important;
+            white-space: nowrap !important;
+        }
+
+        /* Table column min-widths for mobile horizontal scrolling */
+        .table thead th:nth-child(1),
+        .table tbody td:nth-child(1) {
+            min-width: 180px !important;
+        }
+
+        .table thead th:nth-child(2),
+        .table tbody td:nth-child(2) {
+            min-width: 110px !important;
+            white-space: nowrap !important;
+        }
+
+        .table thead th:nth-child(3),
+        .table tbody td:nth-child(3) {
+            min-width: 130px !important;
+            white-space: nowrap !important;
+        }
+
+        .table thead th:nth-child(4),
+        .table tbody td:nth-child(4) {
+            min-width: 220px !important;
+        }
+
+        .table thead th, .table tbody td {
+            padding: 0.6rem 0.5rem !important;
+            font-size: 0.8rem !important;
+        }
+    }
 </style>
 
-<div class="container px-0" style="max-width: 1280px; margin: 0 auto;">
+<div class="card-wrapper container px-0">
     <div class="card shadow-sm">
         <div class="card-body">
 

@@ -38,7 +38,7 @@
 
     .btn-icon-mini:hover { background-color: #014f66; }
 
-    .card-wrapper { max-width: 1280px; margin: 0 auto; padding-bottom: 2rem; }
+    .card-wrapper { max-width: 1280px; margin: 6rem auto 0 auto; padding-bottom: 2rem; }
 
     .card { background-color: #ffffff; border-radius: 1rem; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
     .card-body { padding: 2rem; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; }
@@ -308,20 +308,77 @@
     .cancel-btn:hover {
         background-color: #d1d5db;
     }
-</style>
 
-<div class="main-header">
-    <div style="display:flex; align-items:center; gap:0.5rem;">
-        <x-back-button />
-        <h1 class="main-title">Hitung BMI</h1>
-    </div>
-    <div class="action-buttons"></div>
-</div>
+    /* Custom Table Card Overrides to fix Flexbox Overflow Bugs */
+    .table-card {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    .table-responsive {
+        display: block !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ========== RESPONSIVE DESIGN ========== */
+    @media (max-width: 767.98px) {
+        .main-header {
+            margin: 1rem auto 0.5rem;
+            padding: 0 1rem;
+        }
+
+        .main-title {
+            font-size: 1.5rem;
+        }
+
+        .card-wrapper {
+            padding: 0 1rem 1.5rem;
+            margin-top: 1rem !important;
+        }
+
+        .card-body {
+            padding: 1.25rem !important;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            padding: 0;
+        }
+
+        .table thead th, .table tbody td {
+            padding: 0.6rem 0.5rem;
+            font-size: 0.8rem;
+            white-space: nowrap; /* Prevent ugly squishing and wrapping of cells */
+        }
+
+        .button-group {
+            flex-wrap: wrap;
+            gap: 0.5rem !important;
+            margin-top: 1.5rem;
+        }
+
+        .button-group .btn {
+            flex: 1 1 calc(50% - 0.5rem);
+            padding: 0.5rem 1rem !important;
+            font-size: 0.9rem !important;
+        }
+    }
+</style>
 
 <div class="card-wrapper">
     {{-- Card for BMI form --}}
     <div class="card mb-4">
-        <div class="card-body">
+        <div class="card-body p-4">
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom: 1.5rem;">
+                <x-back-button />
+                <h1 style="color: #005f77; font-size: 1.6rem; font-weight: 700; margin: 0;">Hitung BMI</h1>
+            </div>
             <form id="bmiForm" method="POST" action="{{ route('hitung-bmi') }}">
                 @csrf
 
@@ -365,9 +422,10 @@
 
     {{-- Riwayat BMI (table like Deteksi) --}}
     <h2 class="section-title">Riwayat Data BMI</h2>
-    <div class="card mb-4">
-        <div class="card-body p-0">
-            <table class="table table-bordered table-striped mb-0">
+    <div class="card table-card mb-4">
+        <div class="card-body p-0" style="display: block !important;">
+            <div class="table-responsive" style="border-radius: 1rem; overflow: hidden;">
+                <table class="table table-bordered table-striped mb-0">
                 <thead>
                     <tr>
                         <th>No</th>
@@ -407,6 +465,7 @@
                     @endif
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 

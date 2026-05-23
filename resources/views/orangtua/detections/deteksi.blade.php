@@ -38,7 +38,7 @@
 
     .btn-icon-mini:hover { background-color: #014f66; }
 
-    .card-wrapper { max-width: 1280px; margin: 0 auto; padding-bottom: 2rem; }
+    .card-wrapper { max-width: 1280px; margin: 6rem auto 0 auto; padding-bottom: 2rem; }
 
     .card { background-color: #ffffff; border-radius: 1rem; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
     .card-body { padding: 1rem; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; }
@@ -91,19 +91,60 @@
     .table thead th:last-child { border-top-right-radius: 0.75rem; }
     .table tbody tr:last-child td:first-child { border-bottom-left-radius: 0.75rem; }
     .table tbody tr:last-child td:last-child { border-bottom-right-radius: 0.75rem; }
-</style>
 
-<div class="main-header">
-    <div style="display:flex; align-items:center; gap:0.5rem;">
-        <x-back-button />
-        <h1 class="main-title">Form Deteksi Stunting</h1>
-    </div>
-    <div class="action-buttons"></div>
-</div>
+    /* Custom Table Card Overrides to fix Flexbox Overflow Bugs */
+    .table-card {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+
+    .table-responsive {
+        display: block !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* ========== RESPONSIVE DESIGN ========== */
+    @media (max-width: 767.98px) {
+        .main-header {
+            margin: 1rem auto 0.5rem;
+            padding: 0 1rem;
+        }
+
+        .main-title {
+            font-size: 1.5rem;
+        }
+
+        .card-wrapper {
+            padding: 0 1rem 1.5rem;
+            margin-top: 1rem !important;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            padding: 0;
+        }
+
+        .table thead th, .table tbody td {
+            padding: 0.6rem 0.5rem;
+            font-size: 0.8rem;
+            white-space: nowrap; /* Prevent ugly squishing and wrapping of cells */
+        }
+    }
+</style>
 
 <div class="card-wrapper">
     <div class="card mb-4">
-        <div class="card-body">
+        <div class="card-body p-4">
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom: 1.5rem;">
+                <x-back-button />
+                <h1 style="color: #005f77; font-size: 1.6rem; font-weight: 700; margin: 0;">Form Deteksi Stunting</h1>
+            </div>
             {{-- Form Deteksi --}}
             <form action="{{ route('orangtua.detections.store') }}" method="POST">
         @csrf
@@ -162,44 +203,57 @@
 
     {{-- Riwayat Deteksi --}}
     <h2 class="section-title">Riwayat Deteksi</h2>
-    <div class="card">
-        <div class="card-body p-0">
-            <table class="table mb-0">
-                <thead>
-                    <tr>
-                        <th>Nama</th>
-                        <th>Umur (bulan)</th>
-                        <th>Jenis Kelamin</th>
-                        <th>Berat (kg)</th>
-                        <th>Tinggi (cm)</th>
-                        <th>Z-Score</th>
-                        <th>Status</th>
-                        <th>Waktu</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($semua as $d)
-                    <tr>
-                        <td>{{ $d->nama }}</td>
-                        <td>{{ $d->umur }}</td>
-                        <td>{{ $d->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
-                        <td>{{ $d->berat_badan }}</td>
-                        <td>{{ $d->tinggi_badan }}</td>
-                        <td>{{ $d->z_score }}</td>
-                        <td>
-                            <span class="badge {{ $d->status == 'Stunting' ? 'bg-danger' : 'bg-success' }}">
-                                {{ $d->status == 'Tinggi' ? 'Normal' : $d->status }}
-                            </span>
-                        </td>
-                        <td>{{ $d->created_at->format('d M Y H:i') }}</td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="8" class="text-center">Belum ada data deteksi.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+    <div class="card table-card">
+        <div class="card-body p-0" style="display: block !important;">
+            <div class="table-responsive" style="border-radius: 1rem; overflow: hidden;">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Nama</th>
+                            <th>Umur (bulan)</th>
+                            <th>Jenis Kelamin</th>
+                            <th>Berat (kg)</th>
+                            <th>Tinggi (cm)</th>
+                            <th>Z-Score</th>
+                            <th>Status</th>
+                            <th>Waktu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($semua as $d)
+                        <tr>
+                            <td>{{ is_object($d) ? $d->nama : ($d['nama'] ?? '-') }}</td>
+                            <td>{{ is_object($d) ? $d->umur : ($d['umur'] ?? '-') }}</td>
+                            <td>{{ (is_object($d) ? $d->jenis_kelamin : ($d['jenis_kelamin'] ?? '')) == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                            <td>{{ is_object($d) ? $d->berat_badan : ($d['berat_badan'] ?? '-') }}</td>
+                            <td>{{ is_object($d) ? $d->tinggi_badan : ($d['tinggi_badan'] ?? '-') }}</td>
+                            <td>{{ is_object($d) ? $d->z_score : ($d['z_score'] ?? '-') }}</td>
+                            <td>
+                                @php
+                                    $status = is_object($d) ? $d->status : ($d['status'] ?? '');
+                                @endphp
+                                <span class="badge {{ $status == 'Stunting' ? 'bg-danger' : 'bg-success' }}">
+                                    {{ $status == 'Tinggi' ? 'Normal' : $status }}
+                                </span>
+                            </td>
+                            <td>
+                                @php
+                                    $date = is_object($d) ? $d->created_at : ($d['created_at'] ?? now());
+                                    if (is_string($date)) {
+                                        $date = \Carbon\Carbon::parse($date);
+                                    }
+                                @endphp
+                                {{ $date->format('d M Y H:i') }}
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="8" class="text-center">Belum ada data deteksi.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

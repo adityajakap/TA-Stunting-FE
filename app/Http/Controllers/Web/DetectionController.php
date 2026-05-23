@@ -63,11 +63,17 @@ class DetectionController extends Controller
     {
         $response = $this->api->get('/admin/detections');
         $semua = $response->successful() ? collect($response->json())->map(function ($item) {
+            $childRelation = $item['child'] ?? null;
+            unset($item['child']);
+            
             $detection = (new \App\Models\Detection)->forceFill((array)$item);
-            if (isset($item['child'])) {
-                $child = (new \App\Models\Child)->forceFill((array)$item['child']);
-                if (isset($item['child']['user'])) {
-                    $child->setRelation('user', (new \App\Models\User)->forceFill((array)$item['child']['user']));
+            if ($childRelation) {
+                $childData = $childRelation;
+                $userRelation = $childData['user'] ?? null;
+                unset($childData['user']);
+                $child = (new \App\Models\Child)->forceFill((array)$childData);
+                if ($userRelation) {
+                    $child->setRelation('user', (new \App\Models\User)->forceFill((array)$userRelation));
                 }
                 $detection->setRelation('child', $child);
             }
@@ -79,15 +85,17 @@ class DetectionController extends Controller
     public function adminCreate()
     {
         $response = $this->api->get('/admin/children');
-        $children = collect($response->successful() ? $response->json() : [])->map(function ($item) {
+        $users = collect($response->successful() ? $response->json() : [])->map(function ($item) {
+            $userRelation = $item['user'] ?? null;
+            unset($item['user']);
             $child = (new \App\Models\Child)->forceFill((array)$item);
-            if (isset($item['user'])) {
-                $child->setRelation('user', (new \App\Models\User)->forceFill((array)$item['user']));
+            if ($userRelation) {
+                $child->setRelation('user', (new \App\Models\User)->forceFill((array)$userRelation));
             }
             return $child;
         });
 
-        return view('admin.detections.create', compact('children'));
+        return view('admin.detections.create', compact('users'));
     }
 
     public function adminStore(Request $request)
@@ -115,11 +123,17 @@ class DetectionController extends Controller
     {
         $response = $this->api->get('/admin/detections');
         $semua = $response->successful() ? collect($response->json())->map(function ($item) {
+            $childRelation = $item['child'] ?? null;
+            unset($item['child']);
+            
             $detection = (new \App\Models\Detection)->forceFill((array)$item);
-            if (isset($item['child'])) {
-                $child = (new \App\Models\Child)->forceFill((array)$item['child']);
-                if (isset($item['child']['user'])) {
-                    $child->setRelation('user', (new \App\Models\User)->forceFill((array)$item['child']['user']));
+            if ($childRelation) {
+                $childData = $childRelation;
+                $userRelation = $childData['user'] ?? null;
+                unset($childData['user']);
+                $child = (new \App\Models\Child)->forceFill((array)$childData);
+                if ($userRelation) {
+                    $child->setRelation('user', (new \App\Models\User)->forceFill((array)$userRelation));
                 }
                 $detection->setRelation('child', $child);
             }
