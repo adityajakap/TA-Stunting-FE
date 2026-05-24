@@ -18,6 +18,9 @@ class DetectionController extends Controller
     public function create()
     {
         $childId = session('selected_child_id');
+        if (!$childId) {
+            return redirect()->route('orangtua.dashboard')->with('error', 'Silakan pilih atau tambahkan data anak terlebih dahulu.');
+        }
         $response = $this->api->get("/children/{$childId}/detections");
         $semua = $response->successful() ? $response->json() : [];
 
@@ -27,6 +30,9 @@ class DetectionController extends Controller
     public function store(Request $request)
     {
         $childId = session('selected_child_id');
+        if (!$childId) {
+            return redirect()->route('orangtua.dashboard')->with('error', 'Silakan pilih atau tambahkan data anak terlebih dahulu.');
+        }
 
         $request->validate([
             'umur'          => 'required|integer',
