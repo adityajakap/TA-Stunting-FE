@@ -85,7 +85,25 @@ class DetectionController extends Controller
             }
             return $detection;
         }) : collect();
-        return view('admin.detections.index', compact('semua'));
+
+        // Extract unique months for the export modal
+        $indonesianMonths = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        $availableMonths = $semua->map(function ($item) use ($indonesianMonths) {
+            $date = \Carbon\Carbon::parse($item->created_at);
+            $monthNum = (int)$date->format('n');
+            return [
+                'value' => $date->format('n-Y'),
+                'label' => ($indonesianMonths[$monthNum] ?? $date->format('F')) . ' ' . $date->format('Y'),
+                'sort_key' => $date->format('Y-m')
+            ];
+        })->unique('value')->sortBy('sort_key')->values();
+
+        return view('admin.detections.index', compact('semua', 'availableMonths'));
     }
 
     public function adminCreate()
@@ -125,7 +143,7 @@ class DetectionController extends Controller
         return back()->with('error', collect($response->json('errors'))->flatten()->first() ?: $response->json('message', 'Gagal menyimpan deteksi.'));
     }
 
-    public function exportPdf()
+    public function exportPdf(Request $request)
     {
         $response = $this->api->get('/admin/detections');
         $semua = $response->successful() ? collect($response->json())->map(function ($item) {
@@ -145,6 +163,16 @@ class DetectionController extends Controller
             }
             return $detection;
         }) : collect();
+
+        // Apply month filtering if requested
+        $selectedMonths = $request->input('months', []);
+        if (!empty($selectedMonths) && !in_array('all', $selectedMonths)) {
+            $semua = $semua->filter(function ($item) use ($selectedMonths) {
+                $date = \Carbon\Carbon::parse($item->created_at);
+                $monthYear = $date->format('n-Y');
+                return in_array($monthYear, $selectedMonths);
+            });
+        }
 
         $html = view('admin.detections.pdf', compact('semua'))->render();
         

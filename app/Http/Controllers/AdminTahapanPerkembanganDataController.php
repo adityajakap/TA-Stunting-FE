@@ -44,7 +44,99 @@ class AdminTahapanPerkembanganDataController extends Controller
             });
         }
 
-        return view('admin.tahapan_perkembangan.children_index', compact('children'));
+        // Extract all unique months across all children
+        $indonesianMonths = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        $months = collect();
+        foreach ($children as $c) {
+            list($child, $groupedData) = $this->getChildMilestones($c->id);
+            if ($child) {
+                foreach ($groupedData as $kategori => $items) {
+                    foreach ($items as $item) {
+                        if ($item->achieved_data) {
+                            $date = \Carbon\Carbon::parse($item->achieved_data->tanggal_pencapaian);
+                            $monthNum = (int)$date->format('n');
+                            $months->push([
+                                'value' => $date->format('n-Y'),
+                                'label' => ($indonesianMonths[$monthNum] ?? $date->format('F')) . ' ' . $date->format('Y'),
+                                'sort_key' => $date->format('Y-m')
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+        $availableMonths = $months->unique('value')->sortBy('sort_key')->values();
+
+        return view('admin.tahapan_perkembangan.children_index', compact('children', 'availableMonths'));
+    }
+
+    // Ekspor semua perkembangan anak sekaligus
+    public function exportAllPdf(Request $request)
+    {
+        if ((session('user')['role'] ?? '') !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        // 1. Fetch all children
+        $response = $this->api->get('/admin/children');
+        $childrenData = $response->successful() ? $response->json() : [];
+
+        $children = collect($childrenData)->map(function ($childData) {
+            $userRelation = $childData['user'] ?? null;
+            unset($childData['user']);
+            $child = (new Child)->forceFill((array)$childData);
+            if ($userRelation) {
+                $child->setRelation('user', (new User)->forceFill((array)$userRelation));
+            }
+            return $child;
+        });
+
+        // 2. Fetch developments for all children and flatten them
+        $allAchievements = collect();
+        foreach ($children as $c) {
+            list($child, $groupedData) = $this->getChildMilestones($c->id);
+            if ($child) {
+                foreach ($groupedData as $kategori => $items) {
+                    foreach ($items as $item) {
+                        if ($item->achieved_data) {
+                            $allAchievements->push((object)[
+                                'parent_name' => $child->user->nama_lengkap ?? '-',
+                                'child_name' => $child->nama_lengkap_anak,
+                                'tahapan_name' => $item->tahapan->nama_tahapan,
+                                'kategori' => $kategori,
+                                'tanggal_pencapaian' => $item->achieved_data->tanggal_pencapaian,
+                                'status_label' => $item->status_detail['label'] ?? '-',
+                                'status_badge' => $item->status_detail['badge'] ?? 'bg-secondary',
+                                'catatan' => $item->achieved_data->catatan ?? '-'
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. Apply month filtering if requested
+        $selectedMonths = $request->input('months', []);
+        if (!empty($selectedMonths) && !in_array('all', $selectedMonths)) {
+            $allAchievements = $allAchievements->filter(function ($item) use ($selectedMonths) {
+                $date = \Carbon\Carbon::parse($item->tanggal_pencapaian);
+                $monthYear = $date->format('n-Y');
+                return in_array($monthYear, $selectedMonths);
+            })->values();
+        }
+
+        // 4. Render combined PDF
+        $html = view('admin.tahapan_perkembangan.pdf_all', compact('allAchievements'))->render();
+        
+        $pdf = \PDF::loadHTML($html);
+        $pdf->setPaper('A4', 'landscape');
+        
+        return $pdf->download('Laporan_Perkembangan_Semua_Anak_' . date('Y-m-d_H-i-s') . '.pdf');
     }
 
     private function getChildMilestones($childId)
@@ -89,10 +181,33 @@ class AdminTahapanPerkembanganDataController extends Controller
         list($child, $groupedData) = $this->getChildMilestones($userId);
         if (!$child) abort(404);
 
-        return view('admin.tahapan_perkembangan.children_show', compact('child', 'groupedData'));
+        $indonesianMonths = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        // Extract unique months from all achievements of this child
+        $months = collect();
+        foreach ($groupedData as $kategori => $items) {
+            foreach ($items as $item) {
+                if ($item->achieved_data) {
+                    $date = \Carbon\Carbon::parse($item->achieved_data->tanggal_pencapaian);
+                    $monthNum = (int)$date->format('n');
+                    $months->push([
+                        'value' => $date->format('n-Y'),
+                        'label' => ($indonesianMonths[$monthNum] ?? $date->format('F')) . ' ' . $date->format('Y'),
+                        'sort_key' => $date->format('Y-m')
+                    ]);
+                }
+            }
+        }
+        $availableMonths = $months->unique('value')->sortBy('sort_key')->values();
+
+        return view('admin.tahapan_perkembangan.children_show', compact('child', 'groupedData', 'availableMonths'));
     }
 
-    public function exportPdf($userId)
+    public function exportPdf(Request $request, $userId)
     {
         if ((session('user')['role'] ?? '') !== 'admin') {
             abort(403, 'Unauthorized');
@@ -100,6 +215,21 @@ class AdminTahapanPerkembanganDataController extends Controller
 
         list($child, $groupedData) = $this->getChildMilestones($userId);
         if (!$child) abort(404);
+
+        // Apply month filtering if requested
+        $selectedMonths = $request->input('months', []);
+        if (!empty($selectedMonths) && !in_array('all', $selectedMonths)) {
+            $groupedData = $groupedData->map(function ($items) use ($selectedMonths) {
+                return $items->filter(function ($item) use ($selectedMonths) {
+                    if (!$item->achieved_data) return false;
+                    $date = \Carbon\Carbon::parse($item->achieved_data->tanggal_pencapaian);
+                    $monthYear = $date->format('n-Y');
+                    return in_array($monthYear, $selectedMonths);
+                });
+            })->filter(function ($items) {
+                return $items->isNotEmpty();
+            });
+        }
 
         $html = view('admin.tahapan_perkembangan.pdf', compact('child', 'groupedData'))->render();
         

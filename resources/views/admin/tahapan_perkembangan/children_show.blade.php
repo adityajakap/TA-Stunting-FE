@@ -147,7 +147,6 @@
                     <h1 class="main-title mb-0" style="color: #005f77; font-size: 1.75rem;">Perkembangan: {{ $child->nama_lengkap_anak }}</h1>
                 </div>
                 <div class="action-buttons">
-                    <a href="{{ route('admin.perkembangan.children.pdf', $child->id) }}" class="btn-primary-custom" style="background-color: #0ea5e9;">Export PDF</a>
                     <a href="{{ route('admin.perkembangan.children.create', $child->id) }}" class="btn-primary-custom">+ Tambah Pencapaian</a>
                 </div>
             </div>
@@ -217,6 +216,8 @@
         </div>
     </div>
 </div>
+
+
 
 {{-- Font Awesome --}}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

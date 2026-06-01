@@ -99,6 +99,7 @@ Route::middleware('api.auth')->group(function () {
         // Tahapan Perkembangan (Admin)
         Route::get('tahapan_perkembangan',             [TahapanMasterController::class, 'index'])->name('tahapan_perkembangan.index');
         Route::get('perkembangan/children',             [AdminTahapanPerkembanganDataController::class, 'index'])->name('perkembangan.children.index');
+        Route::get('perkembangan/export-pdf',           [AdminTahapanPerkembanganDataController::class, 'exportAllPdf'])->name('perkembangan.export-pdf');
         Route::get('perkembangan/children/{user}',      [TahapanPerkembanganController::class, 'adminShow'])->name('perkembangan.children.show');
         Route::get('perkembangan/children/{user}/pdf',  [AdminTahapanPerkembanganDataController::class, 'exportPdf'])->name('perkembangan.children.pdf');
         Route::get('perkembangan/children/{user}/create',[AdminTahapanPerkembanganDataController::class, 'create'])->name('perkembangan.children.create');

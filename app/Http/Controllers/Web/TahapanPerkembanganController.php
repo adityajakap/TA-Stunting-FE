@@ -144,6 +144,29 @@ class TahapanPerkembanganController extends Controller
             });
         });
 
-        return view('admin.tahapan_perkembangan.children_show', compact('child', 'groupedData'));
+        $indonesianMonths = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        // Extract unique months from all achievements of this child
+        $months = collect();
+        foreach ($groupedData as $kategori => $items) {
+            foreach ($items as $item) {
+                if ($item->achieved_data) {
+                    $date = \Carbon\Carbon::parse($item->achieved_data->tanggal_pencapaian);
+                    $monthNum = (int)$date->format('n');
+                    $months->push([
+                        'value' => $date->format('n-Y'),
+                        'label' => ($indonesianMonths[$monthNum] ?? $date->format('F')) . ' ' . $date->format('Y'),
+                        'sort_key' => $date->format('Y-m')
+                    ]);
+                }
+            }
+        }
+        $availableMonths = $months->unique('value')->sortBy('sort_key')->values();
+
+        return view('admin.tahapan_perkembangan.children_show', compact('child', 'groupedData', 'availableMonths'));
     }
 }
