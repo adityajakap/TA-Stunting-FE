@@ -136,7 +136,7 @@
     </table>
 
     <div class="footer">
-        Dicetak pada: {{ \Carbon\Carbon::now()->format('d M Y H:i') }}
+        Dicetak pada: {{ \Carbon\Carbon::now()->setTimezone('Asia/Jakarta')->locale('id')->isoFormat('dddd, D MMMM YYYY [pukul] HH:mm') }} WIB
     </div>
 
 </body>

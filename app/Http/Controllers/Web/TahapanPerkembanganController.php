@@ -64,13 +64,11 @@ class TahapanPerkembanganController extends Controller
 
     public function create()
     {
-        // Master tahapan dari BE
-        $response = $this->api->get('/admin/children/0/perkembangan'); // returns full list
-        // Simpler: just provide the list from a dedicated endpoint — but for now use session child
-        $childId = session('selected_child_id');
-        // Get from a simple master endpoint (we'll expose api/tahapan)
+        // Get from a simple master endpoint
         $masterResponse = $this->api->get('/tahapan-master');
-        $tahapanPerkembangan = $masterResponse->successful() ? $masterResponse->json() : [];
+        $tahapanPerkembangan = collect($masterResponse->successful() ? $masterResponse->json() : [])->map(function ($item) {
+            return (new \App\Models\TahapanPerkembangan)->forceFill((array)$item);
+        });
 
         return view('orangtua.tahapan_perkembangan.create', compact('tahapanPerkembangan'));
     }

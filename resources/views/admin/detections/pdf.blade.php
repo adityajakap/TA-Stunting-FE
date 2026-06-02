@@ -95,8 +95,8 @@
         }
 
         table.data-table th {
-            background-color: #f9fafb;
-            color: #1f2937;
+            background-color: #005f77;
+            color: white;
             font-weight: bold;
             text-align: center;
         }
@@ -149,7 +149,7 @@
     <div class="header">
         <h1>LAPORAN DATA DETEKSI STUNTING</h1>
         <p>Sistem Monitoring Stunting Anak</p>
-        <p>Dicetak pada: {{ now()->format('d F Y') }} pukul {{ now()->format('H:i') }} WIB</p>
+        <p>Dicetak pada: {{ \Carbon\Carbon::now()->setTimezone('Asia/Jakarta')->locale('id')->isoFormat('dddd, D MMMM YYYY') }} pukul {{ \Carbon\Carbon::now()->setTimezone('Asia/Jakarta')->locale('id')->isoFormat('HH:mm') }} WIB</p>
     </div>
 
     {{-- Statistik Deteksi --}}
@@ -217,7 +217,7 @@
 
     <div class="footer">
         <p>Laporan digenerate secara otomatis dari Sistem Monitoring Stunting Anak</p>
-        <p>Waktu Cetak: {{ now()->format('d M Y H:i:s') }} WIB</p>
+        <p>Waktu Cetak: {{ \Carbon\Carbon::now()->setTimezone('Asia/Jakarta')->locale('id')->isoFormat('dddd, D MMMM YYYY [pukul] HH:mm:ss') }} WIB</p>
     </div>
 
 </body>
