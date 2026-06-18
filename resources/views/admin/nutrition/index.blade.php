@@ -160,6 +160,32 @@
     .cancel-btn:hover {
         background-color: #d1d5db;
     }
+
+    /* Small pill buttons used for edit/delete actions to match requested design */
+    .btn-small {
+        background-color: #f3f4f6; /* light gray */
+        color: #0f172a;
+        padding: .25rem .6rem;
+        border-radius: .5rem;
+        font-size: 0.85rem;
+        text-decoration: none;
+        border: none;
+        display: inline-block;
+    }
+
+    .btn-small:hover { background-color: #e8eef0; }
+
+    .btn-delete-small {
+        background-color: #fff1f2; /* soft pink */
+        color: #b91c1c; /* red */
+        padding: .25rem .6rem;
+        border-radius: .5rem;
+        font-size: 0.85rem;
+        border: none;
+        display: inline-block;
+    }
+
+    .btn-delete-small:hover { background-color: #ffe6e9; }
 </style>
 
 {{-- Header --}}
@@ -168,10 +194,13 @@
         <x-back-button />
         <h1 class="main-title">Daftar Menu</h1>
     </div>
-    <div class="action-buttons">
-        <a href="{{ route('admin.nutrition.create') }}" class="btn">+ Tambah Menu</a>
-    </div>
 </div>
+
+<a href="{{ route('admin.nutrition.create') }}"
+   class="btn"
+   style="display: block; width: 100%; text-align: center; font-size: 0.9rem; margin-bottom: 1.5rem;">
+    + Menu
+</a>
 
 {{-- Search Modal --}}
 <div id="searchModal" class="modal-overlay" style="display:none; position: fixed; inset:0; background: rgba(0,0,0,0.4); z-index:999; justify-content:center; align-items:center;">
@@ -193,7 +222,7 @@
         @forelse ($menus as $menu)
             <div class="card">
                 @if ($menu->image)
-                    <img src="{{ asset('storage/' . $menu->image) }}" alt="Gambar Menu" class="article-image">
+                    <img src="{{ config('services.api.storage_url') . '/' . $menu->image }}" alt="Gambar Menu" class="article-image">
                 @endif
                 <div class="card-body">
                     <div>
@@ -205,8 +234,8 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="text-muted">👁 {{ $menu->views ?? 0 }}</div>
                         <div style="display:flex; gap:.5rem;">
-                            <a href="{{ route('admin.nutrition.edit', $menu->id) }}" class="btn btn-sm" style="background:#f3f4f6; color:#0f172a; padding:.25rem .5rem;">Edit</a>
-                            <button type="button" class="btn btn-sm" style="background:#ffeef0; color:#b91c1c; padding:.25rem .5rem; border:none; cursor:pointer;" onclick="showDeleteConfirm('{{ route('admin.nutrition.destroy', $menu->id) }}')">Hapus</button>
+                            <a href="{{ route('admin.nutrition.edit', $menu->id) }}" class="btn-small">Edit</a>
+                            <button type="button" class="btn-delete-small" onclick="showDeleteConfirm('{{ route('admin.nutrition.destroy', $menu->id) }}')">Hapus</button>
                         </div>
                     </div>
                 </div>

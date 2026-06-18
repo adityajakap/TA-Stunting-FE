@@ -35,7 +35,7 @@
         flex-direction: column-reverse;
         justify-content: space-between;
         align-items: center;
-        padding: 20px 0;
+        padding: 10px 0 20px 0;
         gap: 20px;
     }
 
@@ -151,6 +151,7 @@
         border-radius: 12px;
         text-align: center;
         width: 100%;
+        white-space: normal;
         transition: transform 0.3s ease;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
@@ -170,10 +171,14 @@
     
     .article-card {
         background: #f8f9fa;
+        padding: 15px;
         border: 1px solid #e9ecef;
         border-radius: 12px;
-        overflow: hidden;
+        text-align: center;
         width: 100%;
+        max-width: 280px;
+        margin: 0 auto;
+        white-space: normal;
         transition: transform 0.3s ease;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
@@ -185,10 +190,10 @@
 
     .article-card img {
         width: 100%;
-        height: 120px;
+        height: 150px;
         object-fit: cover;
         border-radius: 8px;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
     }
 
     .article-content {
@@ -294,7 +299,7 @@
 
         .hero-section {
             gap: 30px;
-            padding: 30px 0;
+            padding: 10px 0 30px 0;
         }
 
         .hero-image {
@@ -360,7 +365,7 @@
         .hero-section {
             flex-direction: row;
             gap: 40px;
-            padding: 40px 0;
+            padding: 15px 0 40px 0;
         }
 
         .hero-text {
@@ -421,7 +426,7 @@
         .hero-section {
             justify-content: space-between;
             align-items: center;
-            padding: 60px 0;
+            padding: 15px 0 50px 0;
         }
 
         .hero-text {
@@ -484,15 +489,18 @@
             gap: 20px;
             padding: 40px 0;
             overflow-x: auto;
+            flex-wrap: nowrap;
+            white-space: nowrap;
         }
 
         .article-card {
-            min-width: 300px;
-            flex: 0 0 auto;
+            width: 280px !important;
+            flex: 0 0 auto !important;
+            margin: 0 !important;
         }
 
         .article-card img {
-            height: 150px;
+            height: 180px;
         }
 
         .section-header h4 {
@@ -505,19 +513,9 @@
         }
     }
 
-    /* Child selection spacing: small on mobile, larger on tablet/desktop */
-    .child-card-wrapper { margin-top: 20px; }
-    @media (min-width: 576px) {
-        .child-card-wrapper { margin-top: 28px; }
-    }
-    @media (min-width: 768px) {
-        .child-card-wrapper { margin-top: 48px; }
-    }
-    @media (min-width: 992px) {
-        .child-card-wrapper { margin-top: 64px; }
-    }
-    @media (min-width: 1200px) {
-        .child-card-wrapper { margin-top: 80px; }
+    .child-card-wrapper {
+        margin-top: 10px;
+        margin-bottom: 0px;
     }
 
     /* Child Selector Bar styling */
@@ -530,7 +528,7 @@
         align-items: center;
         justify-content: space-between;
         gap: 16px;
-        margin-bottom: 1.5rem;
+        margin-bottom: 0px;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     }
 
@@ -617,7 +615,7 @@
 
     {{-- CHILD MANAGEMENT SECTION --}}
 
-    <div class="mb-4 child-card-wrapper">
+    <div class="child-card-wrapper">
 
         @if($children->isEmpty())
             <div class="alert alert-warning">
@@ -732,8 +730,8 @@
         @endphp
         @foreach ($menuItems as $menu)
             <div class="menu-block">
-                <img src="{{ $menu->image ? asset('storage/' . $menu->image) : asset('default-image.png') }}" alt="Menu">
-                <h6 style="font-weight: 600; margin: 10px 0 5px 0;">{{ $menu->name }}</h6>
+                <img src="{{ $menu->image ? config('services.api.storage_url') . '/' . $menu->image : asset('default-image.png') }}" alt="Menu">
+                <h6 style="font-weight: 600; margin: 10px 0 5px 0; min-height: 44px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: normal;">{{ $menu->name }}</h6>
                 <small style="color: #6c757d; text-transform: capitalize;">{{ $menu->category }}</small>
                 <div style="margin-top: 15px;">
                     <a href="{{ route('orangtua.nutritionUs.show', $menu->id) }}" 
@@ -754,16 +752,17 @@
     <div class="article-grid">
         @foreach ($artikels->take(3) as $artikel)
             <div class="article-card">
-                <img src="{{ $artikel->image ? asset('storage/' . $artikel->image) : asset('default-image.png') }}" alt="Artikel">
-                <div class="article-content">
-                    <h6>{{ Str::limit($artikel->title, 60) }}</h6>
+                <img src="{{ $artikel->image ? config('services.api.storage_url') . '/' . $artikel->image : asset('default-image.png') }}" alt="Artikel">
+                <h6 style="font-weight: 600; margin: 10px 0 5px 0; min-height: 44px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: normal;">{{ $artikel->title }}</h6>
+                <div style="color: #6c757d; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="fas fa-eye" style="color: #005f77;"></i>
+                    <span>{{ $artikel->views ?? 0 }}</span>
                 </div>
-                <div class="article-actions">
-                    <div class="views">
-                        <i class="fas fa-eye"></i>
-                        <span>{{ $artikel->views ?? 100 }}</span>
-                    </div>
-                    <a href="{{ route('orangtua.artikel.show', $artikel->id) }}">Read All</a>
+                <div style="margin-top: 15px;">
+                    <a href="{{ route('orangtua.artikel.show', $artikel->id) }}" 
+                    style="background:#005f77; color:white; border-radius:8px; padding:10px 20px; text-decoration:none; font-size:0.9rem; display:inline-block; font-weight: 500;">
+                        Read All
+                    </a>
                 </div>
             </div>
         @endforeach

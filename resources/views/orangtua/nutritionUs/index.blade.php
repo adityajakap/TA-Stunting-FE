@@ -116,7 +116,7 @@
     <div class="card-container">
         @forelse ($menus as $menu)
             <div class="card">
-                <img src="{{ $menu->image ? asset('storage/' . $menu->image) : asset('default-image.png') }}"
+                <img src="{{ $menu->image ? config('services.api.storage_url') . '/' . $menu->image : asset('default-image.png') }}"
                      alt="Gambar Menu" class="article-image" style="width: 100%; height: 180px; object-fit: cover; background-color: #f3f4f6;">
                 <div class="card-body" style="padding: 1rem; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1;">
                     <div class="card-title" style="font-weight: bold; color: #1f2937; font-size: 1.1rem; margin-bottom: 0.5rem;">

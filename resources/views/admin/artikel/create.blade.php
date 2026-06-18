@@ -202,8 +202,12 @@
                 <div class="mb-3">
                     <label for="image" class="form-label">Gambar</label>
                     <div class="file-input-wrapper">
-                        <label for="image" class="file-input-label">Chose File</label>
-                        <input type="file" name="image" id="image" accept="image/*">
+                        <label for="image" class="file-input-label" id="file-label">Chose File</label>
+                        <input type="file" name="image" id="image" accept="image/*" onchange="previewImage(event)">
+                    </div>
+                    <div class="image-preview" id="preview-container" style="display: none; margin-top: 1rem;">
+                        <p style="margin: 0 0 0.5rem 0; font-weight: 500; color: #374151;">Pratinjau Gambar:</p>
+                        <img id="image-preview-element" src="" alt="Pratinjau Gambar">
                     </div>
                 </div>
 
@@ -221,4 +225,29 @@
         </div>
     </div>
 </div>
+
+<script>
+    function previewImage(event) {
+        const fileInput = event.target;
+        const fileLabel = document.getElementById('file-label');
+        const previewContainer = document.getElementById('preview-container');
+        const previewElement = document.getElementById('image-preview-element');
+
+        if (fileInput.files && fileInput.files[0]) {
+            const file = fileInput.files[0];
+            fileLabel.textContent = file.name;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewElement.src = e.target.result;
+                previewContainer.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            fileLabel.textContent = 'Chose File';
+            previewContainer.style.display = 'none';
+            previewElement.src = '';
+        }
+    }
+</script>
 @endsection

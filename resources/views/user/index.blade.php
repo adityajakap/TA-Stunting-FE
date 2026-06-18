@@ -91,7 +91,7 @@
     @forelse ($artikels as $artikel)
         <div class="card">
             @if ($artikel->image)
-                <img src="{{ asset('storage/' . $artikel->image) }}" alt="Gambar Artikel" class="article-image">
+                <img src="{{ config('services.api.storage_url') . '/' . $artikel->image }}" alt="Gambar Artikel" class="article-image">
             @else
                 <img src="{{ asset('default-image.png') }}" alt="Gambar Default" class="article-image">
             @endif

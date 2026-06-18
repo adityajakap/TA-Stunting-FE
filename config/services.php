@@ -38,6 +38,7 @@ return [
     // Backend API
     'api' => [
         'base_url' => env('API_BASE_URL', 'http://localhost:8001/api'),
+        'storage_url' => env('API_STORAGE_URL', 'http://localhost:8001/storage'),
     ],
 
 ];

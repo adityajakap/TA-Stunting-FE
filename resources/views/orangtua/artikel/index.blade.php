@@ -199,7 +199,7 @@
     <div class="card-container">
         @forelse ($artikels as $artikel)
             <div class="card">
-                <img src="{{ $artikel->image ? asset('storage/' . $artikel->image) : asset('default-image.png') }}"
+                <img src="{{ $artikel->image ? config('services.api.storage_url') . '/' . $artikel->image : asset('default-image.png') }}"
                      alt="Gambar Artikel" class="article-image">
                 <div class="card-body">
                     <div class="card-title">{{ Str::limit($artikel->title, 60) }}</div>

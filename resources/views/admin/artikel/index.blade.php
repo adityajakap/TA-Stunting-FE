@@ -332,12 +332,15 @@
 <div class="main-header">
     <div style="display:flex; align-items:center; gap:0.5rem;">
         <x-back-button />
-        <h1 class="main-title">Manajemen Artikel</h1>
-    </div>
-    <div class="action-buttons">
-        <a href="{{ route('admin.artikel.create') }}" class="btn">+ Tambah Artikel</a>
+        <h1 class="main-title">Daftar Artikel</h1>
     </div>
 </div>
+
+<a href="{{ route('admin.artikel.create') }}"
+   class="btn"
+   style="display: block; width: 100%; text-align: center; font-size: 0.9rem; margin-bottom: 1.5rem;">
+    + Artikel
+</a>
 
 
 {{-- Artikel --}}
@@ -345,7 +348,7 @@
     <div class="card-container">
         @forelse ($artikels as $artikel)
             <div class="card">
-                <img src="{{ $artikel->image ? asset('storage/' . $artikel->image) : asset('default-image.png') }}"
+                <img src="{{ $artikel->image ? config('services.api.storage_url') . '/' . $artikel->image : asset('default-image.png') }}"
                      alt="Gambar Artikel" class="article-image">
                 <div class="card-body">
                     <div class="card-title">{{ Str::limit($artikel->title, 60) }}</div>

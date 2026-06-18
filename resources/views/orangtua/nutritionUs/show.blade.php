@@ -130,7 +130,7 @@
         <div class="detail-content">
             <div class="detail-image">
                 @if ($menu->image)
-                    <img src="{{ asset('storage/' . $menu->image) }}" alt="{{ $menu->name }}">
+                    <img src="{{ config('services.api.storage_url') . '/' . $menu->image }}" alt="{{ $menu->name }}">
                 @else
                     <img src="{{ asset('default-image.png') }}" alt="{{ $menu->name }}">
                 @endif

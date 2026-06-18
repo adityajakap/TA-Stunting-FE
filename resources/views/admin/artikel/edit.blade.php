@@ -172,15 +172,19 @@
                 <div class="mb-3">
                     <label for="image" class="form-label">Gambar (opsional)</label>
                     <div class="file-input-wrapper">
-                        <label for="image" class="file-input-label">Chose File</label>
-                        <input type="file" name="image" id="image" accept="image/*">
+                        <label for="image" class="file-input-label" id="file-label">Chose File</label>
+                        <input type="file" name="image" id="image" accept="image/*" onchange="previewImage(event)">
                     </div>
                     @if ($artikel->image)
-                        <div class="image-preview">
+                        <div class="image-preview" id="current-preview-container">
                             <p style="margin: 0 0 0.5rem 0; font-weight: 500; color: #374151;">Gambar Saat Ini:</p>
-                            <img src="{{ asset('storage/' . $artikel->image) }}" alt="Gambar Artikel">
+                            <img src="{{ config('services.api.storage_url') . '/' . $artikel->image }}" alt="Gambar Artikel">
                         </div>
                     @endif
+                    <div class="image-preview" id="new-preview-container" style="display: none; margin-top: 1rem;">
+                        <p style="margin: 0 0 0.5rem 0; font-weight: 500; color: #374151;">Pratinjau Gambar Baru:</p>
+                        <img id="image-preview-element" src="" alt="Pratinjau Gambar">
+                    </div>
                 </div>
 
                 <div class="mb-3">
@@ -197,4 +201,36 @@
         </div>
     </div>
 </div>
+
+<script>
+    function previewImage(event) {
+        const fileInput = event.target;
+        const fileLabel = document.getElementById('file-label');
+        const newPreviewContainer = document.getElementById('new-preview-container');
+        const previewElement = document.getElementById('image-preview-element');
+        const currentPreviewContainer = document.getElementById('current-preview-container');
+
+        if (fileInput.files && fileInput.files[0]) {
+            const file = fileInput.files[0];
+            fileLabel.textContent = file.name;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewElement.src = e.target.result;
+                newPreviewContainer.style.display = 'block';
+                if (currentPreviewContainer) {
+                    currentPreviewContainer.style.opacity = '0.5';
+                }
+            };
+            reader.readAsDataURL(file);
+        } else {
+            fileLabel.textContent = 'Chose File';
+            newPreviewContainer.style.display = 'none';
+            previewElement.src = '';
+            if (currentPreviewContainer) {
+                currentPreviewContainer.style.opacity = '1';
+            }
+        }
+    }
+</script>
 @endsection

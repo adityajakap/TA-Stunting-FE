@@ -105,7 +105,7 @@
         </div>
 
         @if ($artikel->image)
-            <img src="{{ asset('storage/' . $artikel->image) }}" alt="Gambar Artikel" class="artikel-image">
+            <img src="{{ config('services.api.storage_url') . '/' . $artikel->image }}" alt="Gambar Artikel" class="artikel-image">
         @else
             <img src="{{ asset('default-image.png') }}" alt="Gambar Default" class="artikel-image">
         @endif

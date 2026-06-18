@@ -30,11 +30,10 @@
         }
 
         body {
-            padding-top: 72px;
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(to right, #fdfbfb, #ebedee);
             margin: 0;
-            padding: 0;
+            padding: 72px 0 0 0;
         }
 
         .btn-icon-mini {
@@ -286,7 +285,7 @@
             main.container {
                 padding-left: 2rem;
                 padding-right: 2rem;
-                max-width: 95% !important; /* Make container span 95% of viewport width on widescreen desktop */
+                max-width: 95% !important;
                 width: 95% !important;
             }
 
@@ -305,9 +304,6 @@
                 width: 100% !important;
             }
 
-            .card-wrapper, .development-wrapper {
-                margin-top: 6rem !important;
-            }
         }
     </style>
 </head>
