@@ -258,7 +258,7 @@
                 <p>Atur dan kelola rekomendasi menu bergizi untuk anak-anak.</p>
             </div>
         </a>
-        <a href="{{ route('admin.tahapan_perkembangan.index') }}" class="feature-box-link">
+        <a href="{{ route('admin.perkembangan.children.index') }}" class="feature-box-link">
             <div class="feature-box">
                 <i class="fas fa-child icon-feature"></i>
                 <h3>Perkembangan</h3>

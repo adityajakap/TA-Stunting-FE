@@ -346,7 +346,7 @@
                     </li>
                     {{-- Imunisasi feature removed --}}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ $role === 'admin' ? route('admin.tahapan_perkembangan.index') : route('orangtua.tahapan_perkembangan.index') }}">Perkembangan</a>
+                        <a class="nav-link" href="{{ $role === 'admin' ? route('admin.perkembangan.children.index') : route('orangtua.tahapan_perkembangan.index') }}">Perkembangan</a>
                     </li>
                 </ul>
 
