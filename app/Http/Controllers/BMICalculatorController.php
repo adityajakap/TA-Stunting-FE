@@ -21,7 +21,7 @@ class BMICalculatorController extends Controller
     {
         $childId = session('selected_child_id');
         if (!$childId) {
-            return redirect()->route('dashboard')->with('error', 'Pilih anak terlebih dahulu.');
+            return redirect()->route('orangtua.dashboard')->with('error', 'Pilih anak terlebih dahulu.');
         }
 
         $response = $this->api->get("/children/{$childId}/bmi");
@@ -87,8 +87,24 @@ class BMICalculatorController extends Controller
     {
         $childId = session('selected_child_id');
         if (!$childId) {
-            return redirect()->route('dashboard')->with('error', 'Pilih anak terlebih dahulu.');
+            return redirect()->route('orangtua.dashboard')->with('error', 'Pilih anak terlebih dahulu.');
         }
+
+        // Fetch child birthdate to calculate age (usia)
+        $childResponse = $this->api->get("/children/{$childId}");
+        $usia = 0;
+        if ($childResponse->successful()) {
+            $childData = $childResponse->json();
+            if (!empty($childData['tanggal_lahir'])) {
+                $usia = \Carbon\Carbon::parse($childData['tanggal_lahir'])->age;
+            }
+        }
+
+        // Merge calculated age and default activity level into request before validation
+        $request->merge([
+            'usia' => $usia,
+            'activity_level' => 'sedentary'
+        ]);
 
         $request->validate([
             'berat' => 'required|numeric',

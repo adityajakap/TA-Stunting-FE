@@ -379,6 +379,23 @@
                 <x-back-button />
                 <h1 style="color: #005f77; font-size: 1.6rem; font-weight: 700; margin: 0;">Hitung BMI</h1>
             </div>
+
+            @if(session('success'))
+                <div style="padding: 1rem; margin-bottom: 1rem; color: #0f5132; background-color: #d1e7dd; border: 1px solid #badbcc; border-radius: 0.375rem;">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div style="padding: 1rem; margin-bottom: 1rem; color: #842029; background-color: #f8d7da; border: 1px solid #f5c2c7; border-radius: 0.375rem;">
+                    <ul style="margin: 0; padding-left: 1.5rem;">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <form id="bmiForm" method="POST" action="{{ route('hitung-bmi') }}">
                 @csrf
 
@@ -469,52 +486,10 @@
         </div>
     </div>
 
-    {{-- Grafik BMI --}}
-    <div class="card mb-4">
-        <div class="card-body">
-            <h2 class="section-title" style="margin-top: 0;">Grafik Perkembangan BMI</h2>
-            <canvas id="bmiChart" height="100"></canvas>
-        </div>
-    </div>
+
 </div>
 
-{{-- Chart & JS (re-use earlier logic) --}}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    const bmiData = @json(isset($bmiRecords) ? $bmiRecords->map(fn($d) => ['tanggal' => $d->tanggal, 'bmi' => $d->bmi]) : []);
-    const labels = bmiData.map(item => item.tanggal);
-    const data = bmiData.map(item => parseFloat(item.bmi));
-
-    const ctx = document.getElementById('bmiChart')?.getContext('2d');
-    if (ctx) {
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'BMI',
-                    data: data,
-                    borderColor: 'rgba(37, 99, 235, 1)',
-                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        suggestedMin: 10,
-                        suggestedMax: 40
-                    }
-                }
-            }
-        });
-    }
-
-    function validateAndSubmit(actionUrl, isSave = false) {
+<script>    function validateAndSubmit(actionUrl, isSave = false) {
         const form = document.getElementById('bmiForm');
         const genderSelect = document.getElementById('gender');
         const tinggiInput = document.getElementById('tinggi');

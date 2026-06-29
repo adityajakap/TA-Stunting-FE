@@ -187,6 +187,11 @@
                     </div>
                 </div>
 
+                <div class="mb-3" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="is_published" name="is_published" value="1" style="width: 1.15rem; height: 1.15rem; cursor: pointer;">
+                    <label for="is_published" style="margin: 0; font-size: 1rem; color: #374151; cursor: pointer;">Publishkan Sekarang</label>
+                </div>
+
                 <div class="button-group">
                     <button type="submit" class="btn btn-primary">Simpan</button>
                 </div>
