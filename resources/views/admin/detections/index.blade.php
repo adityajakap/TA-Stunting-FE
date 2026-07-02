@@ -257,8 +257,16 @@
         <div class="modal-content" style="border-radius: 12px; border: none; background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 10px 15px;">
             <form action="{{ route('admin.detections.export-pdf') }}" method="GET" target="_blank">
                 <div class="modal-body p-3">
-                    <!-- Title "Pilih Bulan" in blue/teal -->
-                    <h5 id="exportPdfModalLabel" style="color: #0b5d76; font-weight: 700; font-size: 1.15rem; margin-bottom: 1.25rem; text-align: left;">Pilih Bulan</h5>
+                    <!-- Title "Export Data" in blue/teal -->
+                    <h5 id="exportPdfModalLabel" style="color: #0b5d76; font-weight: 700; font-size: 1.15rem; margin-bottom: 1.25rem; text-align: left;">Export Data</h5>
+
+                    <!-- Input S -->
+                    <div class="mb-3">
+                        <label for="s_value" class="form-label" style="color: #0b5d76; font-weight: 600; font-size: 0.95rem;">Jumlah Balita di Wilayah (S) <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="s_value" name="s_value" required min="1" placeholder="Masukkan total balita di wilayah" style="border-radius: 8px; border: 1px solid #ced4da;">
+                    </div>
+                    
+                    <h6 style="color: #0b5d76; font-weight: 600; font-size: 0.95rem; margin-bottom: 10px;">Pilih Bulan</h6>
                     
                     @if($availableMonths->isEmpty())
                         <p class="text-center text-muted mb-0">Belum ada data deteksi untuk diekspor.</p>

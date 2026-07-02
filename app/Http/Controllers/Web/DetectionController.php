@@ -145,8 +145,17 @@ class DetectionController extends Controller
 
     public function exportPdf(Request $request)
     {
+        $sValue = (int) $request->input('s_value', 0);
+        
+        // Fetch dashboard stats for K (total registered children)
+        $dashboardResponse = $this->api->get('/admin/dashboard');
+        $kValue = 0;
+        if ($dashboardResponse->successful()) {
+            $kValue = $dashboardResponse->json('total_anak') ?? 0;
+        }
+
         $response = $this->api->get('/admin/detections');
-        $semua = $response->successful() ? collect($response->json())->map(function ($item) {
+        $allDetections = $response->successful() ? collect($response->json())->map(function ($item) {
             $childRelation = $item['child'] ?? null;
             unset($item['child']);
             
@@ -164,6 +173,8 @@ class DetectionController extends Controller
             return $detection;
         }) : collect();
 
+        $semua = $allDetections;
+
         // Apply month filtering if requested
         $selectedMonths = $request->input('months', []);
         if (!empty($selectedMonths) && !in_array('all', $selectedMonths)) {
@@ -174,7 +185,35 @@ class DetectionController extends Controller
             });
         }
 
-        $html = view('admin.detections.pdf', compact('semua'))->render();
+        // Calculate SKDN & NTOB
+        $dValue = $semua->unique('child_id')->count();
+        $nValue = 0;
+        $tValue = 0;
+        $bValue = 0;
+
+        $uniqueWeighedChildren = $semua->unique('child_id');
+        foreach ($uniqueWeighedChildren as $current) {
+            $previous = $allDetections->where('child_id', $current->child_id)
+                                      ->where('created_at', '<', $current->created_at)
+                                      ->sortByDesc('created_at')
+                                      ->first();
+                                      
+            if (!$previous) {
+                $bValue++;
+            } else {
+                if ($current->berat_badan > $previous->berat_badan) {
+                    $nValue++;
+                } else {
+                    $tValue++;
+                }
+            }
+        }
+
+        $oValue = max(0, $kValue - $dValue);
+
+        $html = view('admin.detections.pdf', compact(
+            'semua', 'sValue', 'kValue', 'dValue', 'nValue', 'tValue', 'oValue', 'bValue'
+        ))->render();
         
         $pdf = \PDF::loadHTML($html);
         $pdf->setPaper('A4', 'landscape');
