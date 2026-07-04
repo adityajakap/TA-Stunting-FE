@@ -75,28 +75,18 @@ class DetectionController extends Controller
             if ($menuRes->successful()) {
                 $allMenus = collect($menuRes->json());
                 
-                if (in_array(strtolower($status), ['stunting', 'sangat pendek', 'pendek'])) {
-                    // High protein focus
-                    $keywords = ['daging', 'hati', 'ikan', 'telur', 'susu', 'ayam'];
-                    $filtered = $allMenus->filter(function($menu) use ($keywords) {
-                        $text = strtolower(($menu['name'] ?? '') . ' ' . ($menu['ingredients'] ?? ''));
-                        foreach ($keywords as $kw) {
-                            if (strpos($text, $kw) !== false) return true;
-                        }
-                        return false;
-                    });
-                    $rekomendasi = $filtered->count() >= 3 ? $filtered->random(3) : $allMenus->random(min(3, $allMenus->count()));
+                $isStunting = in_array(strtolower($status), ['stunting', 'sangat pendek', 'pendek']);
+                $targetKategori = $isStunting ? 'Stunting' : 'Normal';
+                
+                $filtered = $allMenus->filter(function($menu) use ($targetKategori) {
+                    return (isset($menu['kategori_stunting']) && strtolower($menu['kategori_stunting']) === strtolower($targetKategori));
+                });
+                
+                if ($filtered->isEmpty()) {
+                    // Fallback if no matching menus found
+                    $rekomendasi = $allMenus->count() >= 3 ? $allMenus->random(3) : $allMenus;
                 } else {
-                    // Normal balanced focus
-                    $keywords = ['sayur', 'buah', 'tahu', 'tempe', 'nasi', 'bubur', 'bayam', 'wortel'];
-                    $filtered = $allMenus->filter(function($menu) use ($keywords) {
-                        $text = strtolower(($menu['name'] ?? '') . ' ' . ($menu['ingredients'] ?? ''));
-                        foreach ($keywords as $kw) {
-                            if (strpos($text, $kw) !== false) return true;
-                        }
-                        return false;
-                    });
-                    $rekomendasi = $filtered->count() >= 3 ? $filtered->random(3) : $allMenus->random(min(3, $allMenus->count()));
+                    $rekomendasi = $filtered->count() >= 3 ? $filtered->random(3) : $filtered;
                 }
             }
 
