@@ -212,9 +212,9 @@
     </div>
     @endisset
 
-    {{-- Riwayat Deteksi --}}
-    <h2 class="section-title">Riwayat Deteksi</h2>
-    <div class="card table-card">
+    {{-- Riwayat Deteksi (Kader) --}}
+    <h2 class="section-title">Riwayat Deteksi (Ditambahkan oleh Kader)</h2>
+    <div class="card table-card mb-4">
         <div class="card-body p-0" style="display: block !important;">
             <div class="table-responsive" style="border-radius: 1rem; overflow: hidden;">
                 <table class="table mb-0">
@@ -231,7 +231,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($semua as $d)
+                        @php
+                            $riwayatKader = collect($semua)->filter(function($d) {
+                                return (is_object($d) ? ($d->added_by ?? 'orangtua') : ($d['added_by'] ?? 'orangtua')) === 'kader';
+                            });
+                        @endphp
+                        @forelse($riwayatKader as $d)
                         <tr>
                             <td>{{ is_object($d) ? $d->nama : ($d['nama'] ?? '-') }}</td>
                             <td>{{ is_object($d) ? $d->umur : ($d['umur'] ?? '-') }}</td>
@@ -259,7 +264,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center">Belum ada data deteksi.</td>
+                            <td colspan="8" class="text-center">Belum ada data deteksi dari kader.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -268,5 +273,65 @@
         </div>
     </div>
 
+    {{-- Riwayat Deteksi (Orangtua) --}}
+    <h2 class="section-title">Riwayat Deteksi (Tambah Mandiri Orangtua)</h2>
+    <div class="card table-card mb-4">
+        <div class="card-body p-0" style="display: block !important;">
+            <div class="table-responsive" style="border-radius: 1rem; overflow: hidden;">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Nama</th>
+                            <th>Umur (bulan)</th>
+                            <th>Jenis Kelamin</th>
+                            <th>Berat (kg)</th>
+                            <th>Tinggi (cm)</th>
+                            <th>Z-Score</th>
+                            <th>Status</th>
+                            <th>Waktu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php
+                            $riwayatOrangtua = collect($semua)->filter(function($d) {
+                                return (is_object($d) ? ($d->added_by ?? 'orangtua') : ($d['added_by'] ?? 'orangtua')) === 'orangtua';
+                            });
+                        @endphp
+                        @forelse($riwayatOrangtua as $d)
+                        <tr>
+                            <td>{{ is_object($d) ? $d->nama : ($d['nama'] ?? '-') }}</td>
+                            <td>{{ is_object($d) ? $d->umur : ($d['umur'] ?? '-') }}</td>
+                            <td>{{ (is_object($d) ? $d->jenis_kelamin : ($d['jenis_kelamin'] ?? '')) == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                            <td>{{ is_object($d) ? $d->berat_badan : ($d['berat_badan'] ?? '-') }}</td>
+                            <td>{{ is_object($d) ? $d->tinggi_badan : ($d['tinggi_badan'] ?? '-') }}</td>
+                            <td>{{ is_object($d) ? $d->z_score : ($d['z_score'] ?? '-') }}</td>
+                            <td>
+                                @php
+                                    $status = is_object($d) ? $d->status : ($d['status'] ?? '');
+                                @endphp
+                                <span class="badge {{ $status == 'Stunting' ? 'bg-danger' : 'bg-success' }}">
+                                    {{ $status == 'Tinggi' ? 'Normal' : $status }}
+                                </span>
+                            </td>
+                            <td>
+                                @php
+                                    $date = is_object($d) ? $d->created_at : ($d['created_at'] ?? now());
+                                    if (is_string($date)) {
+                                        $date = \Carbon\Carbon::parse($date);
+                                    }
+                                @endphp
+                                {{ $date->format('d M Y H:i') }}
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="8" class="text-center">Belum ada data deteksi yang ditambahkan secara mandiri.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
