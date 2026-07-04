@@ -148,24 +148,23 @@ class DetectionController extends Controller
             return $detection;
         }) : collect();
 
-        // Extract unique months for the export modal
         $indonesianMonths = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
             5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
             9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
         ];
 
-        $availableMonths = $semua->map(function ($item) use ($indonesianMonths) {
-            $date = \Carbon\Carbon::parse($item->created_at);
-            $monthNum = (int)$date->format('n');
-            return [
-                'value' => $date->format('n-Y'),
-                'label' => ($indonesianMonths[$monthNum] ?? $date->format('F')) . ' ' . $date->format('Y'),
-                'sort_key' => $date->format('Y-m')
-            ];
-        })->unique('value')->sortBy('sort_key')->values();
+        $availableMonths = $semua->map(function ($item) {
+            return (int)\Carbon\Carbon::parse($item->created_at)->format('n');
+        })->unique()->sort()->values()->map(function($m) use ($indonesianMonths) {
+            return ['value' => $m, 'label' => $indonesianMonths[$m]];
+        });
 
-        return view('admin.detections.index', compact('semua', 'availableMonths'));
+        $availableYears = $semua->map(function ($item) {
+            return (int)\Carbon\Carbon::parse($item->created_at)->format('Y');
+        })->unique()->sortDesc()->values();
+
+        return view('admin.detections.index', compact('semua', 'availableMonths', 'availableYears'));
     }
 
     public function adminCreate()
@@ -235,13 +234,21 @@ class DetectionController extends Controller
 
         $semua = $allDetections;
 
-        // Apply month filtering if requested
+        // Apply month and year filtering if requested
         $selectedMonths = $request->input('months', []);
+        $selectedYears = $request->input('years', []);
+        
         if (!empty($selectedMonths) && !in_array('all', $selectedMonths)) {
             $semua = $semua->filter(function ($item) use ($selectedMonths) {
-                $date = \Carbon\Carbon::parse($item->created_at);
-                $monthYear = $date->format('n-Y');
-                return in_array($monthYear, $selectedMonths);
+                return in_array((int)\Carbon\Carbon::parse($item->created_at)->format('n'), $selectedMonths) || 
+                       in_array(\Carbon\Carbon::parse($item->created_at)->format('n'), $selectedMonths);
+            });
+        }
+        
+        if (!empty($selectedYears) && !in_array('all', $selectedYears)) {
+            $semua = $semua->filter(function ($item) use ($selectedYears) {
+                return in_array((int)\Carbon\Carbon::parse($item->created_at)->format('Y'), $selectedYears) ||
+                       in_array(\Carbon\Carbon::parse($item->created_at)->format('Y'), $selectedYears);
             });
         }
 

@@ -277,7 +277,7 @@
                                 <div class="form-check form-check-inline m-0 d-flex align-items-center" style="gap: 5px;">
                                     <input class="form-check-input month-checkbox" type="checkbox" name="months[]" value="{{ $month['value'] }}" id="month-{{ $month['value'] }}" checked style="border-color: #0b5d76; cursor: pointer; width: 16px; height: 16px; margin: 0;">
                                     <label class="form-check-label" for="month-{{ $month['value'] }}" style="color: #0b5d76; font-weight: 500; cursor: pointer; padding: 0; line-height: 1.2;">
-                                        {{ explode(' ', $month['label'])[0] }}
+                                        {{ $month['label'] }}
                                     </label>
                                 </div>
                             @endforeach
@@ -285,6 +285,30 @@
                             <div class="form-check form-check-inline m-0 d-flex align-items-center" style="gap: 5px;">
                                 <input class="form-check-input" type="checkbox" id="select-all-months" checked style="border-color: #0b5d76; cursor: pointer; width: 16px; height: 16px; margin: 0;">
                                 <label class="form-check-label" for="select-all-months" style="font-weight: 500; color: #0b5d76; cursor: pointer; padding: 0; line-height: 1.2;">
+                                    Semua
+                                </label>
+                            </div>
+                        </div>
+                    @endif
+                    
+                    <h6 style="color: #0b5d76; font-weight: 600; font-size: 0.95rem; margin-bottom: 10px;">Pilih Tahun</h6>
+                    
+                    @if($availableYears->isEmpty())
+                        <p class="text-center text-muted mb-0">Belum ada data deteksi untuk diekspor.</p>
+                    @else
+                        <div class="d-flex flex-wrap align-items-center gap-3 mb-4" style="font-size: 0.95rem; justify-content: flex-start; padding-left: 2px;">
+                            @foreach($availableYears as $year)
+                                <div class="form-check form-check-inline m-0 d-flex align-items-center" style="gap: 5px;">
+                                    <input class="form-check-input year-checkbox" type="checkbox" name="years[]" value="{{ $year }}" id="year-{{ $year }}" checked style="border-color: #0b5d76; cursor: pointer; width: 16px; height: 16px; margin: 0;">
+                                    <label class="form-check-label" for="year-{{ $year }}" style="color: #0b5d76; font-weight: 500; cursor: pointer; padding: 0; line-height: 1.2;">
+                                        {{ $year }}
+                                    </label>
+                                </div>
+                            @endforeach
+                            
+                            <div class="form-check form-check-inline m-0 d-flex align-items-center" style="gap: 5px;">
+                                <input class="form-check-input" type="checkbox" id="select-all-years" checked style="border-color: #0b5d76; cursor: pointer; width: 16px; height: 16px; margin: 0;">
+                                <label class="form-check-label" for="select-all-years" style="font-weight: 500; color: #0b5d76; cursor: pointer; padding: 0; line-height: 1.2;">
                                     Semua
                                 </label>
                             </div>
@@ -305,29 +329,53 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const selectAll = document.getElementById('select-all-months');
-        const checkboxes = document.querySelectorAll('.month-checkbox');
+        // Month checkboxes
+        const selectAllMonths = document.getElementById('select-all-months');
+        const monthCheckboxes = document.querySelectorAll('.month-checkbox');
+        
+        // Year checkboxes
+        const selectAllYears = document.getElementById('select-all-years');
+        const yearCheckboxes = document.querySelectorAll('.year-checkbox');
+        
         const resetBtn = document.getElementById('reset-months-btn');
 
-        if (selectAll) {
-            selectAll.addEventListener('change', function () {
-                checkboxes.forEach(cb => {
-                    cb.checked = selectAll.checked;
+        if (selectAllMonths) {
+            selectAllMonths.addEventListener('change', function () {
+                monthCheckboxes.forEach(cb => {
+                    cb.checked = selectAllMonths.checked;
                 });
             });
 
-            checkboxes.forEach(cb => {
+            monthCheckboxes.forEach(cb => {
                 cb.addEventListener('change', function () {
-                    const allChecked = Array.from(checkboxes).every(c => c.checked);
-                    selectAll.checked = allChecked;
+                    const allChecked = Array.from(monthCheckboxes).every(c => c.checked);
+                    selectAllMonths.checked = allChecked;
+                });
+            });
+        }
+        
+        if (selectAllYears) {
+            selectAllYears.addEventListener('change', function () {
+                yearCheckboxes.forEach(cb => {
+                    cb.checked = selectAllYears.checked;
+                });
+            });
+
+            yearCheckboxes.forEach(cb => {
+                cb.addEventListener('change', function () {
+                    const allChecked = Array.from(yearCheckboxes).every(c => c.checked);
+                    selectAllYears.checked = allChecked;
                 });
             });
         }
 
         if (resetBtn) {
             resetBtn.addEventListener('click', function () {
-                checkboxes.forEach(cb => cb.checked = false);
-                if (selectAll) selectAll.checked = false;
+                monthCheckboxes.forEach(cb => cb.checked = false);
+                if (selectAllMonths) selectAllMonths.checked = false;
+                
+                yearCheckboxes.forEach(cb => cb.checked = false);
+                if (selectAllYears) selectAllYears.checked = false;
             });
         }
     });
