@@ -45,7 +45,18 @@ class DashboardController extends Controller
             session(['active_child_name' => $selectedChild->nama_lengkap_anak]);
         }
 
-        return view('orangtua.dashboard', compact('user', 'children', 'selectedChild', 'selectedChildId', 'menus', 'artikels'));
+        $lastDetection = null;
+        if ($selectedChildId) {
+            $detResponse = $this->api->get("/children/{$selectedChildId}/detections");
+            if ($detResponse->successful()) {
+                $detections = $detResponse->json();
+                if (count($detections) > 0) {
+                    $lastDetection = (object) $detections[0];
+                }
+            }
+        }
+
+        return view('orangtua.dashboard', compact('user', 'children', 'selectedChild', 'selectedChildId', 'menus', 'artikels', 'lastDetection'));
     }
 
     public function admin()

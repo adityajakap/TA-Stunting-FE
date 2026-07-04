@@ -698,6 +698,41 @@
         </div>
     </div>
 
+    @if($selectedChild && isset($lastDetection))
+        <div class="section-header" style="justify-content: flex-start; padding-bottom: 5px;">
+            <h4 class="section-title-feature mb-0">History Pemantauan Terakhir</h4>
+        </div>
+        <div class="card mb-4" style="border-radius: 12px; border: 1px solid #e9ecef; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05); background-color: #f8f9fa;">
+            <div class="card-body" style="padding: 20px;">
+                <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                    <div style="flex: 1; min-width: 150px;">
+                        <span style="display: block; font-size: 0.85rem; color: #6c757d; font-weight: 500;">Umur</span>
+                        <strong style="font-size: 1.1rem; color: #333;">{{ $lastDetection->umur }} Bulan</strong>
+                    </div>
+                    <div style="flex: 1; min-width: 150px;">
+                        <span style="display: block; font-size: 0.85rem; color: #6c757d; font-weight: 500;">Berat Badan</span>
+                        <strong style="font-size: 1.1rem; color: #333;">{{ $lastDetection->berat_badan }} Kg</strong>
+                    </div>
+                    <div style="flex: 1; min-width: 150px;">
+                        <span style="display: block; font-size: 0.85rem; color: #6c757d; font-weight: 500;">Tinggi Badan</span>
+                        <strong style="font-size: 1.1rem; color: #333;">{{ $lastDetection->tinggi_badan }} Cm</strong>
+                    </div>
+                    <div style="flex: 1; min-width: 150px;">
+                        <span style="display: block; font-size: 0.85rem; color: #6c757d; font-weight: 500;">Tanggal Pengukuran</span>
+                        <strong style="font-size: 1.1rem; color: #333;">{{ \Carbon\Carbon::parse($lastDetection->created_at)->format('d M Y') }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @elseif($selectedChild)
+        <div class="section-header" style="justify-content: flex-start; padding-bottom: 5px;">
+            <h4 class="section-title-feature mb-0">History Pemantauan Terakhir</h4>
+        </div>
+        <div class="alert alert-info mb-4" style="border-radius: 12px;">
+            Belum ada data pemantauan untuk anak ini. Silakan lakukan deteksi stunting terlebih dahulu.
+        </div>
+    @endif
+
     {{-- FITUR UTAMA --}}
     <div class="feature-grid">
         <a href="{{ route('orangtua.detections.create') }}" class="feature-box-link">
@@ -722,6 +757,10 @@
             </div>
         </a>
     </div>
+
+
+
+
 
 
 
