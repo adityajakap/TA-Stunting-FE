@@ -634,6 +634,14 @@
                             <label for="tanggal_lahir" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 6px;">Tanggal Lahir</label>
                             <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" required style="border-radius: 10px; border: 1px solid #c8d1d1; padding: 10px 14px; background: #fff; color: #333;">
                         </div>
+                        <div class="mb-3">
+                            <label for="jenis_kelamin" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 6px;">Jenis Kelamin</label>
+                            <select class="form-control" id="jenis_kelamin" name="jenis_kelamin" required style="border-radius: 10px; border: 1px solid #c8d1d1; padding: 10px 14px; background: #fff; color: #333;">
+                                <option value="" disabled selected>-- Pilih Jenis Kelamin --</option>
+                                <option value="L">Laki-laki</option>
+                                <option value="P">Perempuan</option>
+                            </select>
+                        </div>
                         <div class="mb-4">
                             <label for="nik_anak" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 6px;">NIK Anak</label>
                             <input type="text" class="form-control" id="nik_anak" name="nik_anak" maxlength="16" style="border-radius: 10px; border: 1px solid #c8d1d1; padding: 10px 14px; background: #fff; color: #333;">
@@ -787,6 +795,14 @@
                     <div class="mb-3">
                         <label for="tanggal_lahir_modal" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 6px;">Tanggal Lahir</label>
                         <input type="date" class="form-control" id="tanggal_lahir_modal" name="tanggal_lahir" required style="border-radius: 10px; border: 1px solid #c8d1d1; padding: 10px 14px; background: #fff; color: #333;">
+                    </div>
+                    <div class="mb-3">
+                        <label for="jenis_kelamin_modal" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 6px;">Jenis Kelamin</label>
+                        <select class="form-control" id="jenis_kelamin_modal" name="jenis_kelamin" required style="border-radius: 10px; border: 1px solid #c8d1d1; padding: 10px 14px; background: #fff; color: #333;">
+                            <option value="" disabled selected>-- Pilih Jenis Kelamin --</option>
+                            <option value="L">Laki-laki</option>
+                            <option value="P">Perempuan</option>
+                        </select>
                     </div>
                     <div class="mb-4">
                         <label for="nik_anak_modal" class="form-label" style="font-weight: 500; color: #333; margin-bottom: 6px;">NIK Anak</label>
