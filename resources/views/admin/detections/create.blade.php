@@ -298,7 +298,7 @@
                 @csrf
 
                 <div class="mb-3">
-                    <label for="child_id" class="form-label">Pilih Anak (Orangtua)</label>
+                    <label for="child_id" class="form-label">Pilih Anak </label>
                     <select name="child_id" id="child_id" class="form-control" required>
                         <option value="">-- Pilih --</option>
                         @foreach($users as $u)
