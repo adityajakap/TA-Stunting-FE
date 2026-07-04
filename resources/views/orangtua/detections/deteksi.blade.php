@@ -223,6 +223,15 @@
     </div>
     @endisset
 
+    @if(isset($kmsData) && !empty($kmsData['who']))
+    <div class="mb-4">
+        <h2 class="section-title">Grafik Pertumbuhan (KMS) - {{ $kmsData['gender'] == 'L' ? 'Laki-laki' : 'Perempuan' }}</h2>
+        <div class="card p-3" style="border-radius: 12px; border: 1px solid #e2e8f0; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+            <canvas id="kmsChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+    @endif
+
     {{-- Riwayat Deteksi (Kader) --}}
     <h2 class="section-title">Riwayat Deteksi (Ditambahkan oleh Kader)</h2>
     <div class="card table-card mb-4">
@@ -345,4 +354,107 @@
         </div>
     </div>
 </div>
+
+@if(isset($kmsData) && !empty($kmsData['who']))
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const kmsData = @json($kmsData);
+        const ctx = document.getElementById('kmsChart').getContext('2d');
+        
+        const labels = kmsData.who.map(d => d.Month);
+        
+        const sd3 = kmsData.who.map(d => d.SD3);
+        const sd2 = kmsData.who.map(d => d.SD2);
+        const median = kmsData.who.map(d => d.SD0);
+        const sd2neg = kmsData.who.map(d => d.SD2neg);
+        const sd3neg = kmsData.who.map(d => d.SD3neg);
+        
+        // Connect history dots by filtering nulls for the line
+        const historyPoints = [];
+        if (kmsData.history) {
+            kmsData.history.forEach(hist => {
+                if(hist.umur <= 60) {
+                    historyPoints.push({x: hist.umur, y: hist.tinggi_badan});
+                }
+            });
+        }
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Sangat Pendek (-3 SD)',
+                        data: sd3neg,
+                        borderColor: '#e74c3c',
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        fill: false
+                    },
+                    {
+                        label: 'Stunting (-2 SD)',
+                        data: sd2neg,
+                        borderColor: '#f1c40f',
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        fill: false
+                    },
+                    {
+                        label: 'Normal (Median)',
+                        data: median,
+                        borderColor: '#2ecc71',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false
+                    },
+                    {
+                        label: 'Tinggi (+2 SD)',
+                        data: sd2,
+                        borderColor: '#3498db',
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        fill: false
+                    },
+                    {
+                        label: 'Tinggi Badan Anak',
+                        data: historyPoints,
+                        borderColor: '#9b59b6',
+                        backgroundColor: '#9b59b6',
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        fill: false,
+                        showLine: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: { display: true, text: 'Umur (Bulan)' },
+                        min: 0,
+                        max: 60,
+                        ticks: { stepSize: 6 }
+                    },
+                    y: {
+                        title: { display: true, text: 'Tinggi Badan (cm)' }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: (context) => `Umur: ${context[0].parsed.x} Bulan`
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+@endif
+
 @endsection

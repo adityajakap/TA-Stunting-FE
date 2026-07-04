@@ -307,19 +307,6 @@
                     </select>
                 </div>
 
-                <div class="mb-3">
-                    <label for="umur" class="form-label">Umur (Bulan)</label>
-                    <input type="number" name="umur" id="umur" class="form-control" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="jenis_kelamin" class="form-label">Jenis Kelamin</label>
-                    <select name="jenis_kelamin" id="jenis_kelamin" class="form-control" required>
-                        <option value="">-- Pilih --</option>
-                        <option value="L">Laki-laki</option>
-                        <option value="P">Perempuan</option>
-                    </select>
-                </div>
 
                 <div class="mb-3">
                     <label for="berat_badan" class="form-label">Berat Badan (kg)</label>

@@ -24,7 +24,13 @@ class DetectionController extends Controller
         $response = $this->api->get("/children/{$childId}/detections");
         $semua = $response->successful() ? $response->json() : [];
 
-        return view('orangtua.detections.deteksi', compact('semua'));
+        $kmsData = null;
+        $kmsResponse = $this->api->get("/children/{$childId}/kms-data");
+        if ($kmsResponse->successful()) {
+            $kmsData = $kmsResponse->json();
+        }
+
+        return view('orangtua.detections.deteksi', compact('semua', 'kmsData'));
     }
 
     public function store(Request $request)
@@ -182,14 +188,12 @@ class DetectionController extends Controller
     {
         $request->validate([
             'child_id'      => 'required|integer',
-            'umur'          => 'required|integer',
-            'jenis_kelamin' => 'required|in:L,P',
             'berat_badan'   => 'required|numeric',
             'tinggi_badan'  => 'required|numeric',
         ]);
 
         $response = $this->api->post("/admin/detections", $request->only([
-            'child_id', 'umur', 'jenis_kelamin', 'berat_badan', 'tinggi_badan',
+            'child_id', 'berat_badan', 'tinggi_badan',
         ]));
 
         if ($response->successful()) {
