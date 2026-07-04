@@ -168,11 +168,31 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="category" class="form-label">Kategori</label>
+                    <label for="category" class="form-label">Kategori Waktu Makan</label>
                     <select id="category" name="category" class="form-control" required>
                         <option value="">-- Pilih --</option>
                         @foreach(['pagi', 'siang', 'malam', 'snack'] as $kategori)
                             <option value="{{ $kategori }}" {{ (old('category', $menu->category ?? '') == $kategori) ? 'selected' : '' }}>{{ ucfirst($kategori) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="kategori_stunting" class="form-label">Kategori Status Gizi</label>
+                    <select id="kategori_stunting" name="kategori_stunting" class="form-control" required>
+                        <option value="">-- Pilih --</option>
+                        @foreach(['Stunting', 'Normal'] as $ks)
+                            <option value="{{ $ks }}" {{ (old('kategori_stunting', $menu->kategori_stunting ?? '') == $ks) ? 'selected' : '' }}>{{ $ks }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="rentang_umur" class="form-label">Rentang Umur</label>
+                    <select id="rentang_umur" name="rentang_umur" class="form-control" required>
+                        <option value="">-- Pilih --</option>
+                        @foreach(['0-6 Bulan', '6-12 Bulan', '1-3 Tahun', '3-5 Tahun'] as $ru)
+                            <option value="{{ $ru }}" {{ (old('rentang_umur', $menu->rentang_umur ?? '') == $ru) ? 'selected' : '' }}>{{ $ru }}</option>
                         @endforeach
                     </select>
                 </div>
