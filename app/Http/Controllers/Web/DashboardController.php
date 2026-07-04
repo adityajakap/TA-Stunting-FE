@@ -82,11 +82,12 @@ class DashboardController extends Controller
         $request->validate([
             'nama_lengkap_anak' => 'required|string|max:255',
             'tanggal_lahir'     => 'required|date',
+            'jenis_kelamin'     => 'required|in:L,P',
             'nik_anak'          => 'nullable|string|max:20',
         ]);
 
         $response = $this->api->post('/children', $request->only([
-            'nama_lengkap_anak', 'tanggal_lahir', 'nik_anak',
+            'nama_lengkap_anak', 'tanggal_lahir', 'jenis_kelamin', 'nik_anak',
         ]));
 
         if ($response->successful()) {

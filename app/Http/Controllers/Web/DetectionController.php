@@ -35,21 +35,39 @@ class DetectionController extends Controller
         }
 
         $request->validate([
-            'umur'          => 'required|integer',
-            'jenis_kelamin' => 'required|in:L,P',
             'berat_badan'   => 'required|numeric',
             'tinggi_badan'  => 'required|numeric',
         ]);
 
-        $response = $this->api->post("/children/{$childId}/detections", $request->only([
-            'umur', 'jenis_kelamin', 'berat_badan', 'tinggi_badan',
-        ]));
+        $childRes = $this->api->get("/children/{$childId}");
+        if ($childRes->successful()) {
+            $child = $childRes->json();
+            $tanggal_lahir = \Carbon\Carbon::parse($child['tanggal_lahir']);
+            $umur = (int) $tanggal_lahir->diffInMonths(\Carbon\Carbon::now());
+            $jenis_kelamin = $child['jenis_kelamin'] ?? 'L';
+        } else {
+            return back()->with('error', 'Gagal mengambil data anak.');
+        }
+
+        $payload = [
+            'umur' => $umur,
+            'jenis_kelamin' => $jenis_kelamin,
+            'berat_badan' => (float) $request->input('berat_badan'),
+            'tinggi_badan' => (float) $request->input('tinggi_badan'),
+        ];
+
+        $response = $this->api->post("/children/{$childId}/detections", $payload);
 
         if ($response->successful()) {
             return redirect()->route('orangtua.detections.create')->with('success', 'Deteksi berhasil disimpan!');
         }
 
-        return back()->with('error', $response->json('message', 'Gagal menyimpan deteksi.'));
+        $errorMessage = $response->json('message', 'Gagal menyimpan deteksi.');
+        if ($response->json('errors')) {
+            $errorMessage = collect($response->json('errors'))->flatten()->first() ?: $errorMessage;
+        }
+
+        return back()->with('error', $errorMessage);
     }
 
     public function destroy($id)

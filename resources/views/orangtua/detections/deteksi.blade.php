@@ -145,24 +145,35 @@
                 <x-back-button />
                 <h1 style="color: #005f77; font-size: 1.6rem; font-weight: 700; margin: 0;">Form Deteksi Stunting</h1>
             </div>
+
+            @if(session('success'))
+                <div class="alert alert-success" style="padding: 1rem; margin-bottom: 1rem; color: #0f5132; background-color: #d1e7dd; border: 1px solid #badbcc; border-radius: 0.375rem;">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-danger" style="padding: 1rem; margin-bottom: 1rem; color: #842029; background-color: #f8d7da; border: 1px solid #f5c2c7; border-radius: 0.375rem;">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="alert alert-danger" style="padding: 1rem; margin-bottom: 1rem; color: #842029; background-color: #f8d7da; border: 1px solid #f5c2c7; border-radius: 0.375rem;">
+                    <ul style="margin: 0; padding-left: 1.5rem;">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             {{-- Form Deteksi --}}
             <form action="{{ route('orangtua.detections.store') }}" method="POST">
         @csrf
 
 
-        <div class="mb-3">
-            <label>Umur (bulan)</label>
-            <input type="number" name="umur" class="form-control" required>
-        </div>
 
-        <div class="mb-3">
-            <label>Jenis Kelamin</label>
-            <select name="jenis_kelamin" class="form-control" required>
-                <option value="">-- Pilih --</option>
-                <option value="L">Laki-laki</option>
-                <option value="P">Perempuan</option>
-            </select>
-        </div>
 
         <div class="mb-3">
             <label>Berat Badan (kg)</label>
