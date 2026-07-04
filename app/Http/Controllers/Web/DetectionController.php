@@ -59,7 +59,45 @@ class DetectionController extends Controller
         $response = $this->api->post("/children/{$childId}/detections", $payload);
 
         if ($response->successful()) {
-            return redirect()->route('orangtua.detections.create')->with('success', 'Deteksi berhasil disimpan!');
+            $detectionData = $response->json();
+            $status = $detectionData['status'] ?? 'Normal';
+            
+            // Fetch menus for recommendation
+            $menuRes = $this->api->get('/nutrition');
+            $rekomendasi = collect();
+            
+            if ($menuRes->successful()) {
+                $allMenus = collect($menuRes->json());
+                
+                if (in_array(strtolower($status), ['stunting', 'sangat pendek', 'pendek'])) {
+                    // High protein focus
+                    $keywords = ['daging', 'hati', 'ikan', 'telur', 'susu', 'ayam'];
+                    $filtered = $allMenus->filter(function($menu) use ($keywords) {
+                        $text = strtolower(($menu['name'] ?? '') . ' ' . ($menu['ingredients'] ?? ''));
+                        foreach ($keywords as $kw) {
+                            if (strpos($text, $kw) !== false) return true;
+                        }
+                        return false;
+                    });
+                    $rekomendasi = $filtered->count() >= 3 ? $filtered->random(3) : $allMenus->random(min(3, $allMenus->count()));
+                } else {
+                    // Normal balanced focus
+                    $keywords = ['sayur', 'buah', 'tahu', 'tempe', 'nasi', 'bubur', 'bayam', 'wortel'];
+                    $filtered = $allMenus->filter(function($menu) use ($keywords) {
+                        $text = strtolower(($menu['name'] ?? '') . ' ' . ($menu['ingredients'] ?? ''));
+                        foreach ($keywords as $kw) {
+                            if (strpos($text, $kw) !== false) return true;
+                        }
+                        return false;
+                    });
+                    $rekomendasi = $filtered->count() >= 3 ? $filtered->random(3) : $allMenus->random(min(3, $allMenus->count()));
+                }
+            }
+
+            return redirect()->route('orangtua.detections.create')
+                ->with('success', 'Deteksi berhasil disimpan!')
+                ->with('rekomendasi_menu', $rekomendasi)
+                ->with('status_deteksi', $status);
         }
 
         $errorMessage = $response->json('message', 'Gagal menyimpan deteksi.');

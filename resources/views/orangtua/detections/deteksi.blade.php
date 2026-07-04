@@ -192,6 +192,17 @@
         </div>
     </div>
 
+    @if(session('rekomendasi_menu'))
+    <div class="mb-4 mt-4" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+        <h3 style="color: #005f77; font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">Rekomendasi Menu</h3>
+        <ul style="padding-left: 20px; font-size: 1rem; color: #333; margin-bottom: 0;">
+            @foreach(session('rekomendasi_menu') as $menu)
+                <li style="margin-bottom: 4px;">{{ is_object($menu) ? $menu->name : ($menu['name'] ?? 'Menu Sehat') }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     {{-- Hasil Deteksi Terbaru --}}
     @isset($hasil)
     <div class="mb-3">
