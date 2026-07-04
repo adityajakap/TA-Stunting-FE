@@ -227,7 +227,9 @@
     <div class="mb-4">
         <h2 class="section-title">Grafik Pertumbuhan (KMS) - {{ $kmsData['gender'] == 'L' ? 'Laki-laki' : 'Perempuan' }}</h2>
         <div class="card p-3" style="border-radius: 12px; border: 1px solid #e2e8f0; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-            <canvas id="kmsChart" width="400" height="200"></canvas>
+            <div style="position: relative; height: 400px; width: 100%;">
+                <canvas id="kmsChart"></canvas>
+            </div>
         </div>
     </div>
     @endif
@@ -445,6 +447,14 @@
                     }
                 },
                 plugins: {
+                    legend: {
+                        position: window.innerWidth < 600 ? 'bottom' : 'top',
+                        labels: {
+                            boxWidth: window.innerWidth < 600 ? 10 : 20,
+                            font: { size: window.innerWidth < 600 ? 10 : 12 },
+                            padding: window.innerWidth < 600 ? 10 : 20
+                        }
+                    },
                     tooltip: {
                         callbacks: {
                             title: (context) => `Umur: ${context[0].parsed.x} Bulan`

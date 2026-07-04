@@ -32,13 +32,14 @@ class DashboardController extends Controller
         $user = session('user');
         $selectedChildId = session('selected_child_id');
         
-        // Auto-select first child if none is currently selected in session
-        if (!$selectedChildId && $children->isNotEmpty()) {
-            $selectedChildId = $children->first()->id;
+        $selectedChild = $children->firstWhere('id', $selectedChildId);
+        
+        // Auto-select first child if none is currently selected or selected child is no longer in the list (e.g. > 5 years old)
+        if (!$selectedChild && $children->isNotEmpty()) {
+            $selectedChild = $children->first();
+            $selectedChildId = $selectedChild->id;
             session(['selected_child_id' => $selectedChildId]);
         }
-
-        $selectedChild = $children->firstWhere('id', $selectedChildId);
         
         // Simpan nama anak aktif di session agar navbar bisa mengaksesnya dengan mudah
         if ($selectedChild) {
