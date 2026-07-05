@@ -242,6 +242,14 @@ class DetectionController extends Controller
             });
         }
 
+        $selectedInputters = $request->input('inputters', []);
+        
+        if (!empty($selectedInputters) && !in_array('all', $selectedInputters)) {
+            $semua = $semua->filter(function ($item) use ($selectedInputters) {
+                return in_array(strtolower($item->added_by ?? 'orangtua'), $selectedInputters);
+            });
+        }
+
         // Calculate SKDN & NTOB
         $dValue = $semua->unique('child_id')->count();
         $nValue = 0;

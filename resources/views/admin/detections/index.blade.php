@@ -315,6 +315,29 @@
                         </div>
                     @endif
                     
+                    <h6 style="color: #0b5d76; font-weight: 600; font-size: 0.95rem; margin-top: 15px; margin-bottom: 10px;">Pilih Penginput</h6>
+                    
+                    <div class="d-flex flex-wrap align-items-center gap-3 mb-4" style="font-size: 0.95rem; justify-content: flex-start; padding-left: 2px;">
+                        <div class="form-check form-check-inline m-0 d-flex align-items-center" style="gap: 5px;">
+                            <input class="form-check-input inputter-checkbox" type="checkbox" name="inputters[]" value="orangtua" id="inputter-orangtua" checked style="border-color: #0b5d76; cursor: pointer; width: 16px; height: 16px; margin: 0;">
+                            <label class="form-check-label" for="inputter-orangtua" style="color: #0b5d76; font-weight: 500; cursor: pointer; padding: 0; line-height: 1.2;">
+                                Orangtua
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline m-0 d-flex align-items-center" style="gap: 5px;">
+                            <input class="form-check-input inputter-checkbox" type="checkbox" name="inputters[]" value="kader" id="inputter-kader" checked style="border-color: #0b5d76; cursor: pointer; width: 16px; height: 16px; margin: 0;">
+                            <label class="form-check-label" for="inputter-kader" style="color: #0b5d76; font-weight: 500; cursor: pointer; padding: 0; line-height: 1.2;">
+                                Kader
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline m-0 d-flex align-items-center" style="gap: 5px;">
+                            <input class="form-check-input" type="checkbox" id="select-all-inputters" checked style="border-color: #0b5d76; cursor: pointer; width: 16px; height: 16px; margin: 0;">
+                            <label class="form-check-label" for="select-all-inputters" style="font-weight: 500; color: #0b5d76; cursor: pointer; padding: 0; line-height: 1.2;">
+                                Semua
+                            </label>
+                        </div>
+                    </div>
+                    
                     <!-- Centered Buttons: Terapkan, Reset, Tutup -->
                     <div class="d-flex justify-content-center gap-2 mt-4 pt-1">
                         <button type="submit" class="btn text-white" style="background-color: #0b5d76; border-radius: 8px; padding: 6px 18px; font-weight: 600; font-size: 0.9rem; border: none;" {{ $availableMonths->isEmpty() ? 'disabled' : '' }}>Terapkan</button>
@@ -363,8 +386,25 @@
 
             yearCheckboxes.forEach(cb => {
                 cb.addEventListener('change', function () {
-                    const allChecked = Array.from(yearCheckboxes).every(c => c.checked);
-                    selectAllYears.checked = allChecked;
+                    selectAllYears.checked = Array.from(yearCheckboxes).every(c => c.checked);
+                });
+            });
+        }
+        
+        // Inputter checkboxes
+        const selectAllInputters = document.getElementById('select-all-inputters');
+        const inputterCheckboxes = document.querySelectorAll('.inputter-checkbox');
+        
+        if (selectAllInputters) {
+            selectAllInputters.addEventListener('change', function () {
+                inputterCheckboxes.forEach(cb => {
+                    cb.checked = selectAllInputters.checked;
+                });
+            });
+
+            inputterCheckboxes.forEach(cb => {
+                cb.addEventListener('change', function () {
+                    selectAllInputters.checked = Array.from(inputterCheckboxes).every(c => c.checked);
                 });
             });
         }
