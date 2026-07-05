@@ -168,6 +168,10 @@ class DetectionController extends Controller
                 $child->setRelation('user', (new \App\Models\User)->forceFill((array)$userRelation));
             }
             return $child;
+        })->filter(function ($child) {
+            if (empty($child->tanggal_lahir)) return true;
+            $umur = \Carbon\Carbon::parse($child->tanggal_lahir)->diffInMonths(\Carbon\Carbon::now());
+            return $umur <= 60;
         });
 
         return view('admin.detections.create', compact('users'));
