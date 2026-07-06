@@ -113,27 +113,90 @@
 
 {{-- CARD VIEW --}}
 <div class="card-wrapper">
-    <div class="card-container">
-        @forelse ($menus as $menu)
-            <div class="card">
-                <img src="{{ $menu->image ? config('services.api.storage_url') . '/' . $menu->image : asset('default-image.png') }}"
-                     alt="Gambar Menu" class="article-image" style="width: 100%; height: 180px; object-fit: cover; background-color: #f3f4f6;">
-                <div class="card-body" style="padding: 1rem; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1;">
-                    <div class="card-title" style="font-weight: bold; color: #1f2937; font-size: 1.1rem; margin-bottom: 0.5rem;">
-                        {{ $menu->name }}
+    @php
+        $stuntingMenus = collect($menus)->filter(function($m) {
+            return strtolower($m->kategori_stunting ?? '') === 'stunting';
+        });
+        $normalMenus = collect($menus)->filter(function($m) {
+            return strtolower($m->kategori_stunting ?? '') === 'normal';
+        });
+        $otherMenus = collect($menus)->filter(function($m) {
+            return !in_array(strtolower($m->kategori_stunting ?? ''), ['stunting', 'normal']);
+        });
+    @endphp
+
+    @if(collect($menus)->isEmpty())
+        <p style="text-align: center; color: #6b7280; padding: 2rem;">Belum ada menu yang tersedia.</p>
+    @else
+        @if($stuntingMenus->isNotEmpty())
+            <h2 style="color: #005f77; font-size: 1.4rem; font-weight: 800; margin-bottom: 1rem; padding: 0 2rem;">Menu Stunting</h2>
+            <div class="card-container" style="margin-bottom: 2.5rem;">
+                @foreach ($stuntingMenus as $menu)
+                    <div class="card" style="background-color: #ffffff; border-radius: 1rem; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); border: 1px solid #e5e7eb; display: flex; flex-direction: column;">
+                        <img src="{{ $menu->image ? config('services.api.storage_url') . '/' . $menu->image : asset('default-image.png') }}"
+                             alt="Gambar Menu" class="article-image" style="width: 100%; height: 180px; object-fit: cover; background-color: #f3f4f6;">
+                        <div class="card-body" style="padding: 1rem; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1;">
+                            <div class="card-title" style="font-weight: bold; color: #1f2937; font-size: 1.1rem; margin-bottom: 0.5rem; text-align: center;">
+                                {{ $menu->name }}
+                            </div>
+                            <div style="margin-bottom: 0.5rem; text-align: center;">
+                                <span style="font-size: 0.85rem; color: #6b7280;">{{ ucfirst($menu->category) }}</span>
+                            </div>
+                            <x-button :href="route('orangtua.nutritionUs.show', $menu->id)" class="w-full text-center" style="border-radius: 9999px; background-color: #005f77; border: none; font-size: 0.9rem;">
+                                Lihat menu
+                            </x-button>
+                        </div>
                     </div>
-                    <div style="margin-bottom: 0.5rem;">
-                        <span class="badge">{{ ucfirst($menu->category) }}</span>
-                    </div>
-                    <x-button :href="route('orangtua.nutritionUs.show', $menu->id)" class="w-full text-center">
-    Lihat Menu
-</x-button>
-                </div>
+                @endforeach
             </div>
-        @empty
-            <p style="text-align: center; color: #6b7280;">Belum ada menu yang tersedia.</p>
-        @endforelse
-    </div>
+        @endif
+
+        @if($normalMenus->isNotEmpty())
+            <h2 style="color: #005f77; font-size: 1.4rem; font-weight: 800; margin-bottom: 1rem; padding: 0 2rem;">Menu Normal</h2>
+            <div class="card-container" style="margin-bottom: 2.5rem;">
+                @foreach ($normalMenus as $menu)
+                    <div class="card" style="background-color: #ffffff; border-radius: 1rem; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); border: 1px solid #e5e7eb; display: flex; flex-direction: column;">
+                        <img src="{{ $menu->image ? config('services.api.storage_url') . '/' . $menu->image : asset('default-image.png') }}"
+                             alt="Gambar Menu" class="article-image" style="width: 100%; height: 180px; object-fit: cover; background-color: #f3f4f6;">
+                        <div class="card-body" style="padding: 1rem; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1;">
+                            <div class="card-title" style="font-weight: bold; color: #1f2937; font-size: 1.1rem; margin-bottom: 0.5rem; text-align: center;">
+                                {{ $menu->name }}
+                            </div>
+                            <div style="margin-bottom: 0.5rem; text-align: center;">
+                                <span style="font-size: 0.85rem; color: #6b7280;">{{ ucfirst($menu->category) }}</span>
+                            </div>
+                            <x-button :href="route('orangtua.nutritionUs.show', $menu->id)" class="w-full text-center" style="border-radius: 9999px; background-color: #005f77; border: none; font-size: 0.9rem;">
+                                Lihat menu
+                            </x-button>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
+        @if($otherMenus->isNotEmpty())
+            <h2 style="color: #005f77; font-size: 1.4rem; font-weight: 800; margin-bottom: 1rem; padding: 0 2rem;">Menu Lainnya</h2>
+            <div class="card-container" style="margin-bottom: 2.5rem;">
+                @foreach ($otherMenus as $menu)
+                    <div class="card" style="background-color: #ffffff; border-radius: 1rem; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); border: 1px solid #e5e7eb; display: flex; flex-direction: column;">
+                        <img src="{{ $menu->image ? config('services.api.storage_url') . '/' . $menu->image : asset('default-image.png') }}"
+                             alt="Gambar Menu" class="article-image" style="width: 100%; height: 180px; object-fit: cover; background-color: #f3f4f6;">
+                        <div class="card-body" style="padding: 1rem; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1;">
+                            <div class="card-title" style="font-weight: bold; color: #1f2937; font-size: 1.1rem; margin-bottom: 0.5rem; text-align: center;">
+                                {{ $menu->name }}
+                            </div>
+                            <div style="margin-bottom: 0.5rem; text-align: center;">
+                                <span style="font-size: 0.85rem; color: #6b7280;">{{ ucfirst($menu->category) }}</span>
+                            </div>
+                            <x-button :href="route('orangtua.nutritionUs.show', $menu->id)" class="w-full text-center" style="border-radius: 9999px; background-color: #005f77; border: none; font-size: 0.9rem;">
+                                Lihat menu
+                            </x-button>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+    @endif
 </div>
 
 {{-- Font Awesome --}}

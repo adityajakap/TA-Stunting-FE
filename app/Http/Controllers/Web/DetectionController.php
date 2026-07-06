@@ -168,6 +168,10 @@ class DetectionController extends Controller
                 $child->setRelation('user', (new \App\Models\User)->forceFill((array)$userRelation));
             }
             return $child;
+        })->filter(function ($child) {
+            if (empty($child->tanggal_lahir)) return true;
+            $umur = \Carbon\Carbon::parse($child->tanggal_lahir)->diffInMonths(\Carbon\Carbon::now());
+            return $umur <= 60;
         });
 
         return view('admin.detections.create', compact('users'));
@@ -186,7 +190,32 @@ class DetectionController extends Controller
         ]));
 
         if ($response->successful()) {
-            return redirect()->route('admin.detections.index')->with('success', 'Deteksi berhasil disimpan!');
+            $detectionData = $response->json();
+            $status = $detectionData['status'] ?? 'Normal';
+            
+            $menuRes = $this->api->get('/nutrition');
+            $rekomendasi = collect();
+            
+            if ($menuRes->successful()) {
+                $allMenus = collect($menuRes->json());
+                
+                $isStunting = in_array(strtolower($status), ['stunting', 'sangat pendek', 'pendek']);
+                $targetKategori = $isStunting ? 'Stunting' : 'Normal';
+                
+                $filtered = $allMenus->filter(function($menu) use ($targetKategori) {
+                    return (isset($menu['kategori_stunting']) && strtolower($menu['kategori_stunting']) === strtolower($targetKategori));
+                });
+                
+                if ($filtered->isEmpty()) {
+                    $rekomendasi = $allMenus->count() >= 3 ? $allMenus->random(3) : $allMenus;
+                } else {
+                    $rekomendasi = $filtered->count() >= 3 ? $filtered->random(3) : $filtered;
+                }
+            }
+
+            return redirect()->route('admin.detections.create')
+                ->with('success', 'Deteksi berhasil disimpan!')
+                ->with('rekomendasi_menu', $rekomendasi);
         }
 
         return back()->with('error', collect($response->json('errors'))->flatten()->first() ?: $response->json('message', 'Gagal menyimpan deteksi.'));

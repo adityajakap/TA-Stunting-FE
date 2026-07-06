@@ -290,6 +290,10 @@
 <div class="card-wrapper">
     <div class="card">
         <div class="card-body">
+            @if(session('success'))
+                <div class="alert alert-success" style="background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc;">{{ session('success') }}</div>
+            @endif
+
             @if(session('error'))
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
@@ -320,10 +324,21 @@
 
                 <div class="button-group">
                     <button type="submit" class="btn btn-primary">Tambah Deteksi</button>
-                    <button type="button" class="btn btn-secondary" onclick="window.history.back()">Batal</button>
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='{{ route('admin.detections.index') }}'">Batal</button>
                 </div>
             </form>
         </div>
     </div>
+
+    @if(session('rekomendasi_menu'))
+    <div class="mb-4 mt-4" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+        <h3 style="color: #005f77; font-weight: 800; font-size: 1.5rem; margin-bottom: 0.5rem;">Rekomendasi Menu</h3>
+        <ul style="padding-left: 20px; font-size: 1rem; color: #333; margin-bottom: 0;">
+            @foreach(session('rekomendasi_menu') as $menu)
+                <li style="margin-bottom: 4px;">{{ is_object($menu) ? $menu->name : ($menu['name'] ?? 'Menu Sehat') }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
 </div>
 @endsection
