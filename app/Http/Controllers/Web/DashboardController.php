@@ -97,6 +97,11 @@ class DashboardController extends Controller
             return redirect()->route('orangtua.dashboard')->with('success', 'Anak berhasil ditambahkan!');
         }
 
-        return back()->with('error', 'Gagal menambahkan anak. Coba lagi.');
+        $errorMessage = $response->json('message', 'Gagal menambahkan anak. Coba lagi.');
+        if ($response->json('errors')) {
+            $errorMessage = collect($response->json('errors'))->flatten()->first() ?: $errorMessage;
+        }
+
+        return back()->with('error', $errorMessage)->withInput();
     }
 }
