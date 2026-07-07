@@ -279,34 +279,57 @@ class DetectionController extends Controller
             });
         }
 
-        // Calculate SKDN & NTOB
-        $dValue = $semua->unique('child_id')->count();
-        $nValue = 0;
-        $tValue = 0;
-        $bValue = 0;
+        // Group the filtered data by Month-Year and Inputter
+        $groupedData = [];
 
-        $uniqueWeighedChildren = $semua->unique('child_id');
-        foreach ($uniqueWeighedChildren as $current) {
-            $previous = $allDetections->where('child_id', $current->child_id)
-                                      ->where('created_at', '<', $current->created_at)
-                                      ->sortByDesc('created_at')
-                                      ->first();
-                                      
-            if (!$previous) {
-                $bValue++;
-            } else {
-                if ($current->berat_badan > $previous->berat_badan) {
-                    $nValue++;
+        $groupedByMonthAndInputter = $semua->groupBy(function($item) {
+            $monthYear = \Carbon\Carbon::parse($item->created_at)->translatedFormat('F Y');
+            $inputter = ucfirst(strtolower($item->added_by ?? 'Orangtua'));
+            return $monthYear . '|' . $inputter;
+        });
+
+        foreach ($groupedByMonthAndInputter as $key => $groupItems) {
+            list($monthYear, $inputter) = explode('|', $key);
+            
+            $dValue = $groupItems->unique('child_id')->count();
+            $nValue = 0;
+            $tValue = 0;
+            $bValue = 0;
+
+            $uniqueWeighedChildren = $groupItems->unique('child_id');
+            foreach ($uniqueWeighedChildren as $current) {
+                $previous = $allDetections->where('child_id', $current->child_id)
+                                          ->where('created_at', '<', $current->created_at)
+                                          ->sortByDesc('created_at')
+                                          ->first();
+                                          
+                if (!$previous) {
+                    $bValue++;
                 } else {
-                    $tValue++;
+                    if ($current->berat_badan > $previous->berat_badan) {
+                        $nValue++;
+                    } else {
+                        $tValue++;
+                    }
                 }
             }
+
+            $oValue = max(0, $kValue - $dValue);
+
+            $groupedData[] = [
+                'monthYear' => $monthYear,
+                'inputter' => $inputter,
+                'items' => $groupItems,
+                'dValue' => $dValue,
+                'nValue' => $nValue,
+                'tValue' => $tValue,
+                'bValue' => $bValue,
+                'oValue' => $oValue,
+            ];
         }
 
-        $oValue = max(0, $kValue - $dValue);
-
         $html = view('admin.detections.pdf', compact(
-            'semua', 'sValue', 'kValue', 'dValue', 'nValue', 'tValue', 'oValue', 'bValue'
+            'groupedData', 'sValue', 'kValue'
         ))->render();
         
         $pdf = \PDF::loadHTML($html);
