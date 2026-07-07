@@ -224,8 +224,8 @@
                     <tbody>
                         @forelse ($semua as $d)
                             <tr>
-                                <td>{{ $d->child->user->nama_lengkap ?? '-' }}</td>
-                                <td>{{ $d->child->nama_lengkap_anak ?? '-' }}</td>
+                                <td>{{ $d->child?->user?->nama_lengkap ?? '-' }}</td>
+                                <td>{{ $d->child?->nama_lengkap_anak ?? '-' }}</td>
                                 <td>{{ $d->umur }}</td>
                                 <td>{{ $d->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
                                 <td>{{ $d->berat_badan }}</td>
