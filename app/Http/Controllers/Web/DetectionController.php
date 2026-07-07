@@ -213,9 +213,17 @@ class DetectionController extends Controller
                 }
             }
 
+            $kmsData = null;
+            $kmsResponse = $this->api->get("/children/{$request->child_id}/kms-data");
+            if ($kmsResponse->successful()) {
+                $kmsData = $kmsResponse->json();
+            }
+
             return redirect()->route('admin.detections.create')
                 ->with('success', 'Deteksi berhasil disimpan!')
-                ->with('rekomendasi_menu', $rekomendasi);
+                ->with('rekomendasi_menu', $rekomendasi)
+                ->with('kmsData', $kmsData)
+                ->withInput();
         }
 
         return back()->with('error', collect($response->json('errors'))->flatten()->first() ?: $response->json('message', 'Gagal menyimpan deteksi.'));

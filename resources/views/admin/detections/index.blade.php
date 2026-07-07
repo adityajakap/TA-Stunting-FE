@@ -256,14 +256,19 @@
     <div class="modal-dialog modal-dialog-centered" style="max-width: 450px;">
         <div class="modal-content" style="border-radius: 12px; border: none; background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 10px 15px;">
             <form action="{{ route('admin.detections.export-pdf') }}" method="GET" target="_blank">
-                <div class="modal-body p-3">
                     <!-- Title "Export Data" in blue/teal -->
                     <h5 id="exportPdfModalLabel" style="color: #0b5d76; font-weight: 700; font-size: 1.15rem; margin-bottom: 1.25rem; text-align: left;">Export Data</h5>
+
+                    <!-- Input Posyandu -->
+                    <div class="mb-3">
+                        <label for="posyandu_name" class="form-label" style="color: #0b5d76; font-weight: 600; font-size: 0.95rem;">Posyandu</label>
+                        <input type="text" class="form-control" id="posyandu_name" value="NUSA INDAH I" readonly style="border-radius: 8px; border: 1px solid #ced4da; background-color: #e9ecef; font-weight: 600;">
+                    </div>
 
                     <!-- Input S -->
                     <div class="mb-3">
                         <label for="s_value" class="form-label" style="color: #0b5d76; font-weight: 600; font-size: 0.95rem;">Jumlah Balita di Wilayah (S) <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control" id="s_value" name="s_value" required min="1" placeholder="Masukkan total balita di wilayah" style="border-radius: 8px; border: 1px solid #ced4da;">
+                        <input type="number" class="form-control" id="s_value" name="s_value" required min="1" placeholder="Memuat data..." readonly style="border-radius: 8px; border: 1px solid #ced4da; background-color: #e9ecef;">
                     </div>
                     
                     <h6 style="color: #0b5d76; font-weight: 600; font-size: 0.95rem; margin-bottom: 10px;">Pilih Bulan</h6>
@@ -418,6 +423,47 @@
                 if (selectAllYears) selectAllYears.checked = false;
             });
         }
+    });
+
+    // Fetch Open Data Bandung API for Posyandu S Value
+    document.addEventListener("DOMContentLoaded", function () {
+        const apiUrl = "https://opendata.bandung.go.id/api/bigdata/kecamatan_bandung_kidul/jmlh_blt_trdftr_blt_ktf_brdsrkn_psynd_klrhn_d_kcmtn_bndng_kdl_k";
+        const sValueInput = document.getElementById('s_value');
+        const targetPosyandu = "NUSA INDAH I";
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(res => {
+                if (res.code === 200 && Array.isArray(res.data)) {
+                    // Filter data by target posyandu and kategori "BALITA TERDAFTAR"
+                    const filteredData = res.data.filter(item => 
+                        item.nama_posyandu === targetPosyandu && 
+                        item.kategori === "BALITA TERDAFTAR"
+                    );
+
+                    if (filteredData.length > 0) {
+                        // Find the latest year's data
+                        const latestData = filteredData.reduce((prev, current) => {
+                            return (prev.tahun > current.tahun) ? prev : current;
+                        });
+
+                        sValueInput.value = latestData.jumlah;
+                    } else {
+                        sValueInput.value = '';
+                        alert('Data BALITA TERDAFTAR tidak ditemukan untuk Posyandu ' + targetPosyandu);
+                    }
+                } else {
+                    sValueInput.removeAttribute('readonly');
+                    sValueInput.placeholder = "Gagal memuat data API. Masukkan manual";
+                    sValueInput.style.backgroundColor = "#fff";
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching API:", error);
+                sValueInput.removeAttribute('readonly');
+                sValueInput.placeholder = "Gagal memuat data API. Masukkan manual";
+                sValueInput.style.backgroundColor = "#fff";
+            });
     });
 </script>
 

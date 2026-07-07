@@ -306,7 +306,7 @@
                     <select name="child_id" id="child_id" class="form-control" required>
                         <option value="">-- Pilih --</option>
                         @foreach($users as $u)
-                            <option value="{{ $u->id }}">{{ $u->nama_lengkap_anak }} ({{ $u->nik_anak }})</option>
+                            <option value="{{ $u->id }}" {{ old('child_id') == $u->id ? 'selected' : '' }}>{{ $u->nama_lengkap_anak }} ({{ $u->nik_anak }})</option>
                         @endforeach
                     </select>
                 </div>
@@ -314,12 +314,12 @@
 
                 <div class="mb-3">
                     <label for="berat_badan" class="form-label">Berat Badan (kg)</label>
-                    <input type="number" step="0.1" name="berat_badan" id="berat_badan" class="form-control" required>
+                    <input type="number" step="0.1" name="berat_badan" id="berat_badan" class="form-control" value="{{ old('berat_badan') }}" required>
                 </div>
 
                 <div class="mb-3">
                     <label for="tinggi_badan" class="form-label">Tinggi Badan (cm)</label>
-                    <input type="number" step="0.1" name="tinggi_badan" id="tinggi_badan" class="form-control" required>
+                    <input type="number" step="0.1" name="tinggi_badan" id="tinggi_badan" class="form-control" value="{{ old('tinggi_badan') }}" required>
                 </div>
 
                 <div class="button-group">
@@ -340,5 +340,138 @@
         </ul>
     </div>
     @endif
+
+    @if(session('kmsData') && !empty(session('kmsData.who')))
+    <div class="mb-4 mt-4" style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;">
+        <h3 style="color: #005f77; font-weight: 800; font-size: 1.5rem; margin-bottom: 1rem;">Grafik Pertumbuhan (KMS) - {{ session('kmsData.gender') == 'L' ? 'Laki-laki' : 'Perempuan' }}</h3>
+        <div style="position: relative; height: 400px; width: 100%;">
+            <canvas id="kmsChart"></canvas>
+        </div>
+    </div>
+    @endif
 </div>
 @endsection
+
+@if(session('kmsData') && !empty(session('kmsData.who')))
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const kmsData = @json(session('kmsData'));
+        const ctx = document.getElementById('kmsChart').getContext('2d');
+        
+        const labels = kmsData.who.map(d => d.Month);
+        
+        const sd3 = kmsData.who.map(d => d.SD3);
+        const sd2 = kmsData.who.map(d => d.SD2);
+        const median = kmsData.who.map(d => d.SD0);
+        const sd2neg = kmsData.who.map(d => d.SD2neg);
+        const sd3neg = kmsData.who.map(d => d.SD3neg);
+        
+        // Connect history dots by filtering nulls for the line
+        const historyPoints = [];
+        if (kmsData.history) {
+            kmsData.history.forEach(hist => {
+                if(hist.umur <= 60) {
+                    historyPoints.push({x: hist.umur, y: hist.tinggi_badan});
+                }
+            });
+        }
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Sangat Pendek (-3 SD)',
+                        data: sd3neg,
+                        borderColor: '#e74c3c',
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        fill: false
+                    },
+                    {
+                        label: 'Stunting (-2 SD)',
+                        data: sd2neg,
+                        borderColor: '#f39c12',
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        fill: false
+                    },
+                    {
+                        label: 'Normal (Median)',
+                        data: median,
+                        borderColor: '#2ecc71',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false
+                    },
+                    {
+                        label: 'Tinggi (2 SD)',
+                        data: sd2,
+                        borderColor: '#3498db',
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        fill: false
+                    },
+                    {
+                        label: 'Sangat Tinggi (3 SD)',
+                        data: sd3,
+                        borderColor: '#9b59b6',
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        fill: false
+                    },
+                    {
+                        label: 'Riwayat Anak',
+                        data: historyPoints,
+                        borderColor: '#2c3e50',
+                        backgroundColor: '#2c3e50',
+                        borderWidth: 2.5,
+                        pointBackgroundColor: '#2c3e50',
+                        pointBorderColor: '#fff',
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        fill: false,
+                        showLine: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        type: 'linear',
+                        title: { display: true, text: 'Umur (Bulan)' },
+                        min: 0,
+                        max: 60,
+                        ticks: { stepSize: 12 }
+                    },
+                    y: {
+                        title: { display: true, text: 'Panjang/Tinggi Badan (cm)' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { usePointStyle: true, boxWidth: 6 }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y + ' cm';
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            }
+        });
+    });
+</script>
+@endif
