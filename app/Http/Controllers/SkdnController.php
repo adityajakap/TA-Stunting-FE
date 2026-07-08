@@ -22,6 +22,11 @@ class SkdnController extends Controller
         $response = $this->api->get('/admin/detections');
         $allDetections = $response->successful() ? collect($response->json()) : collect();
 
+        // Filter hanya data dari Kader
+        $allDetections = $allDetections->filter(function($d) {
+            return strtolower($d['added_by'] ?? 'orangtua') === 'kader';
+        })->values();
+
         // Group berdasarkan bulan dan tahun
         $groupedData = [];
         $groups = $allDetections->groupBy(function($item) {
@@ -113,6 +118,11 @@ class SkdnController extends Controller
         $detResponse = $this->api->get('/admin/detections');
         $allDetections = $detResponse->successful() ? collect($detResponse->json()) : collect();
 
+        // Filter hanya data dari Kader
+        $allDetections = $allDetections->filter(function($d) {
+            return strtolower($d['added_by'] ?? 'orangtua') === 'kader';
+        })->values();
+
         // Filter berdasarkan bulan dan tahun
         $monthDetections = $allDetections->filter(function($d) use ($month, $year) {
             $dDate = Carbon::parse($d['created_at']);
@@ -170,6 +180,11 @@ class SkdnController extends Controller
 
         $detResponse = $this->api->get('/admin/detections');
         $allDetections = $detResponse->successful() ? collect($detResponse->json()) : collect();
+
+        // Filter hanya data dari Kader
+        $allDetections = $allDetections->filter(function($d) {
+            return strtolower($d['added_by'] ?? 'orangtua') === 'kader';
+        })->values();
 
         $monthDetections = $allDetections->filter(function($d) use ($month, $year) {
             $dDate = Carbon::parse($d['created_at']);
