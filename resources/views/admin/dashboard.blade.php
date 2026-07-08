@@ -234,7 +234,7 @@
     {{-- HERO SECTION --}}
     <div class="hero-section">
         <div class="hero-text">
-            <h2 class="section-title">Selamat Datang di Dashboard Admin</h2>
+            <h2 class="section-title">Selamat Datang di Dashboard Kader</h2>
             <p>Kelola data stunting, perkembangan anak, serta artikel dan rekomendasi nutrisi dengan antarmuka yang mudah digunakan dan informatif.</p>
         </div>
         <div class="hero-image">
