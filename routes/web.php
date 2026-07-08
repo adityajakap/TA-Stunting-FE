@@ -86,6 +86,7 @@ Route::middleware('api.auth')->group(function () {
         Route::get('/ntob/{month}/{year}', [NtobController::class, 'show'])->name('ntob.show');
         Route::get('/ntob/{month}/{year}/pdf', [NtobController::class, 'exportPdf'])->name('ntob.pdf');
         Route::get('/skdn', [SkdnController::class, 'index'])->name('skdn.index');
+        Route::get('/skdn/grafik', [SkdnController::class, 'grafik'])->name('skdn.grafik');
         Route::get('/skdn/{month}/{year}', [SkdnController::class, 'show'])->name('skdn.show');
         Route::post('/skdn/{month}/{year}/target', [SkdnController::class, 'storeTarget'])->name('skdn.target.store');
         Route::get('/skdn/{month}/{year}/pdf', [SkdnController::class, 'exportPdf'])->name('skdn.pdf');

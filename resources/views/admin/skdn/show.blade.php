@@ -85,7 +85,7 @@
 
 <div class="main-header">
     <a href="{{ route('admin.skdn.index') }}" class="back-btn"><i class="fas fa-chevron-left"></i></a>
-    <h1 class="main-title">Data SKDN</h1>
+    <h1 class="main-title">Data SKDN Bulan {{ \Carbon\Carbon::create()->month((int)$month)->translatedFormat('F') }} {{ $year }}</h1>
 </div>
 
 <div class="card-wrapper">

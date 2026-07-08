@@ -49,7 +49,7 @@ class SkdnController extends Controller
 
             $monthStr = $dateObj->format('m');
             $target = $targetsAllData->where('year', (string)$tahun)->firstWhere('month', $monthStr);
-            $sValue = $target ? (int)$target['s_value'] : null;
+            $sValue = $target ? (int)$target['s_value'] : 0;
 
             $dValue = $items->unique('child_id')->count();
 
@@ -65,52 +65,65 @@ class SkdnController extends Controller
             ];
         }
 
-        $currentYear = Carbon::now()->format('Y');
-        
-        // Data for yearly chart
-        $targetsRes = $this->api->get('/skdn-target', ['year' => $currentYear]);
-        $targetsData = $targetsRes->successful() ? collect($targetsRes->json()) : collect();
+        return view('admin.skdn.index', compact('groupedData'));
+    }
 
-        $dashResponse = $this->api->get('/admin/dashboard');
-        $kValue = $dashResponse->successful() ? (int)$dashResponse->json('total_anak') : 0;
-        
-        $yearDetections = $allDetections->filter(function($d) use ($currentYear) {
+    public function grafik()
+    {
+        $currentYear = Carbon::now()->format('Y');
+
+        // Ambil semua deteksi
+        $response = $this->api->get('/admin/detections');
+        $allDetections = $response->successful() ? collect($response->json()) : collect();
+
+        // Filter hanya data dari Kader
+        $allDetections = $allDetections->filter(function($d) {
+            return strtolower($d['added_by'] ?? 'orangtua') === 'kader';
+        })->values();
+
+        // Ambil semua target
+        $targetsAllRes = $this->api->get('/skdn-target');
+        $targetsAllData = $targetsAllRes->successful() ? collect($targetsAllRes->json()) : collect();
+
+        // Filter deteksi untuk tahun berjalan
+        $detectionsThisYear = $allDetections->filter(function($d) use ($currentYear) {
             return Carbon::parse($d['created_at'])->format('Y') === $currentYear;
         });
 
+        $dashResponse = $this->api->get('/admin/dashboard');
+        $kValueGlobal = $dashResponse->successful() ? (int)$dashResponse->json('total_anak') : 0;
+
+        // Hitung K, D, N bulanan
         $yearlyChart = [];
-        for ($m = 1; $m <= 12; $m++) {
-            $monthStr = str_pad($m, 2, '0', STR_PAD_LEFT);
-            $target = $targetsData->firstWhere('month', $monthStr);
-            $sValue = $target ? (int)$target['s_value'] : 0;
-
-            $monthDets = $yearDetections->filter(function($d) use ($monthStr) {
-                return Carbon::parse($d['created_at'])->format('m') === $monthStr;
+        $months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        foreach($months as $idx => $m) {
+            $mNum = str_pad($idx + 1, 2, '0', STR_PAD_LEFT);
+            $detsMonth = $detectionsThisYear->filter(function($d) use ($mNum) {
+                return Carbon::parse($d['created_at'])->format('m') === $mNum;
             });
+            
+            $dValueChart = $detsMonth->unique('child_id')->count();
+            $nValueChart = $detsMonth->filter(function($d) {
+                return strtolower($d['status'] ?? '') === 'tinggi' || strtolower($d['status'] ?? '') === 'normal';
+            })->count();
 
-            $dValue = $monthDets->unique('child_id')->count();
-            $nValue = 0;
-
-            foreach ($monthDets->unique('child_id') as $current) {
-                $previous = $allDetections->where('child_id', $current['child_id'])
-                                          ->where('created_at', '<', $current['created_at'])
-                                          ->sortByDesc('created_at')
-                                          ->first();
-                if ($previous && isset($current['berat_badan']) && isset($previous['berat_badan']) && $current['berat_badan'] > $previous['berat_badan']) {
-                    $nValue++;
-                }
-            }
-
+            // S dari Target
+            $target = $targetsAllData->where('year', $currentYear)->firstWhere('month', $mNum);
+            $sValueChart = $target ? (int)$target['s_value'] : 0;
+            
+            // K adalah total anak terdaftar
+            $kValueChart = $kValueGlobal;
+            
             $yearlyChart[] = [
-                'month' => Carbon::create()->month($m)->translatedFormat('F'),
-                'S' => $sValue,
-                'K' => $kValue,
-                'D' => $dValue,
-                'N' => $nValue
+                'month' => $m,
+                'S' => $sValueChart,
+                'K' => $kValueChart,
+                'D' => $dValueChart,
+                'N' => $nValueChart
             ];
         }
 
-        return view('admin.skdn.index', compact('groupedData', 'yearlyChart', 'currentYear'));
+        return view('admin.skdn.grafik', compact('yearlyChart', 'currentYear'));
     }
 
     public function show($month, $year)

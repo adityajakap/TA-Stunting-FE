@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
     .main-header {
@@ -58,46 +57,41 @@
     }
 </style>
 
-<div class="main-header">
-    <a href="{{ route('admin.dashboard') }}" class="back-btn"><i class="fas fa-chevron-left"></i></a>
-    <h1 class="main-title">Data SKDN</h1>
+<div class="main-header" style="justify-content: space-between;">
+    <div style="display: flex; align-items: center;">
+        <a href="{{ route('admin.dashboard') }}" class="back-btn"><i class="fas fa-chevron-left"></i></a>
+        <h1 class="main-title">Data SKDN</h1>
+    </div>
+    <a href="{{ route('admin.skdn.grafik') }}" class="btn-lihat" style="border-radius: 8px;">Lihat Grafik</a>
 </div>
 
 <div class="card-wrapper">
-    <div class="card mb-4" style="padding: 20px;">
-        <h4 style="text-align: center; color: #005f77; margin-bottom: 10px;">Balok SKDN Posyandu Nusa Indah 1</h4>
-        <h5 style="text-align: center; color: #555; margin-bottom: 20px;">Tahun: {{ $currentYear }}</h5>
-        <div style="position: relative; height:40vh; width:100%">
-            <canvas id="yearlyChart"></canvas>
-        </div>
-    </div>
-    
     <div class="card">
         <div class="table-responsive">
             <table class="table mb-0">
                 <thead>
                     <tr>
-                        <th>No</th>
-                        <th>Posyandu</th>
-                        <th>Bulan</th>
-                        <th>Tahun</th>
-                        <th>Tanggal Kegiatan</th>
-                        <th>S</th>
-                        <th>D</th>
-                        <th>Aksi</th>
+                        <th class="text-center">No</th>
+                        <th class="text-center">Posyandu</th>
+                        <th class="text-center">Bulan</th>
+                        <th class="text-center">Tahun</th>
+                        <th class="text-center">Tanggal Kegiatan</th>
+                        <th class="text-center">S</th>
+                        <th class="text-center">D</th>
+                        <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($groupedData as $row)
                         <tr>
-                            <td>{{ $row['no'] }}</td>
-                            <td>{{ $row['posyandu'] }}</td>
-                            <td>{{ $row['bulan_nama'] }}</td>
-                            <td>{{ $row['tahun'] }}</td>
-                            <td>{{ $row['tanggal_kegiatan'] }}</td>
-                            <td>{{ $row['s_value'] }}</td>
-                            <td>{{ $row['d_value'] }}</td>
-                            <td>
+                            <td class="text-center">{{ $row['no'] }}</td>
+                            <td class="text-center">{{ $row['posyandu'] }}</td>
+                            <td class="text-center">{{ $row['bulan_nama'] }}</td>
+                            <td class="text-center">{{ $row['tahun'] }}</td>
+                            <td class="text-center">{{ $row['tanggal_kegiatan'] }}</td>
+                            <td class="text-center">{{ $row['s_value'] ?: '' }}</td>
+                            <td class="text-center">{{ $row['d_value'] ?: '' }}</td>
+                            <td class="text-center">
                                 <a href="{{ route('admin.skdn.show', ['month' => $row['bulan'], 'year' => $row['tahun']]) }}" class="btn-lihat">Lihat Detail</a>
                             </td>
                         </tr>
@@ -112,65 +106,4 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var ctx = document.getElementById('yearlyChart').getContext('2d');
-        var labels = {!! json_encode(array_column($yearlyChart, 'month')) !!};
-        var dataS = {!! json_encode(array_column($yearlyChart, 'S')) !!};
-        var dataK = {!! json_encode(array_column($yearlyChart, 'K')) !!};
-        var dataD = {!! json_encode(array_column($yearlyChart, 'D')) !!};
-        var dataN = {!! json_encode(array_column($yearlyChart, 'N')) !!};
-
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'S',
-                        data: dataS,
-                        backgroundColor: 'rgba(239, 68, 68, 0.8)',
-                        borderColor: 'rgba(239, 68, 68, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'K',
-                        data: dataK,
-                        backgroundColor: 'rgba(34, 197, 94, 0.8)',
-                        borderColor: 'rgba(34, 197, 94, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'D',
-                        data: dataD,
-                        backgroundColor: 'rgba(234, 179, 8, 0.8)',
-                        borderColor: 'rgba(234, 179, 8, 1)',
-                        borderWidth: 1
-                    },
-                    {
-                        label: 'N',
-                        data: dataN,
-                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                        borderColor: 'rgba(59, 130, 246, 1)',
-                        borderWidth: 1
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                },
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                }
-            }
-        });
-    });
-</script>
 @endsection
