@@ -203,8 +203,18 @@
         </div>
     </div>
 
-    {{-- Tabel dalam Card --}}
-    <div class="card">
+    @php
+        $riwayatKader = collect($semua)->filter(function($d) {
+            return (is_object($d) ? ($d->added_by ?? 'orangtua') : ($d['added_by'] ?? 'orangtua')) === 'kader';
+        });
+        $riwayatOrangtua = collect($semua)->filter(function($d) {
+            return (is_object($d) ? ($d->added_by ?? 'orangtua') : ($d['added_by'] ?? 'orangtua')) === 'orangtua';
+        });
+    @endphp
+
+    {{-- Tabel Riwayat Deteksi Kader --}}
+    <h3 style="color: #005f77; margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700;">Riwayat Deteksi Kader</h3>
+    <div class="card mb-5">
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table">
@@ -212,17 +222,17 @@
                         <tr>
                             <th>Nama Orang Tua</th>
                             <th>Nama Anak</th>
-                            <th>Umur (bulan)</th>
-                            <th>Jenis Kelamin</th>
-                            <th>Berat Badan (kg)</th>
-                            <th>Tinggi Badan (cm)</th>
+                            <th>Umur (bln)</th>
+                            <th>J. Kelamin</th>
+                            <th>Berat (kg)</th>
+                            <th>Tinggi (cm)</th>
                             <th>Z-Score</th>
                             <th>Status</th>
                             <th>Waktu</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($semua as $d)
+                        @forelse ($riwayatKader as $d)
                             <tr>
                                 <td>{{ $d->child?->user?->nama_lengkap ?? '-' }}</td>
                                 <td>{{ $d->child?->nama_lengkap_anak ?? '-' }}</td>
@@ -236,11 +246,58 @@
                                         {{ $d->status == 'Tinggi' ? 'Normal' : $d->status }}
                                     </span>
                                 </td>
-                                <td>{{ $d->created_at->format('d M Y H:i') }}</td>
+                                <td>{{ \Carbon\Carbon::parse($d->created_at)->format('d M Y') }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center">Belum ada data deteksi.</td>
+                                <td colspan="9" class="text-center">Belum ada data deteksi dari Kader.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {{-- Tabel Riwayat Deteksi Orang Tua --}}
+    <h3 style="color: #005f77; margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700;">Riwayat Deteksi Orang Tua</h3>
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nama Orang Tua</th>
+                            <th>Nama Anak</th>
+                            <th>Umur (bln)</th>
+                            <th>J. Kelamin</th>
+                            <th>Berat (kg)</th>
+                            <th>Tinggi (cm)</th>
+                            <th>Z-Score</th>
+                            <th>Status</th>
+                            <th>Waktu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($riwayatOrangtua as $d)
+                            <tr>
+                                <td>{{ $d->child?->user?->nama_lengkap ?? '-' }}</td>
+                                <td>{{ $d->child?->nama_lengkap_anak ?? '-' }}</td>
+                                <td>{{ $d->umur }}</td>
+                                <td>{{ $d->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                                <td>{{ $d->berat_badan }}</td>
+                                <td>{{ $d->tinggi_badan }}</td>
+                                <td>{{ $d->z_score }}</td>
+                                <td>
+                                    <span class="badge {{ $d->status == 'Stunting' ? 'bg-danger' : 'bg-success' }}">
+                                        {{ $d->status == 'Tinggi' ? 'Normal' : $d->status }}
+                                    </span>
+                                </td>
+                                <td>{{ \Carbon\Carbon::parse($d->created_at)->format('d M Y') }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="text-center">Belum ada data deteksi dari Orang Tua.</td>
                             </tr>
                         @endforelse
                     </tbody>
