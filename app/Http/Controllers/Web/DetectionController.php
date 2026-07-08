@@ -72,10 +72,11 @@ class DetectionController extends Controller
             $menuRes = $this->api->get('/nutrition');
             $rekomendasi = collect();
             
+            $isStunting = in_array(strtolower($status), ['stunting', 'sangat pendek', 'pendek']);
+
             if ($menuRes->successful()) {
                 $allMenus = collect($menuRes->json());
                 
-                $isStunting = in_array(strtolower($status), ['stunting', 'sangat pendek', 'pendek']);
                 $targetKategori = $isStunting ? 'Stunting' : 'Normal';
                 
                 $filtered = $allMenus->filter(function($menu) use ($targetKategori) {
@@ -83,16 +84,40 @@ class DetectionController extends Controller
                 });
                 
                 if ($filtered->isEmpty()) {
-                    // Fallback if no matching menus found
                     $rekomendasi = $allMenus->count() >= 3 ? $allMenus->random(3) : $allMenus;
                 } else {
                     $rekomendasi = $filtered->count() >= 3 ? $filtered->random(3) : $filtered;
                 }
             }
 
+            // Fetch articles for recommendation
+            $artikelRes = $this->api->get('/artikel', ['paginate' => 50]);
+            $rekomendasiArtikel = collect();
+
+            if ($artikelRes->successful()) {
+                $artikelData = $artikelRes->json();
+                $allArticles = collect($artikelData['data'] ?? $artikelData);
+                
+                $targetKategoriArtikel = $isStunting ? ['gizi', 'pola asuh', 'pemahaman kms', 'kms'] : ['pola asuh', 'kms', 'pemahaman kms'];
+                
+                $filteredArtikel = $allArticles->filter(function($art) use ($targetKategoriArtikel) {
+                    $cats = collect($art['kategoris'] ?? [])->map(function($c) {
+                        return strtolower($c['name'] ?? '');
+                    })->toArray();
+                    return !empty(array_intersect($targetKategoriArtikel, $cats));
+                });
+                
+                if ($filteredArtikel->isEmpty()) {
+                    $rekomendasiArtikel = $allArticles->count() >= 3 ? $allArticles->random(3) : $allArticles;
+                } else {
+                    $rekomendasiArtikel = $filteredArtikel->count() >= 3 ? $filteredArtikel->random(3) : $filteredArtikel;
+                }
+            }
+
             return redirect()->route('orangtua.detections.create')
                 ->with('success', 'Deteksi berhasil disimpan!')
                 ->with('rekomendasi_menu', $rekomendasi)
+                ->with('rekomendasi_artikel', $rekomendasiArtikel)
                 ->with('status_deteksi', $status);
         }
 
