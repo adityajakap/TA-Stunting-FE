@@ -71,6 +71,34 @@
         <a href="{{ route('admin.ntob.pdf', ['month' => $month, 'year' => $year]) }}" class="btn-cetak" target="_blank">Cetak NTOB</a>
     </div>
 
+    <!-- Ringkasan Laporan NTOB -->
+    <div style="border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 2rem; background: #fff; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div style="background-color: #005f77; color: #fff; padding: 10px 15px; font-weight: 700; font-size: 13px; text-transform: uppercase;">
+            RINGKASAN LAPORAN
+        </div>
+        <div style="padding: 15px;">
+            <div style="color: #8b5cf6; font-weight: 700; font-size: 12px; margin-bottom: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px;">DATA NTOB</div>
+            <table style="width: 100%; font-size: 13px; border: none;">
+                <tr>
+                    <td style="padding: 6px 0; border: none;">Naik (N)</td>
+                    <td style="text-align: right; font-weight: bold; color: #15803d; border: none;">{{ $nValue }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 6px 0; border: none;">Turun / Tetap (T)</td>
+                    <td style="text-align: right; font-weight: bold; color: #b91c1c; border: none;">{{ $tValue }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 6px 0; border: none;">Tidak Ditimbang (O)</td>
+                    <td style="text-align: right; font-weight: bold; color: #f59e0b; border: none;">{{ $oValue }}</td>
+                </tr>
+                <tr>
+                    <td style="padding: 6px 0; border: none;">Baru Pertama (B)</td>
+                    <td style="text-align: right; font-weight: bold; color: #0369a1; border: none;">{{ $bValue }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
     <div class="table-responsive" style="border-radius: 1rem; overflow: hidden; border: 1px solid #e5e7eb; background: #fff;">
         <table class="table mb-0">
             <thead>
