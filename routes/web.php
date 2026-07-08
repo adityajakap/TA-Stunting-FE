@@ -84,6 +84,9 @@ Route::middleware('api.auth')->group(function () {
         // Laporan NTOB & SKDN
         Route::get('/ntob', [NtobController::class, 'index'])->name('ntob.index');
         Route::get('/skdn', [SkdnController::class, 'index'])->name('skdn.index');
+        Route::get('/skdn/{month}/{year}', [SkdnController::class, 'show'])->name('skdn.show');
+        Route::post('/skdn/{month}/{year}/target', [SkdnController::class, 'storeTarget'])->name('skdn.target.store');
+        Route::get('/skdn/{month}/{year}/pdf', [SkdnController::class, 'exportPdf'])->name('skdn.pdf');
         // Artikel
         Route::prefix('artikel/kategori')->name('artikel.kategori.')->group(function () {
             Route::get('/',              [ArtikelKategoriController::class, 'index'])->name('index');
