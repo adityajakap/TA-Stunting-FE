@@ -44,7 +44,9 @@ class ArtikelController extends Controller
 
     public function create()
     {
-        return view('admin.artikel.create');
+        $response = $this->api->get('/admin/kategori');
+        $kategoris = $response->successful() ? $response->json() : [];
+        return view('admin.artikel.create', compact('kategoris'));
     }
 
     public function store(Request $request)
@@ -53,6 +55,7 @@ class ArtikelController extends Controller
             'title' => 'required',
             'content' => 'required',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'kategoris' => 'nullable|array',
         ]);
 
         $data = $request->except('image');
@@ -91,6 +94,7 @@ class ArtikelController extends Controller
             'title' => 'required',
             'content' => 'required',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'kategoris' => 'nullable|array',
         ]);
 
         $data = $request->except(['image', '_method']);

@@ -169,6 +169,22 @@
                     <textarea name="content" id="content" class="form-control" required>{{ old('content', $artikel->content) }}</textarea>
                 </div>
 
+                @php
+                    $selectedKategori = old('kategoris.0');
+                    if (!$selectedKategori && isset($artikel->kategoris) && is_array($artikel->kategoris) && count($artikel->kategoris) > 0) {
+                        $selectedKategori = is_array($artikel->kategoris[0]) ? ($artikel->kategoris[0]['name'] ?? '') : ($artikel->kategoris[0]->name ?? '');
+                    }
+                @endphp
+                <div class="mb-3">
+                    <label for="kategori" class="form-label">Kategori</label>
+                    <select name="kategoris[]" id="kategori" class="form-control" required>
+                        <option value="">-- Pilih Kategori --</option>
+                        <option value="Pemahaman KMS" {{ $selectedKategori == 'Pemahaman KMS' ? 'selected' : '' }}>Pemahaman KMS</option>
+                        <option value="Gizi" {{ $selectedKategori == 'Gizi' ? 'selected' : '' }}>Gizi</option>
+                        <option value="Pola asuh" {{ $selectedKategori == 'Pola asuh' ? 'selected' : '' }}>Pola asuh</option>
+                    </select>
+                </div>
+
                 <div class="mb-3">
                     <label for="image" class="form-label">Gambar (opsional)</label>
                     <div class="file-input-wrapper">

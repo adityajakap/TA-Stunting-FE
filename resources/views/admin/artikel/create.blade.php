@@ -200,6 +200,16 @@
                 </div>
 
                 <div class="mb-3">
+                    <label for="kategori" class="form-label">Kategori</label>
+                    <select name="kategoris[]" id="kategori" class="form-control" required>
+                        <option value="">-- Pilih Kategori --</option>
+                        <option value="Pemahaman KMS">Pemahaman KMS</option>
+                        <option value="Gizi">Gizi</option>
+                        <option value="Pola asuh">Pola asuh</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
                     <label for="image" class="form-label">Gambar</label>
                     <div class="file-input-wrapper">
                         <label for="image" class="file-input-label" id="file-label">Chose File</label>
