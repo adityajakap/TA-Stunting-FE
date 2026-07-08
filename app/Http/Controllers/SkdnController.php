@@ -27,6 +27,10 @@ class SkdnController extends Controller
             return strtolower($d['added_by'] ?? 'orangtua') === 'kader';
         })->values();
 
+        // Ambil semua target untuk mendapatkan S
+        $targetsAllRes = $this->api->get('/skdn-target');
+        $targetsAllData = $targetsAllRes->successful() ? collect($targetsAllRes->json()) : collect();
+
         // Group berdasarkan bulan dan tahun
         $groupedData = [];
         $groups = $allDetections->groupBy(function($item) {
@@ -43,13 +47,21 @@ class SkdnController extends Controller
             $lastDate = $items->max('created_at');
             $tanggalKegiatan = Carbon::parse($lastDate)->translatedFormat('d F Y');
 
+            $monthStr = $dateObj->format('m');
+            $target = $targetsAllData->where('year', (string)$tahun)->firstWhere('month', $monthStr);
+            $sValue = $target ? (int)$target['s_value'] : null;
+
+            $dValue = $items->unique('child_id')->count();
+
             $groupedData[] = [
                 'no' => $no++,
                 'posyandu' => 'Nusa Indah 1',
                 'bulan_nama' => $bulanNama,
-                'bulan' => $dateObj->format('m'),
+                'bulan' => $monthStr,
                 'tahun' => $tahun,
                 'tanggal_kegiatan' => $tanggalKegiatan,
+                's_value' => $sValue,
+                'd_value' => $dValue,
             ];
         }
 

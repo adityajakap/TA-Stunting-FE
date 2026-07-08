@@ -80,7 +80,10 @@
                         <th>No</th>
                         <th>Posyandu</th>
                         <th>Bulan</th>
+                        <th>Tahun</th>
                         <th>Tanggal Kegiatan</th>
+                        <th>S</th>
+                        <th>D</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -90,14 +93,17 @@
                             <td>{{ $row['no'] }}</td>
                             <td>{{ $row['posyandu'] }}</td>
                             <td>{{ $row['bulan_nama'] }}</td>
+                            <td>{{ $row['tahun'] }}</td>
                             <td>{{ $row['tanggal_kegiatan'] }}</td>
+                            <td>{{ $row['s_value'] }}</td>
+                            <td>{{ $row['d_value'] }}</td>
                             <td>
-                                <a href="{{ route('admin.skdn.show', ['month' => $row['bulan'], 'year' => $row['tahun']]) }}" class="btn-lihat">Lihat SKDN</a>
+                                <a href="{{ route('admin.skdn.show', ['month' => $row['bulan'], 'year' => $row['tahun']]) }}" class="btn-lihat">Lihat Detail</a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center">Belum ada data kegiatan.</td>
+                            <td colspan="8" class="text-center">Belum ada data kegiatan.</td>
                         </tr>
                     @endforelse
                 </tbody>
