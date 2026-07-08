@@ -207,6 +207,7 @@
 
         .feature-grid {
             display: flex;
+            flex-wrap: wrap;
             gap: 20px;
             padding: 40px 0;
         }
@@ -236,6 +237,10 @@
         <div class="hero-text">
             <h2 class="section-title">Selamat Datang di Dashboard Kader</h2>
             <p>Kelola data stunting, perkembangan anak, serta artikel dan rekomendasi nutrisi dengan antarmuka yang mudah digunakan dan informatif.</p>
+            <div style="display: flex; gap: 15px; margin-top: 40px; flex-wrap: wrap;">
+                <a href="{{ route('admin.ntob.index') }}" class="btn" style="background-color: #005f77; color: white; padding: 10px 24px; border-radius: 8px; font-weight: 600; text-decoration: none; display: inline-block; font-size: 0.95rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.3s ease;">Laporan NTOB</a>
+                <a href="{{ route('admin.skdn.index') }}" class="btn" style="background-color: #005f77; color: white; padding: 10px 24px; border-radius: 8px; font-weight: 600; text-decoration: none; display: inline-block; font-size: 0.95rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: all 0.3s ease;">Laporan SKDN</a>
+            </div>
         </div>
         <div class="hero-image">
             <img src="{{ asset('images/logo.png') }}" alt="Dashboard Admin">

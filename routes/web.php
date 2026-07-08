@@ -2,6 +2,9 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PerkembanganController;
+use App\Http\Controllers\NtobController;
+use App\Http\Controllers\SkdnController;
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\DetectionController;
@@ -75,8 +78,12 @@ Route::middleware('api.auth')->group(function () {
     Route::get('/admin/deteksi-stunting/create',  [DetectionController::class, 'adminCreate'])->name('admin.detections.create');
     Route::post('/admin/deteksi-stunting',        [DetectionController::class, 'adminStore'])->name('admin.detections.store');
 
-    // ─── Admin (Artikel, Nutrisi, Perkembangan) ───────────────────────────────
+    // ─── Admin (Artikel, Nutrisi, Perkembangan, NTOB, SKDN) ───────────────────────────────
     Route::prefix('admin')->name('admin.')->group(function () {
+        
+        // Laporan NTOB & SKDN
+        Route::get('/ntob', [NtobController::class, 'index'])->name('ntob.index');
+        Route::get('/skdn', [SkdnController::class, 'index'])->name('skdn.index');
         // Artikel
         Route::prefix('artikel/kategori')->name('artikel.kategori.')->group(function () {
             Route::get('/',              [ArtikelKategoriController::class, 'index'])->name('index');

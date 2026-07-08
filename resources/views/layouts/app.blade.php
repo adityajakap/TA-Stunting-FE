@@ -348,6 +348,14 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ $role === 'admin' ? route('admin.perkembangan.children.index') : route('orangtua.tahapan_perkembangan.index') }}">Perkembangan</a>
                     </li>
+                    @if($role === 'admin')
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.ntob.index') }}">NTOB</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('admin.skdn.index') }}">SKDN</a>
+                    </li>
+                    @endif
                 </ul>
 
                 {{-- Dropdown Kanan --}}
