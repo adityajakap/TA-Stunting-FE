@@ -4,7 +4,7 @@
 <style>
     .main-header {
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-start;
         align-items: center;
         max-width: 1280px;
         margin: 2rem auto 1rem;
@@ -14,6 +14,12 @@
         color: #005f77;
         font-size: 2rem;
         margin: 0;
+        margin-left: 1rem;
+    }
+    .back-btn {
+        color: #000;
+        font-size: 1.5rem;
+        text-decoration: none;
     }
     .card-wrapper {
         max-width: 1280px;
@@ -26,21 +32,67 @@
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         border: 1px solid #e5e7eb;
-        padding: 2rem;
-        text-align: center;
+    }
+    .table thead th {
+        background-color: #e5e5e5;
+        padding: 1rem;
+        font-weight: 600;
+        color: #000;
+        border-bottom: none;
+    }
+    .table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #eee;
+    }
+    .btn-lihat {
+        background-color: #005f77;
+        color: #fff;
+        border-radius: 20px;
+        padding: 0.4rem 1.2rem;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
     }
 </style>
 
 <div class="main-header">
-    <div style="display:flex; align-items:center; gap:0.5rem;">
-        <h1 class="main-title">Laporan NTOB</h1>
-    </div>
+    <a href="{{ route('admin.dashboard') }}" class="back-btn"><i class="fas fa-chevron-left"></i></a>
+    <h1 class="main-title">Data NTOB</h1>
 </div>
 
 <div class="card-wrapper">
     <div class="card">
-        <h3 style="color: #005f77; margin-bottom: 1rem;">Laporan NTOB</h3>
-        <p style="color: #666;">Kerangka halaman NTOB telah berhasil dibuat. Silakan konfirmasi bentuk laporan atau form yang diinginkan kepada tim pengembang.</p>
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Posyandu</th>
+                        <th>Bulan</th>
+                        <th>Tanggal Kegiatan</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($groupedData as $row)
+                        <tr>
+                            <td>{{ $row['no'] }}</td>
+                            <td>{{ $row['posyandu'] }}</td>
+                            <td>{{ $row['bulan_nama'] }}</td>
+                            <td>{{ $row['tanggal_kegiatan'] }}</td>
+                            <td>
+                                <a href="{{ route('admin.ntob.show', ['month' => $row['bulan'], 'year' => $row['tahun']]) }}" class="btn-lihat">Lihat NTOB</a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="text-center">Belum ada data kegiatan.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 @endsection
