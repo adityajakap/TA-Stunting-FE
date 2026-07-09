@@ -74,7 +74,6 @@ Route::middleware('api.auth')->group(function () {
 
     // ─── Deteksi Stunting (Admin) ─────────────────────────────────────────────
     Route::get('/admin/deteksi-stunting',         [DetectionController::class, 'adminIndex'])->name('admin.detections.index');
-    Route::get('/admin/deteksi-stunting/export-pdf', [DetectionController::class, 'exportPdf'])->name('admin.detections.export-pdf');
     Route::get('/admin/deteksi-stunting/create',  [DetectionController::class, 'adminCreate'])->name('admin.detections.create');
     Route::post('/admin/deteksi-stunting',        [DetectionController::class, 'adminStore'])->name('admin.detections.store');
 
