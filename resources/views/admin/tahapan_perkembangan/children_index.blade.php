@@ -188,7 +188,6 @@
                 <input type="text" name="search" class="form-control" placeholder="Cari nama anak..." value="{{ request('search') }}">
                 <button class="btn-primary-custom" type="submit">Cari</button>
             </form>
-            <button type="button" class="btn-primary-custom text-white" style="background-color: #005f77; border: none; font-weight: 600; white-space: nowrap; height: 38px; display: inline-flex; align-items: center;" data-bs-toggle="modal" data-bs-target="#exportPdfModal">Export PDF</button>
         </div>
     </div>
 
@@ -229,78 +228,6 @@
     </div>
 </div>
 
-<!-- Modal Pilih Bulan (Semua Anak) -->
-<div class="modal fade" id="exportPdfModal" tabindex="-1" aria-labelledby="exportPdfModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 450px;">
-        <div class="modal-content" style="border-radius: 12px; border: none; background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 10px 15px;">
-            <form action="{{ route('admin.perkembangan.export-pdf') }}" method="GET" target="_blank">
-                <div class="modal-body p-3">
-                    <!-- Title "Pilih Bulan" in blue/teal -->
-                    <h5 id="exportPdfModalLabel" style="color: #0b5d76; font-weight: 700; font-size: 1.15rem; margin-bottom: 1.25rem; text-align: left;">Pilih Bulan</h5>
-                    
-                    @if($availableMonths->isEmpty())
-                        <p class="text-center text-muted mb-0">Belum ada data perkembangan untuk diekspor.</p>
-                    @else
-                        <!-- Horizontal Checkboxes exactly side-by-side -->
-                        <div class="d-flex flex-wrap align-items-center gap-3 mb-4" style="font-size: 0.95rem; justify-content: flex-start; padding-left: 2px;">
-                            @foreach($availableMonths as $month)
-                                <div class="form-check form-check-inline m-0 d-flex align-items-center" style="gap: 5px;">
-                                    <input class="form-check-input month-checkbox" type="checkbox" name="months[]" value="{{ $month['value'] }}" id="month-{{ $month['value'] }}" checked style="border-color: #0b5d76; cursor: pointer; width: 16px; height: 16px; margin: 0;">
-                                    <label class="form-check-label" for="month-{{ $month['value'] }}" style="color: #0b5d76; font-weight: 500; cursor: pointer; padding: 0; line-height: 1.2;">
-                                        {{ explode(' ', $month['label'])[0] }}
-                                    </label>
-                                </div>
-                            @endforeach
-                            
-                            <div class="form-check form-check-inline m-0 d-flex align-items-center" style="gap: 5px;">
-                                <input class="form-check-input" type="checkbox" id="select-all-months" checked style="border-color: #0b5d76; cursor: pointer; width: 16px; height: 16px; margin: 0;">
-                                <label class="form-check-label" for="select-all-months" style="font-weight: 500; color: #0b5d76; cursor: pointer; padding: 0; line-height: 1.2;">
-                                    Semua
-                                </label>
-                            </div>
-                        </div>
-                    @endif
-                    
-                    <!-- Centered Buttons: Terapkan, Reset, Tutup -->
-                    <div class="d-flex justify-content-center gap-2 mt-4 pt-1">
-                        <button type="submit" class="btn text-white" style="background-color: #0b5d76; border-radius: 8px; padding: 6px 18px; font-weight: 600; font-size: 0.9rem; border: none;" {{ $availableMonths->isEmpty() ? 'disabled' : '' }}>Terapkan</button>
-                        <button type="button" class="btn text-white" id="reset-months-btn" style="background-color: #0b5d76; border-radius: 8px; padding: 6px 18px; font-weight: 600; font-size: 0.9rem; border: none;" {{ $availableMonths->isEmpty() ? 'disabled' : '' }}>Reset</button>
-                        <button type="button" class="btn text-white" data-bs-dismiss="modal" style="background-color: #0b5d76; border-radius: 8px; padding: 6px 18px; font-weight: 600; font-size: 0.9rem; border: none;">Tutup</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const selectAll = document.getElementById('select-all-months');
-        const checkboxes = document.querySelectorAll('.month-checkbox');
-        const resetBtn = document.getElementById('reset-months-btn');
-
-        if (selectAll) {
-            selectAll.addEventListener('change', function () {
-                checkboxes.forEach(cb => {
-                    cb.checked = selectAll.checked;
-                });
-            });
-
-            checkboxes.forEach(cb => {
-                cb.addEventListener('change', function () {
-                    const allChecked = Array.from(checkboxes).every(c => c.checked);
-                    selectAll.checked = allChecked;
-                });
-            });
-        }
-
-        if (resetBtn) {
-            resetBtn.addEventListener('click', function () {
-                checkboxes.forEach(cb => cb.checked = false);
-                if (selectAll) selectAll.checked = false;
-            });
-        }
-    });
-</script>
 
 @endsection

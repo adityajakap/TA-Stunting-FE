@@ -75,69 +75,6 @@ class AdminTahapanPerkembanganDataController extends Controller
         return view('admin.tahapan_perkembangan.children_index', compact('children', 'availableMonths'));
     }
 
-    // Ekspor semua perkembangan anak sekaligus
-    public function exportAllPdf(Request $request)
-    {
-        if ((session('user')['role'] ?? '') !== 'admin') {
-            abort(403, 'Unauthorized');
-        }
-
-        // 1. Fetch all children
-        $response = $this->api->get('/admin/children');
-        $childrenData = $response->successful() ? $response->json() : [];
-
-        $children = collect($childrenData)->map(function ($childData) {
-            $userRelation = $childData['user'] ?? null;
-            unset($childData['user']);
-            $child = (new Child)->forceFill((array)$childData);
-            if ($userRelation) {
-                $child->setRelation('user', (new User)->forceFill((array)$userRelation));
-            }
-            return $child;
-        });
-
-        // 2. Fetch developments for all children and flatten them
-        $allAchievements = collect();
-        foreach ($children as $c) {
-            list($child, $groupedData) = $this->getChildMilestones($c->id);
-            if ($child) {
-                foreach ($groupedData as $kategori => $items) {
-                    foreach ($items as $item) {
-                        if ($item->achieved_data) {
-                            $allAchievements->push((object)[
-                                'parent_name' => $child->user->nama_lengkap ?? '-',
-                                'child_name' => $child->nama_lengkap_anak,
-                                'tahapan_name' => $item->tahapan->nama_tahapan,
-                                'kategori' => $kategori,
-                                'tanggal_pencapaian' => $item->achieved_data->tanggal_pencapaian,
-                                'status_label' => $item->status_detail['label'] ?? '-',
-                                'status_badge' => $item->status_detail['badge'] ?? 'bg-secondary',
-                                'catatan' => $item->achieved_data->catatan ?? '-'
-                            ]);
-                        }
-                    }
-                }
-            }
-        }
-
-        // 3. Apply month filtering if requested
-        $selectedMonths = $request->input('months', []);
-        if (!empty($selectedMonths) && !in_array('all', $selectedMonths)) {
-            $allAchievements = $allAchievements->filter(function ($item) use ($selectedMonths) {
-                $date = \Carbon\Carbon::parse($item->tanggal_pencapaian);
-                $monthYear = $date->format('n-Y');
-                return in_array($monthYear, $selectedMonths);
-            })->values();
-        }
-
-        // 4. Render combined PDF
-        $html = view('admin.tahapan_perkembangan.pdf_all', compact('allAchievements'))->render();
-        
-        $pdf = \PDF::loadHTML($html);
-        $pdf->setPaper('A4', 'landscape');
-        
-        return $pdf->download('Laporan_Perkembangan_Semua_Anak_' . date('Y-m-d_H-i-s') . '.pdf');
-    }
 
     private function getChildMilestones($childId)
     {
@@ -207,37 +144,6 @@ class AdminTahapanPerkembanganDataController extends Controller
         return view('admin.tahapan_perkembangan.children_show', compact('child', 'groupedData', 'availableMonths'));
     }
 
-    public function exportPdf(Request $request, $userId)
-    {
-        if ((session('user')['role'] ?? '') !== 'admin') {
-            abort(403, 'Unauthorized');
-        }
-
-        list($child, $groupedData) = $this->getChildMilestones($userId);
-        if (!$child) abort(404);
-
-        // Apply month filtering if requested
-        $selectedMonths = $request->input('months', []);
-        if (!empty($selectedMonths) && !in_array('all', $selectedMonths)) {
-            $groupedData = $groupedData->map(function ($items) use ($selectedMonths) {
-                return $items->filter(function ($item) use ($selectedMonths) {
-                    if (!$item->achieved_data) return false;
-                    $date = \Carbon\Carbon::parse($item->achieved_data->tanggal_pencapaian);
-                    $monthYear = $date->format('n-Y');
-                    return in_array($monthYear, $selectedMonths);
-                });
-            })->filter(function ($items) {
-                return $items->isNotEmpty();
-            });
-        }
-
-        $html = view('admin.tahapan_perkembangan.pdf', compact('child', 'groupedData'))->render();
-        
-        $pdf = \PDF::loadHTML($html);
-        $pdf->setPaper('A4', 'landscape');
-        
-        return $pdf->download('Laporan_Perkembangan_' . str_replace(' ', '_', $child->nama_lengkap_anak) . '_' . date('Y-m-d_H-i-s') . '.pdf');
-    }
 
     // Tampilkan form tambah pencapaian untuk anak tertentu
     public function create($userId)
