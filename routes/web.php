@@ -75,6 +75,7 @@ Route::middleware('api.auth')->group(function () {
     // ─── Deteksi Stunting (Admin) ─────────────────────────────────────────────
     Route::get('/admin/deteksi-stunting',         [DetectionController::class, 'adminIndex'])->name('admin.detections.index');
     Route::get('/admin/deteksi-stunting/create',  [DetectionController::class, 'adminCreate'])->name('admin.detections.create');
+    Route::get('/admin/deteksi-stunting/{month}/{year}', [DetectionController::class, 'adminShow'])->name('admin.detections.show');
     Route::post('/admin/deteksi-stunting',        [DetectionController::class, 'adminStore'])->name('admin.detections.store');
 
     // ─── Admin (Artikel, Nutrisi, Perkembangan, NTOB, SKDN) ───────────────────────────────

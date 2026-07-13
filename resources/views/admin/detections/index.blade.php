@@ -202,101 +202,36 @@
         </div>
     </div>
 
-    @php
-        $riwayatKader = collect($semua)->filter(function($d) {
-            return (is_object($d) ? ($d->added_by ?? 'orangtua') : ($d['added_by'] ?? 'orangtua')) === 'kader';
-        });
-        $riwayatOrangtua = collect($semua)->filter(function($d) {
-            return (is_object($d) ? ($d->added_by ?? 'orangtua') : ($d['added_by'] ?? 'orangtua')) === 'orangtua';
-        });
-    @endphp
-
-    {{-- Tabel Riwayat Deteksi Kader --}}
-    <h3 style="color: #005f77; margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700;">Riwayat Deteksi Kader</h3>
+    {{-- Tabel Data Perbulan --}}
     <div class="card mb-5">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table">
+                <table class="table text-center">
                     <thead>
                         <tr>
-                            <th>Nama Orang Tua</th>
-                            <th>Nama Anak</th>
-                            <th>Umur (bln)</th>
-                            <th>J. Kelamin</th>
-                            <th>Berat (kg)</th>
-                            <th>Tinggi (cm)</th>
-                            <th>Z-Score</th>
-                            <th>Status</th>
-                            <th>Waktu</th>
+                            <th class="text-center">No</th>
+                            <th class="text-center">Bulan</th>
+                            <th class="text-center">Tahun</th>
+                            <th class="text-center">Jumlah Data</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($riwayatKader as $d)
+                        @forelse ($groupedData as $index => $data)
                             <tr>
-                                <td>{{ $d->child?->user?->nama_lengkap ?? '-' }}</td>
-                                <td>{{ $d->child?->nama_lengkap_anak ?? '-' }}</td>
-                                <td>{{ $d->umur }}</td>
-                                <td>{{ $d->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
-                                <td>{{ $d->berat_badan }}</td>
-                                <td>{{ $d->tinggi_badan }}</td>
-                                <td>{{ $d->z_score }}</td>
+                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $data['monthName'] }}</td>
+                                <td>{{ $data['year'] }}</td>
+                                <td>{{ $data['count'] }}</td>
                                 <td>
-                                    <span class="badge {{ $d->status == 'Stunting' ? 'bg-danger' : 'bg-success' }}">
-                                        {{ $d->status == 'Tinggi' ? 'Normal' : $d->status }}
-                                    </span>
+                                    <a href="{{ route('admin.detections.show', ['month' => $data['month'], 'year' => $data['year']]) }}" class="btn btn-primary btn-sm text-white" style="background-color: #005f77; border: none; font-weight: 600; border-radius: 6px; padding: 6px 16px;">
+                                        Lihat Detail
+                                    </a>
                                 </td>
-                                <td>{{ \Carbon\Carbon::parse($d->created_at)->format('d M Y') }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center">Belum ada data deteksi dari Kader.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    {{-- Tabel Riwayat Deteksi Orang Tua --}}
-    <h3 style="color: #005f77; margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700;">Riwayat Deteksi Orang Tua</h3>
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Nama Orang Tua</th>
-                            <th>Nama Anak</th>
-                            <th>Umur (bln)</th>
-                            <th>J. Kelamin</th>
-                            <th>Berat (kg)</th>
-                            <th>Tinggi (cm)</th>
-                            <th>Z-Score</th>
-                            <th>Status</th>
-                            <th>Waktu</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($riwayatOrangtua as $d)
-                            <tr>
-                                <td>{{ $d->child?->user?->nama_lengkap ?? '-' }}</td>
-                                <td>{{ $d->child?->nama_lengkap_anak ?? '-' }}</td>
-                                <td>{{ $d->umur }}</td>
-                                <td>{{ $d->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
-                                <td>{{ $d->berat_badan }}</td>
-                                <td>{{ $d->tinggi_badan }}</td>
-                                <td>{{ $d->z_score }}</td>
-                                <td>
-                                    <span class="badge {{ $d->status == 'Stunting' ? 'bg-danger' : 'bg-success' }}">
-                                        {{ $d->status == 'Tinggi' ? 'Normal' : $d->status }}
-                                    </span>
-                                </td>
-                                <td>{{ \Carbon\Carbon::parse($d->created_at)->format('d M Y') }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="9" class="text-center">Belum ada data deteksi dari Orang Tua.</td>
+                                <td colspan="5" class="text-center">Belum ada data deteksi.</td>
                             </tr>
                         @endforelse
                     </tbody>

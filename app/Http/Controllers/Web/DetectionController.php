@@ -169,17 +169,62 @@ class DetectionController extends Controller
             9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
         ];
 
-        $availableMonths = $semua->map(function ($item) {
-            return (int)\Carbon\Carbon::parse($item->created_at)->format('n');
-        })->unique()->sort()->values()->map(function($m) use ($indonesianMonths) {
-            return ['value' => $m, 'label' => $indonesianMonths[$m]];
+        // Group data by Month-Year
+        $groupedData = $semua->groupBy(function($item) {
+            return \Carbon\Carbon::parse($item->created_at)->format('Y-m');
+        })->map(function($group, $key) use ($indonesianMonths) {
+            $first = $group->first();
+            $month = (int)\Carbon\Carbon::parse($first->created_at)->format('m');
+            $year = \Carbon\Carbon::parse($first->created_at)->format('Y');
+            
+            return [
+                'month' => str_pad($month, 2, '0', STR_PAD_LEFT),
+                'year' => $year,
+                'monthName' => $indonesianMonths[$month],
+                'count' => $group->count()
+            ];
+        })->sortByDesc(function($item) {
+            return $item['year'] . '-' . $item['month'];
+        })->values();
+
+        return view('admin.detections.index', compact('groupedData'));
+    }
+
+    public function adminShow($month, $year)
+    {
+        $response = $this->api->get('/admin/detections');
+        $semua = $response->successful() ? collect($response->json())->map(function ($item) {
+            $childRelation = $item['child'] ?? null;
+            unset($item['child']);
+            
+            $detection = (new \App\Models\Detection)->forceFill((array)$item);
+            if ($childRelation) {
+                $childData = $childRelation;
+                $userRelation = $childData['user'] ?? null;
+                unset($childData['user']);
+                $child = (new \App\Models\Child)->forceFill((array)$childData);
+                if ($userRelation) {
+                    $child->setRelation('user', (new \App\Models\User)->forceFill((array)$userRelation));
+                }
+                $detection->setRelation('child', $child);
+            }
+            return $detection;
+        }) : collect();
+
+        $semua = $semua->filter(function($item) use ($month, $year) {
+            $date = \Carbon\Carbon::parse($item->created_at);
+            return $date->format('m') == $month && $date->format('Y') == $year;
         });
 
-        $availableYears = $semua->map(function ($item) {
-            return (int)\Carbon\Carbon::parse($item->created_at)->format('Y');
-        })->unique()->sortDesc()->values();
+        $indonesianMonths = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        
+        $monthName = $indonesianMonths[(int)$month];
 
-        return view('admin.detections.index', compact('semua', 'availableMonths', 'availableYears'));
+        return view('admin.detections.show', compact('semua', 'month', 'year', 'monthName'));
     }
 
     public function adminCreate()
