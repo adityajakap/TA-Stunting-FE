@@ -217,7 +217,7 @@ class DetectionController extends Controller
             return $detection;
         }) : collect();
 
-        $semua = $semua->filter(function($item) use ($month, $year) {
+        $monthDetections = $semua->filter(function($item) use ($month, $year) {
             $date = \Carbon\Carbon::parse($item->created_at);
             return $date->format('m') == $month && $date->format('Y') == $year;
         });
@@ -230,7 +230,41 @@ class DetectionController extends Controller
         
         $monthName = $indonesianMonths[(int)$month];
 
-        return view('admin.detections.show', compact('semua', 'month', 'year', 'monthName'));
+        $lastDetection = $monthDetections->sortByDesc('created_at')->first();
+        $kaderName = $lastDetection ? ($lastDetection->kader_name ?? 'Kader') : '-';
+        $tanggalPelaksanaan = $lastDetection 
+            ? \Carbon\Carbon::parse($lastDetection->created_at)->format('d') . ' ' . $monthName . ' ' . \Carbon\Carbon::parse($lastDetection->created_at)->format('Y')
+            : '-';
+
+        // Calculate SKDN
+        $sasaranResponse = $this->api->get('/skdn-target', ['month' => str_pad($month, 2, '0', STR_PAD_LEFT), 'year' => $year]);
+        $sValue = 0;
+        if ($sasaranResponse->successful() && $sasaranResponse->json()) {
+            $sValue = (int)$sasaranResponse->json('s_value');
+        }
+
+        $dashResponse = $this->api->get('/admin/dashboard');
+        $kValue = $dashResponse->successful() ? (int)$dashResponse->json('total_anak') : 0;
+
+        $dValue = $monthDetections->unique('child_id')->count();
+        $nValue = 0;
+        
+        foreach ($monthDetections->unique('child_id') as $current) {
+            $previous = $semua->where('child_id', $current->child_id)
+                              ->where('created_at', '<', $current->created_at)
+                              ->sortByDesc('created_at')
+                              ->first();
+            if ($previous && isset($current->berat_badan) && isset($previous->berat_badan)) {
+                if ($current->berat_badan > $previous->berat_badan) {
+                    $nValue++;
+                }
+            }
+        }
+
+        // Rename monthDetections to semua so we don't break the view
+        $semua = $monthDetections;
+
+        return view('admin.detections.show', compact('semua', 'month', 'year', 'monthName', 'kaderName', 'tanggalPelaksanaan', 'sValue', 'kValue', 'dValue', 'nValue'));
     }
 
     public function adminCreate()

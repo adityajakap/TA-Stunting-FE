@@ -137,6 +137,67 @@
             <x-back-button :url="route('admin.detections.index')" />
             <h1 class="main-title">Data Deteksi Bulan {{ $monthName }}</h1>
         </div>
+        <div class="controls-wrapper">
+            @if(isset($month) && isset($year))
+                <a href="{{ route('admin.detections.create') }}" class="btn btn-primary" style="background-color:#005f77; border:none; border-radius:6px; font-weight:600; padding:8px 16px; color:white; text-decoration:none;">
+                    Tambah Deteksi
+                </a>
+            @endif
+        </div>
+    </div>
+
+    <!-- Ringkasan Laporan Deteksi -->
+    <div style="border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 2rem; background: #fff; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div style="background-color: #005f77; color: #fff; padding: 10px 15px; font-weight: 700; font-size: 13px; text-transform: uppercase;">
+            RINGKASAN LAPORAN
+        </div>
+        <div style="padding: 15px;">
+            <div style="color: #8b5cf6; font-weight: 700; font-size: 12px; margin-bottom: 10px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px;">DATA DETEKSI</div>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                <div style="flex: 1; min-width: 300px;">
+                    <table style="width: 100%; font-size: 13px; border: none;">
+                        <tr>
+                            <td style="padding: 6px 0; border: none; width: 45%;">Nama Kader Posyandu Yang Bertanggung Jawab</td>
+                            <td style="text-align: left; font-weight: bold; color: #374151; border: none;">: {{ $kaderName }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; border: none;">Tempat Pelaksanaan</td>
+                            <td style="text-align: left; font-weight: bold; color: #374151; border: none;">: Posyandu Nusa Indah 1</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; border: none;">Tanggal Pelaksanaan</td>
+                            <td style="text-align: left; font-weight: bold; color: #374151; border: none;">: {{ $tanggalPelaksanaan }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; border: none;">Bulan</td>
+                            <td style="text-align: left; font-weight: bold; color: #374151; border: none;">: {{ $monthName }} {{ $year }}</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div style="flex: 1; min-width: 300px; border-left: 1px dashed #e5e7eb; padding-left: 20px;">
+                    <table style="width: 100%; font-size: 13px; border: none;">
+                        <tr>
+                            <td style="padding: 6px 0; border: none; width: 85%;">Seluruh balita di wilayah kerja (S)</td>
+                            <td style="text-align: right; font-weight: bold; color: #10b981; border: none;">{{ $sValue ?? 0 }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; border: none;">Balita yang memiliki KMS (K)</td>
+                            <td style="text-align: right; font-weight: bold; color: #3b82f6; border: none;">{{ $kValue ?? 0 }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; border: none;">Balita yang datang dan ditimbang (D)</td>
+                            <td style="text-align: right; font-weight: bold; color: #f59e0b; border: none;">{{ $dValue ?? 0 }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0; border: none;">Balita yang berat badannya naik (N)</td>
+                            <td style="text-align: right; font-weight: bold; color: #ef4444; border: none;">{{ $nValue ?? 0 }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 
     @php
