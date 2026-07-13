@@ -33,17 +33,45 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         border: 1px solid #e5e7eb;
     }
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-bottom: 0;
+        background-color: white;
+    }
     .table thead th {
-        background-color: #e5e5e5;
-        padding: 1rem;
+        background-color: #f9fafb;
+        padding: 0.75rem 1rem;
         font-weight: 600;
-        color: #000;
-        border-bottom: none;
+        color: #1f2937;
+        text-align: left;
+        border: 1px solid #e5e7eb;
+        font-size: 0.95rem;
+    }
+    .table tbody tr {
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .table tbody tr:hover {
+        background-color: #f9fafb;
     }
     .table tbody td {
-        padding: 1rem;
-        vertical-align: middle;
-        border-bottom: 1px solid #eee;
+        padding: 0.75rem 1rem;
+        color: #374151;
+        border: 1px solid #e5e7eb;
+        font-size: 0.95rem;
+    }
+    .table thead th:first-child {
+        border-top-left-radius: 0.75rem;
+    }
+    .table thead th:last-child {
+        border-top-right-radius: 0.75rem;
+    }
+    .table tbody tr:last-child td:first-child {
+        border-bottom-left-radius: 0.75rem;
+    }
+    .table tbody tr:last-child td:last-child {
+        border-bottom-right-radius: 0.75rem;
     }
     .btn-lihat {
         background-color: #005f77;
@@ -62,8 +90,9 @@
 </div>
 
 <div class="card-wrapper">
-    <div class="card">
-        <div class="table-responsive">
+    <div class="card mb-5">
+        <div class="card-body">
+            <div class="table-responsive">
             <table class="table mb-0">
                 <thead>
                     <tr>
@@ -92,6 +121,7 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
         </div>
     </div>
 </div>

@@ -253,10 +253,11 @@ class DetectionController extends Controller
             'child_id'      => 'required|integer',
             'berat_badan'   => 'required|numeric',
             'tinggi_badan'  => 'required|numeric',
+            'kader_name'    => 'required|string',
         ]);
 
         $response = $this->api->post("/admin/detections", $request->only([
-            'child_id', 'berat_badan', 'tinggi_badan',
+            'child_id', 'berat_badan', 'tinggi_badan', 'kader_name'
         ]));
 
         if ($response->successful()) {

@@ -302,6 +302,11 @@
                 @csrf
 
                 <div class="mb-3">
+                    <label for="kader_name" class="form-label">Kader yang bertugas</label>
+                    <input type="text" name="kader_name" id="kader_name" class="form-control" value="{{ old('kader_name') }}" required>
+                </div>
+
+                <div class="mb-3">
                     <label for="child_id" class="form-label">Pilih Anak </label>
                     <select name="child_id" id="child_id" class="form-control" required>
                         <option value="">-- Pilih --</option>
