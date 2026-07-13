@@ -210,9 +210,11 @@
                     <thead>
                         <tr>
                             <th class="text-center">No</th>
+                            <th class="text-center">Nama Kader</th>
                             <th class="text-center">Bulan</th>
                             <th class="text-center">Tahun</th>
                             <th class="text-center">Jumlah Data</th>
+                            <th class="text-center">Tanggal Pelaksanaan</th>
                             <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
@@ -220,9 +222,11 @@
                         @forelse ($groupedData as $index => $data)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
+                                <td>{{ $data['nama_kader'] ?? 'Kader' }}</td>
                                 <td>{{ $data['monthName'] }}</td>
                                 <td>{{ $data['year'] }}</td>
                                 <td>{{ $data['count'] }}</td>
+                                <td>{{ $data['tanggal_pelaksanaan'] ?? '-' }}</td>
                                 <td>
                                     <a href="{{ route('admin.detections.show', ['month' => $data['month'], 'year' => $data['year']]) }}" class="btn btn-primary btn-sm text-white" style="background-color: #005f77; border: none; font-weight: 600; border-radius: 6px; padding: 6px 16px;">
                                         Lihat Detail
@@ -231,7 +235,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center">Belum ada data deteksi.</td>
+                                <td colspan="7" class="text-center">Belum ada data deteksi.</td>
                             </tr>
                         @endforelse
                     </tbody>

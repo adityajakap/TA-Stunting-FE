@@ -173,15 +173,21 @@ class DetectionController extends Controller
         $groupedData = $semua->groupBy(function($item) {
             return \Carbon\Carbon::parse($item->created_at)->format('Y-m');
         })->map(function($group, $key) use ($indonesianMonths) {
-            $first = $group->first();
-            $month = (int)\Carbon\Carbon::parse($first->created_at)->format('m');
-            $year = \Carbon\Carbon::parse($first->created_at)->format('Y');
+            $lastDetection = $group->sortByDesc('created_at')->first();
+            $month = (int)\Carbon\Carbon::parse($lastDetection->created_at)->format('m');
+            $year = \Carbon\Carbon::parse($lastDetection->created_at)->format('Y');
             
+            $tanggalPelaksanaan = \Carbon\Carbon::parse($lastDetection->created_at)->format('d') . ' ' . 
+                                  $indonesianMonths[$month] . ' ' . 
+                                  $year;
+
             return [
                 'month' => str_pad($month, 2, '0', STR_PAD_LEFT),
                 'year' => $year,
                 'monthName' => $indonesianMonths[$month],
-                'count' => $group->count()
+                'count' => $group->count(),
+                'nama_kader' => $lastDetection->kader_name ?? 'Kader',
+                'tanggal_pelaksanaan' => $tanggalPelaksanaan
             ];
         })->sortByDesc(function($item) {
             return $item['year'] . '-' . $item['month'];
