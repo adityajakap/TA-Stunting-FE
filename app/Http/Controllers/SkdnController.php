@@ -193,48 +193,15 @@ class SkdnController extends Controller
 
     public function exportPdf($month, $year)
     {
-        // Logic mirip show, tapi di return PDF
-        $sasaranResponse = $this->api->get('/skdn-target', ['month' => $month, 'year' => $year]);
-        $sValue = 0;
-        if ($sasaranResponse->successful() && $sasaranResponse->json()) {
-            $sValue = (int)$sasaranResponse->json('s_value');
-        }
-
-        $dashResponse = $this->api->get('/admin/dashboard');
-        $kValue = $dashResponse->successful() ? (int)$dashResponse->json('total_anak') : 0;
-
-        $detResponse = $this->api->get('/admin/detections');
-        $allDetections = $detResponse->successful() ? collect($detResponse->json()) : collect();
-
-        // Filter hanya data dari Kader
-        $allDetections = $allDetections->filter(function($d) {
-            return strtolower($d['added_by'] ?? 'orangtua') === 'kader';
-        })->values();
-
-        $monthDetections = $allDetections->filter(function($d) use ($month, $year) {
-            $dDate = Carbon::parse($d['created_at']);
-            return $dDate->format('m') === str_pad($month, 2, '0', STR_PAD_LEFT) && $dDate->format('Y') === $year;
-        });
-
-        $dValue = $monthDetections->unique('child_id')->count();
-        $nValue = 0;
+        $response = $this->api->get("/admin/skdn/{$month}/{$year}/pdf");
         
-        foreach ($monthDetections->unique('child_id') as $current) {
-            $previous = $allDetections->where('child_id', $current['child_id'])
-                                      ->where('created_at', '<', $current['created_at'])
-                                      ->sortByDesc('created_at')
-                                      ->first();
-            if ($previous && isset($current['berat_badan']) && isset($previous['berat_badan']) && $current['berat_badan'] > $previous['berat_badan']) {
-                $nValue++;
-            }
+        if ($response->successful()) {
+            return response($response->body(), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="Laporan_SKDN_'.$year.'_'.$month.'.pdf"'
+            ]);
         }
         
-        $dateObj = Carbon::parse($year . '-' . $month . '-01');
-        $bulanNama = $dateObj->translatedFormat('F');
-
-        $pdf = Pdf::loadView('admin.skdn.pdf', compact('month', 'year', 'bulanNama', 'sValue', 'kValue', 'dValue', 'nValue', 'monthDetections'))
-            ->setPaper('a4', 'landscape');
-            
-        return $pdf->stream("Laporan_SKDN_{$bulanNama}_{$year}.pdf");
+        return back()->with('error', 'Gagal memuat PDF SKDN dari server.');
     }
 }

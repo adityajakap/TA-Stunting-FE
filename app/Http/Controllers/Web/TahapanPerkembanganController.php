@@ -38,8 +38,6 @@ class TahapanPerkembanganController extends Controller
 
         $kategoriOptions = collect([
             (object)['id' => 'Motorik', 'name' => 'Motorik'],
-            (object)['id' => 'Bahasa',  'name' => 'Bahasa'],
-            (object)['id' => 'Gigi',    'name' => 'Gigi'],
         ]);
 
         // Normalize data structure to match what Blade expects
