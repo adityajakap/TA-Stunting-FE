@@ -29,6 +29,11 @@ class TahapanPerkembanganController extends Controller
         $groupedData = collect($responseData['milestones'] ?? []);
 
         $child = (new Child)->forceFill((array)$childData);
+        $kategoriOptions = collect([
+            (object)['id' => 'Motorik', 'name' => 'Motorik'],
+        ]);
+
+        // Normalize data structure to match what Blade expects
 
         $groupedData = $groupedData->map(function ($items) {
             return collect($items)->map(function ($item) {

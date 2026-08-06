@@ -194,7 +194,7 @@ class SkdnController extends Controller
     public function exportPdf($month, $year)
     {
         // Logic mirip show, tapi di return PDF
-        $sasaranResponse = $this->api->get('/skdn-target', ['month' => str_pad($month, 2, '0', STR_PAD_LEFT), 'year' => $year]);
+        $sasaranResponse = $this->api->get('/skdn-target', ['month' => $month, 'year' => $year]);
         $sValue = 0;
         if ($sasaranResponse->successful() && $sasaranResponse->json()) {
             $sValue = (int)$sasaranResponse->json('s_value');

@@ -26,8 +26,6 @@ class TahapanPerkembanganDataController extends Controller
         
         $kategoriOptions = collect([
             (object)['id' => 'Motorik', 'name' => 'Motorik'],
-            (object)['id' => 'Bahasa', 'name' => 'Bahasa'],
-            (object)['id' => 'Gigi', 'name' => 'Gigi'],
         ]);
 
         $selectedKategori = $request->input('kategori', []);

@@ -101,54 +101,15 @@ class NtobController extends Controller
 
     public function exportPdf($month, $year)
     {
-        $dashResponse = $this->api->get('/admin/dashboard');
-        $kValue = $dashResponse->successful() ? (int)$dashResponse->json('total_anak') : 0;
-
-        $detResponse = $this->api->get('/admin/detections');
-        $allDetections = $detResponse->successful() ? collect($detResponse->json()) : collect();
-
-        $allDetections = $allDetections->filter(function($d) {
-            return strtolower($d['added_by'] ?? 'orangtua') === 'kader';
-        })->values();
-
-        $monthDetections = $allDetections->filter(function($d) use ($month, $year) {
-            $dDate = Carbon::parse($d['created_at']);
-            return $dDate->format('m') === str_pad($month, 2, '0', STR_PAD_LEFT) && $dDate->format('Y') === $year;
-        });
-
-        $dValue = $monthDetections->unique('child_id')->count();
-        $nValue = 0;
-        $tValue = 0;
-        $bValue = 0;
+        $response = $this->api->get("/admin/ntob/{$month}/{$year}/pdf");
         
-        $uniqueWeighedChildren = $monthDetections->unique('child_id');
-        foreach ($uniqueWeighedChildren as $current) {
-            $previous = $allDetections->where('child_id', $current['child_id'])
-                                      ->where('created_at', '<', $current['created_at'])
-                                      ->sortByDesc('created_at')
-                                      ->first();
-                                      
-            if (!$previous) {
-                $bValue++;
-            } else {
-                if (isset($current['berat_badan']) && isset($previous['berat_badan'])) {
-                    if ($current['berat_badan'] > $previous['berat_badan']) {
-                        $nValue++;
-                    } else {
-                        $tValue++;
-                    }
-                }
-            }
+        if ($response->successful()) {
+            return response($response->body(), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="Laporan_NTOB_'.$year.'_'.$month.'.pdf"'
+            ]);
         }
         
-        $oValue = max(0, $kValue - $dValue);
-        
-        $dateObj = Carbon::parse($year . '-' . $month . '-01');
-        $bulanNama = $dateObj->translatedFormat('F');
-
-        $pdf = Pdf::loadView('admin.ntob.pdf', compact('month', 'year', 'bulanNama', 'kValue', 'dValue', 'nValue', 'tValue', 'bValue', 'oValue', 'monthDetections'))
-            ->setPaper('a4', 'landscape');
-            
-        return $pdf->stream("Laporan_NTOB_{$bulanNama}_{$year}.pdf");
+        return back()->with('error', 'Gagal memuat PDF NTOB dari server.');
     }
 }
