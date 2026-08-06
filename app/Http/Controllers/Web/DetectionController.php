@@ -15,6 +15,50 @@ class DetectionController extends Controller
         $this->api = $api;
     }
 
+    public function index()
+    {
+        $childId = session('selected_child_id');
+        if (!$childId) {
+            return redirect()->route('orangtua.dashboard')->with('error', 'Silakan pilih atau tambahkan data anak terlebih dahulu.');
+        }
+
+        $response = $this->api->get("/children/{$childId}/detections");
+        $semua = collect($response->successful() ? $response->json() : [])->map(function ($item) {
+            return (object) $item;
+        });
+
+        $indonesianMonths = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        // Group data by Month-Year
+        $groupedData = $semua->groupBy(function($item) {
+            return \Carbon\Carbon::parse($item->created_at)->format('Y-m');
+        })->map(function($group, $key) use ($indonesianMonths) {
+            $lastDetection = $group->sortByDesc('created_at')->first();
+            $month = (int)\Carbon\Carbon::parse($lastDetection->created_at)->format('m');
+            $year = \Carbon\Carbon::parse($lastDetection->created_at)->format('Y');
+            
+            $tanggalPelaksanaan = \Carbon\Carbon::parse($lastDetection->created_at)->format('d') . ' ' . 
+                                  $indonesianMonths[$month] . ' ' . 
+                                  $year;
+
+            return [
+                'month' => str_pad($month, 2, '0', STR_PAD_LEFT),
+                'year' => $year,
+                'monthName' => $indonesianMonths[$month],
+                'count' => $group->count(),
+                'tanggal_pelaksanaan' => $tanggalPelaksanaan
+            ];
+        })->sortByDesc(function($item) {
+            return $item['year'] . '-' . $item['month'];
+        })->values();
+
+        return view('orangtua.detections.index', compact('groupedData'));
+    }
+
     public function create()
     {
         $childId = session('selected_child_id');
@@ -22,7 +66,7 @@ class DetectionController extends Controller
             return redirect()->route('orangtua.dashboard')->with('error', 'Silakan pilih atau tambahkan data anak terlebih dahulu.');
         }
         $response = $this->api->get("/children/{$childId}/detections");
-        $semua = $response->successful() ? $response->json() : [];
+        $semua = $response->successful() ? collect($response->json())->map(function($item) { return (object)$item; }) : collect();
 
         $kmsData = null;
         $kmsResponse = $this->api->get("/children/{$childId}/kms-data");
@@ -33,6 +77,57 @@ class DetectionController extends Controller
         return view('orangtua.detections.deteksi', compact('semua', 'kmsData'));
     }
 
+    public function show($month, $year)
+    {
+        $childId = session('selected_child_id');
+        if (!$childId) {
+            return redirect()->route('orangtua.dashboard')->with('error', 'Silakan pilih atau tambahkan data anak terlebih dahulu.');
+        }
+
+        $response = $this->api->get("/children/{$childId}/detections");
+        $semua = collect($response->successful() ? $response->json() : [])->map(function ($item) {
+            return (object) $item;
+        });
+
+        $monthDetections = $semua->filter(function($item) use ($month, $year) {
+            $date = \Carbon\Carbon::parse($item->created_at);
+            return $date->format('m') == $month && $date->format('Y') == $year;
+        });
+
+        $indonesianMonths = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        
+        $monthName = $indonesianMonths[(int)$month];
+
+        $lastDetection = $monthDetections->sortByDesc('created_at')->first();
+        $tanggalPelaksanaan = $lastDetection 
+            ? \Carbon\Carbon::parse($lastDetection->created_at)->format('d') . ' ' . $monthName . ' ' . \Carbon\Carbon::parse($lastDetection->created_at)->format('Y')
+            : '-';
+
+        // Calculate SKDN for this child only
+        $dValue = $monthDetections->count(); // how many detections this month
+        $nValue = 0;
+        
+        $current = $lastDetection;
+        if ($current) {
+            $previous = $semua->where('created_at', '<', $current->created_at)
+                              ->sortByDesc('created_at')
+                              ->first();
+            if ($previous && isset($current->berat_badan) && isset($previous->berat_badan)) {
+                if ($current->berat_badan > $previous->berat_badan) {
+                    $nValue++;
+                }
+            }
+        }
+
+        // Keep it named 'semua' to minimize changes to the view if we reuse it
+        $semua = $monthDetections->toArray();
+
+        return view('orangtua.detections.show', compact('semua', 'month', 'year', 'monthName', 'tanggalPelaksanaan', 'dValue', 'nValue'));
+    }
     public function store(Request $request)
     {
         $childId = session('selected_child_id');

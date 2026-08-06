@@ -46,13 +46,16 @@ Route::middleware('api.auth')->group(function () {
 
     // ─── Deteksi Stunting (Orangtua) ──────────────────────────────────────────
     Route::middleware('child.selected')->group(function () {
-        Route::get('/orangtua/deteksi-stunting',         [DetectionController::class, 'create'])->name('orangtua.detections.create');
+        Route::get('/orangtua/deteksi-stunting',         [DetectionController::class, 'index'])->name('orangtua.detections.index');
+        Route::get('/orangtua/deteksi-stunting/create',  [DetectionController::class, 'create'])->name('orangtua.detections.create');
+        Route::get('/orangtua/deteksi-stunting/{month}/{year}', [DetectionController::class, 'show'])->name('orangtua.detections.show');
         Route::post('/orangtua/deteksi-stunting',        [DetectionController::class, 'store'])->name('orangtua.detections.store');
         Route::delete('/orangtua/deteksi-stunting/{id}', [DetectionController::class, 'destroy'])->name('orangtua.detections.destroy');
 
         // Tahapan Perkembangan (Orangtua)
         Route::prefix('orangtua')->name('orangtua.')->group(function () {
             Route::get('tahapan_perkembangan',                 [TahapanPerkembanganController::class, 'index'])->name('tahapan_perkembangan.index');
+            Route::get('tahapan_perkembangan/{month}/{year}',  [TahapanPerkembanganController::class, 'show'])->name('tahapan_perkembangan.show');
             Route::get('tahapan_perkembangan/create',          [TahapanPerkembanganController::class, 'create'])->name('tahapan_perkembangan.create');
             Route::post('tahapan_perkembangan',                [TahapanPerkembanganController::class, 'store'])->name('tahapan_perkembangan.store');
             Route::put('tahapan_perkembangan/{id}',            [TahapanPerkembanganController::class, 'update'])->name('tahapan_perkembangan.update');

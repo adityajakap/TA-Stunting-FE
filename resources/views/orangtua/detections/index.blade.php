@@ -32,10 +32,10 @@
     <div class="main-header" style="margin-top: 0; margin-bottom: 1.5rem;">
         <div style="display:flex; align-items:center; gap:0.5rem;">
             <x-back-button />
-            <h1 class="main-title">Tahapan Perkembangan</h1>
+            <h1 class="main-title">Data Deteksi Stunting</h1>
         </div>
         <div class="action-buttons">
-            <a href="{{ route('orangtua.tahapan_perkembangan.create') }}" class="btn btn-primary ms-2" style="background-color:#005f77; border:none;">Tambah Pencapaian</a>
+            <a href="{{ route('orangtua.detections.create') }}" class="btn btn-primary ms-2" style="background-color:#005f77; border:none;">Deteksi Baru</a>
         </div>
     </div>
 
@@ -54,24 +54,28 @@
                             <th class="text-center">No</th>
                             <th class="text-center">Bulan</th>
                             <th class="text-center">Tahun</th>
+                            <th class="text-center">Jumlah Data</th>
+                            <th class="text-center">Tanggal Deteksi Terakhir</th>
                             <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($availableMonths as $index => $data)
+                        @forelse ($groupedData as $index => $data)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $data['monthName'] }}</td>
                                 <td>{{ $data['year'] }}</td>
+                                <td>{{ $data['count'] }}</td>
+                                <td>{{ $data['tanggal_pelaksanaan'] ?? '-' }}</td>
                                 <td>
-                                    <a href="{{ route('orangtua.tahapan_perkembangan.show', ['month' => $data['month'], 'year' => $data['year']]) }}" class="btn btn-primary btn-sm text-white" style="background-color: #005f77; border: none; font-weight: 600; border-radius: 6px; padding: 6px 16px;">
+                                    <a href="{{ route('orangtua.detections.show', ['month' => $data['month'], 'year' => $data['year']]) }}" class="btn btn-primary btn-sm text-white" style="background-color: #005f77; border: none; font-weight: 600; border-radius: 6px; padding: 6px 16px;">
                                         Lihat Detail
                                     </a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center">Belum ada riwayat perkembangan.</td>
+                                <td colspan="6" class="text-center">Belum ada riwayat deteksi.</td>
                             </tr>
                         @endforelse
                     </tbody>

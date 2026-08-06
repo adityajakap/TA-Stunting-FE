@@ -469,9 +469,7 @@
             justify-content: center;
             gap: 20px;
             padding: 40px 0;
-            overflow-x: auto;
-            flex-wrap: nowrap;
-            white-space: nowrap;
+            flex-wrap: wrap;
         }
 
         .menu-block {
@@ -488,9 +486,7 @@
             justify-content: center;
             gap: 20px;
             padding: 40px 0;
-            overflow-x: auto;
-            flex-wrap: nowrap;
-            white-space: nowrap;
+            flex-wrap: wrap;
         }
 
         .article-card {
@@ -701,7 +697,7 @@
             <h2 class="section-title">Pantau Tumbuh Kembang, Cegah Stunting Sejak Dini!</h2>
             <p>Pantau dan deteksi tumbuh kembang anak Anda secara berkala, serta dapatkan rekomendasi menu bergizi yang disesuaikan dengan kebutuhan hariannya untuk mendukung pertumbuhan yang optimal.</p>
             <div class="mt-3">
-                <a href="{{ route('orangtua.detections.create') }}" class="btn btn-primary" style="background-color: #005f77; border: none;">Deteksi Stunting</a>
+                <a href="{{ route('orangtua.detections.index') }}" class="btn btn-primary" style="background-color: #005f77; border: none;">Deteksi Stunting</a>
                 <a href="{{ route('orangtua.tahapan_perkembangan.index') }}" class="btn btn-primary" style="background-color: #005f77; border: none;">Monitoring Anak</a>
             </div>
         </div>
@@ -747,7 +743,7 @@
 
     {{-- FITUR UTAMA --}}
     <div class="feature-grid">
-        <a href="{{ route('orangtua.detections.create') }}" class="feature-box-link">
+        <a href="{{ route('orangtua.detections.index') }}" class="feature-box-link">
             <div class="feature-box">
                 <i class="fas fa-chart-line icon-feature"></i>
                 <h3>Deteksi</h3>
@@ -761,13 +757,13 @@
                 <p>Dapatkan rekomendasi menu bergizi untuk tumbuh kembang anak.</p>
             </div>
         </a>
-        <a href="{{ route('bmi') }}" class="feature-box-link">
+        <!-- <a href="{{ route('bmi') }}" class="feature-box-link">
             <div class="feature-box">
                 <i class="fas fa-calculator icon-feature"></i>
                 <h3>BMI</h3>
                 <p>Hitung status gizi anak secara cepat dan mudah berdasarkan tinggi dan berat badan.</p>
             </div>
-        </a>
+        </a> -->
     </div>
 
 
@@ -782,15 +778,10 @@
     </div>
 
     <div class="menu-grid">
-        @php
-            $menuItems = collect(['pagi', 'siang', 'malam', 'snack'])->map(function($waktu) use ($menus) {
-                return $menus[$waktu] ?? null;
-            })->filter()->take(3);
-        @endphp
-        @foreach ($menuItems as $menu)
+        @foreach (collect($menus)->take(4) as $menu)
             <div class="menu-block">
                 <img src="{{ $menu->image ? config('services.api.storage_url') . '/' . $menu->image : asset('default-image.png') }}" alt="Menu">
-                <h6 style="font-weight: 600; margin: 10px 0 5px 0; min-height: 44px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: normal;">{{ $menu->name }}</h6>
+                <h6 style="font-weight: 600; margin: 10px 0 5px 0; min-height: 44px; text-align: center; display: flex; justify-content: center; align-items: center;">{{ $menu->name }}</h6>
                 <small style="color: #6c757d; text-transform: capitalize;">{{ $menu->category }}</small>
                 <div style="margin-top: 15px;">
                     <a href="{{ route('orangtua.nutritionUs.show', $menu->id) }}" 
@@ -809,10 +800,10 @@
     </div>
 
     <div class="article-grid">
-        @foreach ($artikels->take(3) as $artikel)
+        @foreach ($artikels->take(4) as $artikel)
             <div class="article-card">
                 <img src="{{ $artikel->image ? config('services.api.storage_url') . '/' . $artikel->image : asset('default-image.png') }}" alt="Artikel">
-                <h6 style="font-weight: 600; margin: 10px 0 5px 0; min-height: 44px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: normal;">{{ $artikel->title }}</h6>
+                <h6 style="font-weight: 600; margin: 10px 0 5px 0; min-height: 44px; text-align: center; display: flex; justify-content: center; align-items: center;">{{ $artikel->title }}</h6>
                 <div style="color: #6c757d; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
                     <i class="fas fa-eye" style="color: #005f77;"></i>
                     <span>{{ $artikel->views ?? 0 }}</span>

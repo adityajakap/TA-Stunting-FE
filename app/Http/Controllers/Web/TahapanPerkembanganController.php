@@ -23,26 +23,13 @@ class TahapanPerkembanganController extends Controller
             return redirect()->route('orangtua.dashboard')->with('error', 'Pilih anak terlebih dahulu.');
         }
 
-        $selectedKategori = $request->input('kategori', []);
-
-        $response = $this->api->get("/children/{$childId}/perkembangan", [
-            'kategori' => $selectedKategori,
-        ]);
-
+        $response = $this->api->get("/children/{$childId}/perkembangan");
         $responseData = $response->successful() ? $response->json() : ['child' => null, 'milestones' => []];
         $childData = $responseData['child'] ?? [];
         $groupedData = collect($responseData['milestones'] ?? []);
 
-        // Use Child model so computed attributes (umur_bulan) work in Blade
         $child = (new Child)->forceFill((array)$childData);
 
-        $kategoriOptions = collect([
-            (object)['id' => 'Motorik', 'name' => 'Motorik'],
-            (object)['id' => 'Bahasa',  'name' => 'Bahasa'],
-            (object)['id' => 'Gigi',    'name' => 'Gigi'],
-        ]);
-
-        // Normalize data structure to match what Blade expects
         $groupedData = $groupedData->map(function ($items) {
             return collect($items)->map(function ($item) {
                 return (object)[
@@ -53,12 +40,107 @@ class TahapanPerkembanganController extends Controller
             });
         });
 
-        return view('orangtua.tahapan_perkembangan.index', [
+        $indonesianMonths = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        // Extract unique months
+        $months = collect();
+        foreach ($groupedData as $kategori => $items) {
+            foreach ($items as $item) {
+                if ($item->achieved_data) {
+                    $date = \Carbon\Carbon::parse($item->achieved_data->tanggal_pencapaian);
+                    $monthNum = (int)$date->format('n');
+                    $months->push([
+                        'month' => str_pad($monthNum, 2, '0', STR_PAD_LEFT),
+                        'year' => $date->format('Y'),
+                        'monthName' => $indonesianMonths[$monthNum],
+                        'sort_key' => $date->format('Y-m')
+                    ]);
+                }
+            }
+        }
+        
+        $availableMonths = $months->unique('sort_key')->sortByDesc('sort_key')->values();
+
+        return view('orangtua.tahapan_perkembangan.index', compact('availableMonths', 'child'));
+    }
+
+    public function show(Request $request, $month, $year)
+    {
+        $childId = session('selected_child_id');
+        if (!$childId) {
+            return redirect()->route('orangtua.dashboard')->with('error', 'Pilih anak terlebih dahulu.');
+        }
+
+        $selectedKategori = $request->input('kategori', []);
+
+        $response = $this->api->get("/children/{$childId}/perkembangan", [
+            'kategori' => $selectedKategori,
+        ]);
+
+        $responseData = $response->successful() ? $response->json() : ['child' => null, 'milestones' => []];
+        $childData = $responseData['child'] ?? [];
+        $groupedData = collect($responseData['milestones'] ?? []);
+
+        $child = (new Child)->forceFill((array)$childData);
+
+        $kategoriOptions = collect([
+            (object)['id' => 'Motorik', 'name' => 'Motorik'],
+            (object)['id' => 'Bahasa',  'name' => 'Bahasa'],
+            (object)['id' => 'Gigi',    'name' => 'Gigi'],
+        ]);
+
+        $groupedData = $groupedData->map(function ($items) use ($month, $year) {
+            return collect($items)->map(function ($item) {
+                return (object)[
+                    'tahapan'      => (object)($item['tahapan'] ?? []),
+                    'achieved_data'=> isset($item['pencapaian']) ? (object)$item['pencapaian'] : null,
+                    'status_detail'=> $item['status_detail'] ?? [],
+                ];
+            })->filter(function($item) use ($month, $year) {
+                if (!$item->achieved_data) return false;
+                $date = \Carbon\Carbon::parse($item->achieved_data->tanggal_pencapaian);
+                return $date->format('m') == $month && $date->format('Y') == $year;
+            });
+        });
+
+        $indonesianMonths = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        
+        $monthName = $indonesianMonths[(int)$month];
+        $tanggalPelaksanaan = "-";
+        
+        // Find latest date in this month for header
+        $latestDate = null;
+        foreach ($groupedData as $kategori => $items) {
+            foreach ($items as $item) {
+                $date = \Carbon\Carbon::parse($item->achieved_data->tanggal_pencapaian);
+                if (!$latestDate || $date > $latestDate) {
+                    $latestDate = $date;
+                }
+            }
+        }
+        
+        if ($latestDate) {
+            $tanggalPelaksanaan = $latestDate->format('d') . ' ' . $monthName . ' ' . $latestDate->format('Y');
+        }
+
+        return view('orangtua.tahapan_perkembangan.show', [
             'groupedData'   => $groupedData,
             'kategoris'     => $kategoriOptions,
             'kategoriIds'   => $selectedKategori,
-            'action'        => route('orangtua.tahapan_perkembangan.index'),
+            'action'        => route('orangtua.tahapan_perkembangan.show', ['month' => $month, 'year' => $year]),
             'child'         => $child,
+            'month'         => $month,
+            'year'          => $year,
+            'monthName'     => $monthName,
+            'tanggalPelaksanaan' => $tanggalPelaksanaan
         ]);
     }
 

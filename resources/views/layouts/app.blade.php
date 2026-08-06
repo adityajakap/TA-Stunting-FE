@@ -331,7 +331,7 @@
                         <a class="nav-link" href="{{ $role === 'admin' ? route('admin.dashboard') : route('orangtua.dashboard') }}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ $role === 'admin' ? route('admin.detections.index') : route('orangtua.detections.create') }}">Deteksi</a>
+                        <a class="nav-link" href="{{ $role === 'admin' ? route('admin.detections.index') : route('orangtua.detections.index') }}">Deteksi</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ $role === 'admin' ? route('admin.nutrition.index') : route('orangtua.nutritionUs.index') }}">Menu</a>
